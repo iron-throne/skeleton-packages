@@ -1,5 +1,3 @@
-import type { Component } from "svelte";
-
 export interface IForm {
     name?: string;
     icon?: string;

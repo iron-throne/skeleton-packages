@@ -1,5 +1,3 @@
-/** HTTP methods allowed in queue payloads */
-export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 
 /** Raw response body shape returned by the backend API */
 export interface IApiResult<T = unknown> {
@@ -23,3 +21,12 @@ export interface IAPIQueuePayload {
     headers?: Record<string, string>;
     isFormData?: boolean; // true when data is FormData — needs special serialization
 }
+
+/** HTTP methods allowed in queue payloads */
+export enum HttpMethod {
+    GET = 'GET',
+    POST = 'POST',
+    PUT = 'PUT',
+    PATCH = 'PATCH',
+    DELETE = 'DELETE'
+};

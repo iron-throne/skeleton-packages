@@ -6,29 +6,12 @@ export interface IToast {
     type: ESnackType;
 }
 
-export enum ESnackType {
-    SUCCESS = 'success',
-    DANGER = 'danger',
-    WARNING = 'warning',
-    INFO = 'info',
-}
 
 export interface ISnackData {
     message: string;
     type: ESnackType;
     timeOut?: number;
     class?: string;
-}
-
-export enum ETheme {
-    LIGHT = 'light',
-    DARK = 'dark'
-}
-
-export enum ELocale {
-    EN = 'en',
-    ES = 'es',
-    AR = 'ar',
 }
 
 export interface IGenericObject {
@@ -48,4 +31,22 @@ export interface TableColumn {
     sortable?: boolean;
     class?: string;
     type?: EDataType;
+}
+export enum ESnackType {
+    SUCCESS = 'success',
+    DANGER = 'danger',
+    WARNING = 'warning',
+    INFO = 'info',
+}
+
+
+export enum ETheme {
+    LIGHT = 'light',
+    DARK = 'dark'
+}
+
+export enum ELocale {
+    EN = 'en',
+    ES = 'es',
+    AR = 'ar',
 }
