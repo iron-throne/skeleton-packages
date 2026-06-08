@@ -1,18 +1,32 @@
 {
   "name": "@aryagg/utils",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Shared utility functions for aryagg packages",
+  "main": "dist/index.mjs",
+  "types": "dist/index.d.mts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "types": "./dist/index.d.mts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsup"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@aryagg/types": "^1.0.0",
     "tsup": "^8.5.1",
     "typescript": "^6.0.3"
+  },
+  "dependencies": {
+    "@aryagg/types": "^1.0.0"
   }
 }
