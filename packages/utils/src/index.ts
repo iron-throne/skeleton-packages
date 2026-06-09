@@ -1,5 +1,5 @@
 export * from './array';
-export * from './common';
+export * from './validation';
 export * from './date';
 export * from './number';
 export * from './string';

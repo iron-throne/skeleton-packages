@@ -18,11 +18,11 @@ export const formatDate = (
 
 export const formatRelativeTime = (date: Date | string): string => {
 	const d = typeof date === 'string' ? new Date(date) : date;
-	const diff = Date.now() - d.getTime();
-	const seconds = Math.floor(diff / 1000);
-	const minutes = Math.floor(seconds / 60);
-	const hours = Math.floor(minutes / 60);
-	const days = Math.floor(hours / 24);
+	const diff = Date.now() - d.getTime(); // Difference in milliseconds
+	const seconds = Math.floor(diff / 1000);  // Convert ms → seconds
+	const minutes = Math.floor(seconds / 60); // Convert seconds → minutes
+	const hours = Math.floor(minutes / 60);  // Convert minutes → hours 
+	const days = Math.floor(hours / 24); // Convert hours → days
 
 	if (seconds < 60) return 'just now';
 	if (minutes < 60) return `${minutes}m ago`;
@@ -62,5 +62,5 @@ export const endOfDay = (date: Date): Date => {
 }
 
 export const daysBetween = (a: Date, b: Date): number => {
- return Math.abs(Math.floor((b.getTime() - a.getTime()) / (1000 * 60 * 60 * 24)));
+	return Math.abs(Math.floor((b.getTime() - a.getTime()) / (1000 * 60 * 60 * 24)));
 }

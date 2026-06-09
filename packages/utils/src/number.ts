@@ -12,8 +12,6 @@ export const roundTo = (value: number, decimals: number = 2): number => {
     return Math.round(value * factor) / factor;
 };
 
-
-
 // Returns percentage of value/total, rounded to decimals
 export const percentage = (value: number, total: number, decimals = 1): number => {
     if (total === 0) return 0;
@@ -29,4 +27,8 @@ export const sumBy = <T>(arr: T[], key: keyof T): number => {
 export const average = (arr: number[]): number => {
     if (arr.length === 0) return 0;
     return arr.reduce((a, b) => a + b, 0) / arr.length;
+}
+
+export const randomInt = (min: number, max: number): number => {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
 }

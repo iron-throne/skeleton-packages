@@ -16,7 +16,7 @@ export const uniqueBy = <T>(arr: T[], key: keyof T): T[] => {
 
 // Groups items into an object based on a key
 // Example: groupBy(users, "role") → { admin: [...], user: [...] }
-export const groupBy = <T>(arr: T[], key: keyof T): Record<string, T[]> => {
+export const groupByArr = <T>(arr: T[], key: keyof T): Record<string, T[]> => {
     return arr.reduce(
         (acc, item) => {
             const group = String(item[key]);
@@ -80,18 +80,10 @@ export const isEmpty = (value: unknown): boolean => {
     return false;
 };
 
-// Deeply merges two objects (nested merge)
-export const mergeDeep = <T extends object>(target: T, source: Partial<T>): T => {
-    const result = { ...target };
-    for (const key in source) {
-        const sv = source[key];
-        const tv = result[key];
-        if (sv && typeof sv === 'object' && !Array.isArray(sv) && tv && typeof tv === 'object') {
-            result[key] = mergeDeep(tv as object, sv as object) as T[typeof key];
-        } else {
-            result[key] = sv as T[typeof key];
-        }
-    }
-    return result;
+
+export const removeFalsy = <T>(arr: T[]): Exclude<T, false | 0 | "" | null | undefined>[] => {
+    return arr.filter(Boolean) as Exclude<T, false | 0 | "" | null | undefined>[];
 }
 
+export const countOccurrences = <T>(arr: T[], val: T): number =>
+    arr.reduce((count, item) => (item === val ? count + 1 : count), 0);
