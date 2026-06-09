@@ -1,0 +1,335 @@
+@layer base {
+
+    /* ══════════════ TYPOGRAPHY ══════════════ */
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        @apply m-0 leading-tight text-primary;
+    }
+
+    h1 {
+        @apply text-3xl font-bold;
+    }
+
+    h2 {
+        @apply text-2xl font-bold;
+    }
+
+    h3 {
+        @apply text-xl font-semibold;
+    }
+
+    h4 {
+        @apply text-lg font-semibold;
+    }
+
+    h5 {
+        @apply text-base font-semibold;
+    }
+
+    h6 {
+        @apply text-sm font-semibold;
+    }
+
+    small {
+        @apply text-xs text-tertiary;
+    }
+
+    label {
+        @apply mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.07em] text-tertiary;
+    }
+
+    a {
+        @apply text-accent underline underline-offset-[3px] transition-opacity duration-150;
+    }
+
+    a:hover {
+        @apply opacity-80;
+    }
+
+    hr {
+        @apply m-0 h-px border-0 bg-border-primary opacity-60;
+    }
+
+
+    /* ══════════════ BUTTON ══════════════ */
+
+    button,
+    .btn {
+        @apply inline-flex items-center justify-center gap-1.5 rounded-xl border border-border-primary bg-surface-primary px-4 py-2 text-sm font-medium leading-5 text-primary whitespace-nowrap select-none outline-none transition-all duration-150;
+    }
+
+    button:hover:not(:disabled),
+    .btn:hover:not(:disabled) {
+        @apply bg-surface-secondary;
+    }
+
+    button:active:not(:disabled),
+    .btn:active:not(:disabled) {
+        @apply scale-[0.97];
+    }
+
+    button:focus-visible,
+    .btn:focus-visible {
+        @apply ring-2 ring-accent ring-offset-2;
+    }
+
+    button:disabled,
+    .btn:disabled {
+        @apply cursor-not-allowed opacity-50 pointer-events-none;
+    }
+
+
+    /* ══════════════ BUTTON VARIANTS ══════════════ */
+
+    .btn-primary {
+        @apply border-accent bg-accent text-on-accent shadow-sm;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+        @apply shadow-md text-accent bg-transparent;
+    }
+
+    .btn-secondary {
+        @apply border-border-primary bg-surface-primary text-primary;
+    }
+
+    .btn-secondary:hover:not(:disabled) {
+        @apply bg-accent text-on-accent;
+    }
+
+    .btn-muted {
+        @apply border-transparent bg-surface-secondary text-primary;
+    }
+
+    .btn-muted:hover:not(:disabled) {
+        @apply bg-surface-tertiary;
+    }
+
+    .btn-outline {
+        @apply border-accent bg-transparent text-accent;
+    }
+
+    .btn-outline:hover:not(:disabled) {
+        @apply bg-accent/10;
+    }
+
+    .btn-ghost {
+        @apply border-transparent bg-transparent text-secondary;
+    }
+
+    .btn-ghost:hover:not(:disabled) {
+        @apply bg-surface-secondary text-primary;
+    }
+
+    .btn-success {
+        @apply border-success bg-success text-on-success hover:text-success hover:bg-on-success;
+    }
+
+    .btn-danger {
+        @apply border-error bg-error text-on-error hover:text-error;
+    }
+
+    .btn-info {
+        @apply border-info bg-info text-on-info hover:text-info;
+    }
+
+
+    /* ══════════════ BUTTON SIZES ══════════════ */
+
+    .btn-sm {
+        @apply rounded-lg px-3 py-1.5 text-[13px];
+    }
+
+    .btn-lg {
+        @apply rounded-2xl px-5 py-2.5 text-[15px];
+    }
+
+    .btn-icon {
+        @apply aspect-square p-2;
+    }
+
+
+    /* ══════════════ INPUTS ══════════════ */
+
+    input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]),
+    textarea,
+    select {
+        @apply w-full rounded-xl border border-border-primary bg-surface-secondary px-3 py-2.5 text-sm leading-5 text-primary outline-none transition-all duration-150;
+    }
+
+    input::placeholder,
+    textarea::placeholder {
+        @apply text-tertiary;
+    }
+
+    input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):hover:not(:disabled),
+    textarea:hover:not(:disabled),
+    select:hover:not(:disabled) {
+        @apply border-secondary;
+    }
+
+    input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):focus,
+    textarea:focus,
+    select:focus {
+        @apply bg-surface-primary ring-2 ring-accent/50 ;
+    }
+
+    input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):disabled,
+    textarea:disabled,
+    select:disabled {
+        @apply cursor-not-allowed bg-surface-tertiary opacity-50;
+    }
+
+    textarea {
+        @apply min-h-24 resize-y leading-relaxed;
+    }
+
+    select {
+        @apply cursor-pointer appearance-none pr-9;
+    }
+
+
+    /* ══════════════ INPUT STATES ══════════════ */
+
+    input[data-state="success"],
+    textarea[data-state="success"],
+    select[data-state="success"] {
+        @apply border-success bg-success/5!;
+    }
+
+    input[data-state="success"]:focus,
+    textarea[data-state="success"]:focus,
+    select[data-state="success"]:focus {
+        @apply ring-success/20!;
+    }
+
+    input[data-state="error"],
+    textarea[data-state="error"],
+    select[data-state="error"] {
+        @apply border-error! bg-error/5!;
+    }
+
+    input[data-state="error"]:focus,
+    textarea[data-state="error"]:focus,
+    select[data-state="error"]:focus {
+        @apply ring-error/20;
+    }
+
+
+    /* ══════════════ CHECKBOX + RADIO ══════════════ */
+
+    input[type="checkbox"],
+    input[type="radio"] {
+        @apply size-4 cursor-pointer accent-accent;
+    }
+
+
+    /* ══════════════ RANGE ══════════════ */
+
+    input[type="range"] {
+        @apply w-full cursor-pointer accent-accent;
+    }
+
+    /* ══════════════ FILE INPUT ══════════════ */
+
+    input[type="file"] {
+        @apply w-full cursor-pointer text-sm text-secondary;
+    }
+
+    input[type="file"]::file-selector-button {
+        @apply mr-3 rounded-lg border border-border-primary bg-surface-secondary px-3.5 py-1.5 text-xs font-medium text-primary transition-all duration-150;
+    }
+
+    input[type="file"]::file-selector-button:hover {
+        @apply border-accent bg-surface-tertiary;
+    }
+
+
+    /* ══════════════ BADGES ══════════════ */
+
+    [data-badge] {
+        @apply inline-flex items-center gap-1 rounded-full border border-border-primary bg-surface-tertiary px-2.5 py-1 text-[11px] font-semibold text-secondary;
+    }
+
+    [data-badge="success"] {
+        @apply border-success/20 bg-success/10 text-success;
+    }
+
+    [data-badge="warning"] {
+        @apply border-warning/20 bg-warning/10 text-warning;
+    }
+
+    [data-badge="error"] {
+        @apply border-error/20 bg-error/10 text-error;
+    }
+
+    [data-badge="info"] {
+        @apply border-info/20 bg-info/10 text-info;
+    }
+
+    [data-badge="accent"] {
+        @apply border-accent/20 bg-accent/10 text-accent;
+    }
+
+    [data-badge="outline"] {
+        @apply border-border-primary bg-transparent text-secondary;
+    }
+
+     [data-badge="primary"] {
+        @apply border-border-primary bg-surface-primary text-secondary;
+    }
+
+
+
+    /* ══════════════ ALERTS ══════════════ */
+
+    [data-alert] {
+        @apply flex items-start gap-2 rounded-xl border border-border-primary bg-surface-secondary px-3.5 py-2.5 text-[13px] font-medium leading-6 text-primary;
+    }
+
+    [data-alert="success"] {
+        @apply border-success/20 bg-success/10 text-success;
+    }
+
+    [data-alert="warning"] {
+        @apply border-warning/20 bg-warning/10 text-warning;
+    }
+
+    [data-alert="error"] {
+        @apply border-error/20 bg-error/10 text-error;
+    }
+
+    [data-alert="info"] {
+        @apply border-info/20 bg-info/10 text-info;
+    }
+
+
+    /* ══════════════ CARD ══════════════ */
+
+    .section-label {
+        @apply text-[11px] font-semibold uppercase tracking-[0.07em] text-tertiary;
+    }
+
+    .card {
+        @apply rounded-2xl border border-border-primary bg-surface-primary p-5 shadow-sm transition-shadow duration-200;
+    }
+
+    .card:hover {
+        @apply shadow-md;
+    }
+
+    .form-group {
+        @apply flex flex-col gap-1;
+    }
+
+    /* ══════════════ SELECTION ══════════════ */
+
+    ::selection {
+        @apply bg-accent/30 text-primary;
+    }
+}

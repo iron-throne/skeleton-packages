@@ -1,4 +1,4 @@
-export default function autoFocus(
+export function autoFocus(
     node: HTMLInputElement
 ) {
     node.focus();

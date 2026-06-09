@@ -1,0 +1,10 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import "@fontsource/fira-mono";
+
+/* Tailwind first so its @layer base (preflight) lands before our overrides */
+@import "tailwindcss";
+@config "./tailwind.config.js";
+
+/* Custom styles — same @layer base, declared after, so they win */
+@import "./global.css";
+@import "./components.css";

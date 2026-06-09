@@ -7,7 +7,7 @@
  * Or call manually (e.g. inside onMount) and store the returned `destroy`:
  *   const { destroy } = clickOutside(el, () => open = false);
  */
-export default function clickOutside(
+export function clickOutside(
     node: HTMLElement,
     callback: () => void
 ): { destroy: () => void } {

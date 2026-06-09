@@ -1,0 +1,83 @@
+
+:root {
+--font-body: 'Inter', system-ui, sans-serif;
+--font-heading: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
+}
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    /* margin: 0; */
+    /* padding: 0; */
+}
+
+/* Smooth rendering */
+html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+}
+
+/* Root defaults */
+body {
+    font-family: var(--font-body);
+    background-color: var(--surface-tertiary);
+    color: var(--text-primary);
+}
+
+.font-bold,.font-semibold {
+        font-family: var(--font-heading);
+}
+
+/* Improve link behavior */
+a {
+    text-decoration: none;
+    transition: color 0.15s ease;
+    @apply text-sm hover:text-accent hover:font-medium;
+}
+
+/* Buttons reset */
+button {
+    cursor: pointer;
+}
+
+/* Inputs + forms */
+input,
+textarea,
+select {
+    color: var(--text-primary);
+    background-color: var(--surface-secondary);
+}
+
+/* Smooth transitions for theme switching */
+body,
+html,
+* {
+    transition:
+        background-color 0.25s ease,
+        color 0.25s ease,
+        border-color 0.25s ease;
+}
+
+/* Scrollbar styling (Teams‑like) */
+::-webkit-scrollbar {
+    width: 5px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--surface-tertiary);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--surface-secondary);
+    border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--surface-primary);
+}
+/* Base button */
+
+*.border{
+        border-color: var(--border-primary);
+}
