@@ -2,7 +2,7 @@
 	import { enhance } from '$app/forms';
 	import type { ActionResult } from '@sveltejs/kit';
 	import { Save, ArrowClockwise, X } from 'svelte-bootstrap-icons';
-	import { EInputType, type IForm, type IFormField, type InputValue } from '$lib/types';
+	import { EInputType, type IForm, type IFormField, type InputValue } from '@aryagg/types';
 	import Input from './Input.svelte';
 	import { loaderStore } from '$lib/stores/loader.svelte';
 
@@ -99,7 +99,12 @@
 		loading = true;
 		if (onSubmit) {
 			cancel();
-			await onSubmit(formData);
+			try {
+				await onSubmit(formData);
+			} finally {
+				loaderStore.hide();
+				loading = false;
+			}
 			return;
 		}
 		return async ({

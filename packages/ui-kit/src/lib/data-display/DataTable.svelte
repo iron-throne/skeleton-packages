@@ -5,8 +5,8 @@
 	import Pagination from '../navigation/Pagination.svelte';
 	import NoData from './NoData.svelte';
 	import SkeletonLoader from './SkeletonLoader.svelte';
-	import type { TableColumn } from '$lib/types';
-	import { parseInputValue } from '$lib/utils';
+	import type { TableColumn } from '@aryagg/types';
+	import { parseInputValue } from '@aryagg/utils';
 
 	let {
 		columns,

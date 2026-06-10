@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { Eye, EyeSlash, ExclamationCircle } from 'svelte-bootstrap-icons';
-	import { EInputType } from '$lib/types';
-	import type { IFormField, InputValue, ISelectOption } from '$lib/types';
-	import { DEBOUNCE_DELAY, INPUT_TYPE_CLASSES, NATIVE_TEXT_TYPES, REGEX } from '$lib/constants';
+	import { EInputType } from '@aryagg/types';
+	import type { IFormField, InputValue, ISelectOption } from '@aryagg/types';
+	import { DEBOUNCE_DELAY, INPUT_TYPE_CLASSES, NATIVE_TEXT_TYPES, REGEX } from '@aryagg/types';
 
 	let { field = $bindable() }: { field: IFormField } = $props();
 

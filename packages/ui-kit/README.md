@@ -20,7 +20,7 @@ To recreate this project with the same configuration:
 
 ```sh
 # recreate this project
-npx sv@0.15.4 create --template library --types ts --install npm ui-kit
+npx sv@0.16.1 create --template library --types ts --add prettier eslint --install npm ui-kit
 ```
 
 ## Developing

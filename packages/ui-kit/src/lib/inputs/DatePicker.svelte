@@ -1,9 +1,8 @@
 
 <script lang="ts">
-	import useClickOutside from '$lib/composables/clickOutside';
-	import { MONTHS, DAYS } from '$lib/constants';
-	import type { ICalendarDate, ICalendarOption, IFormField } from '$lib/types';
-	import { isValidDateString } from '$lib/utils';
+	import { clickOutside as useClickOutside, isValidDateString } from '@aryagg/utils';
+	import { MONTHS, DAYS } from '@aryagg/types';
+	import type { ICalendarDate, ICalendarOption, IFormField } from '@aryagg/types';
 
 	let {
 		onUpdateValue,

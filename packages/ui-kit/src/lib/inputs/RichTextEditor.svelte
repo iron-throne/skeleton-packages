@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { DEBOUNCE_DELAY, FORMAT_OPTIONS, RICHTEXT_ICONS } from '$lib/constants';
-	import type { ITextFormat, IRichTextIcon, TextFormatKeys } from '$lib/types/richTexteditor';
+	import { DEBOUNCE_DELAY, FORMAT_OPTIONS, RICHTEXT_ICONS } from '@aryagg/types';
+	import type { ITextFormat, IRichTextIcon, TextFormatKeys } from '@aryagg/types';
 	import { onMount } from 'svelte';
 
 	let {

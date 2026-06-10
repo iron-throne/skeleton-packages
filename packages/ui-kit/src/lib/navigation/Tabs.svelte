@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Tab } from '$lib/types';
+	import type { Tab } from '@aryagg/types';
 	import type { Snippet } from 'svelte';
 
 	let {
@@ -17,7 +17,9 @@
 	} = $props();
 
 	// Initialise to first enabled tab if not set
-	if (!active) active = tabs.find((t) => !t.disabled)?.id ?? '';
+	$effect.pre(() => {
+		if (!active) active = tabs.find((t) => !t.disabled)?.id ?? '';
+	});
 </script>
 
 <div>

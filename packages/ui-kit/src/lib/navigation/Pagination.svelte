@@ -55,7 +55,7 @@
 	);
 
 	// "Go to page" input value (string for binding)
-	let goToValue = $derived(String(currentPage));
+	let goToValue = $state(String(currentPage));
 
 	// Keep input synced when currentPage changes externally
 	$effect(() => {

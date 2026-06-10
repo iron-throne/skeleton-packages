@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
 	import { slide } from 'svelte/transition';
-	import clickOutside from '$lib/composables/clickOutside';
+	import { clickOutside } from '@aryagg/utils';
 
 	type Align = 'left' | 'right';
 

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import clickOutside from '$lib/composables/clickOutside';
+	import { clickOutside } from '@aryagg/utils';
 
 	let {
 		placeholder,
