@@ -1,5 +1,5 @@
 {
-	"name": "ui-kit",
+    "name": "@aryagg/ui-kit",
 	"version": "0.0.1",
 	"scripts": {
 		"dev": "vite dev",
@@ -33,14 +33,14 @@
 		"svelte": "^5.0.0"
 	},
 	"devDependencies": {
-		"@aryagg/theme": "file:../theme",
-		"@tailwindcss/vite": "^4.0.0",
-		"@aryagg/types": "file:../types",
+		"@aryagg/theme": "^0.0.1",
+		"@aryagg/types": "^1.0.1",
 		"@eslint/js": "^10.0.1",
 		"@sveltejs/adapter-auto": "^7.0.1",
 		"@sveltejs/kit": "^2.63.0",
 		"@sveltejs/package": "^2.5.8",
 		"@sveltejs/vite-plugin-svelte": "^7.1.2",
+		"@tailwindcss/vite": "^4.0.0",
 		"@types/node": "^22",
 		"eslint": "^10.4.1",
 		"eslint-config-prettier": "^10.1.8",
@@ -59,6 +59,6 @@
 		"svelte"
 	],
 	"dependencies": {
-		"@aryagg/utils": "file:../utils"
+		"@aryagg/utils": "^1.0.1"
 	}
 }
