@@ -5,6 +5,8 @@ export const setItem = (key: EStorageKey, value: string): void => {
 };
 
 export const getItem = (key: EStorageKey): string | null => {
+    const isBrowser = typeof document !== 'undefined' && typeof window !== 'undefined';
+    if (!isBrowser) return null;
     return localStorage.getItem(key);
 };
 
