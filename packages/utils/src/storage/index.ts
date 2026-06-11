@@ -1,23 +1,25 @@
-import { EStorageKey } from "@aryagg/types";
 
-export const setItem = (key: EStorageKey, value: string): void => {
-    localStorage.setItem(key, value);
+export const setItem = (key: string, value: string): void => {
+    const isBrowser = typeof document !== 'undefined' && typeof window !== 'undefined';
+    if (isBrowser) {
+        localStorage.setItem(key, value);
+    }
 };
 
-export const getItem = (key: EStorageKey): string | null => {
+export const getItem = (key: string): string | null => {
     const isBrowser = typeof document !== 'undefined' && typeof window !== 'undefined';
     if (!isBrowser) return null;
     return localStorage.getItem(key);
 };
 
-export const removeItem = (key: EStorageKey): void => {
+export const removeItem = (key: string): void => {
     localStorage.removeItem(key);
 };
 
-export const hasItem = (key: EStorageKey): boolean => {
+export const hasItem = (key: string): boolean => {
     return localStorage.getItem(key) !== null;
 };
 
 export const clearAppStorage = (): void => {
-    Object.values(EStorageKey).forEach((key) => localStorage.removeItem(key));
+    localStorage.clear();
 };

@@ -11,5 +11,5 @@
     "outDir": "dist",
     "rootDir": "src"
   },
-  "include": ["src"]
+  "include": ["src", "../ui-kit/src/lib/organisms/rich-text-editor/rich-text-editor.ts"]
 }

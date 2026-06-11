@@ -17,7 +17,7 @@ export interface IGenericObject {
     [key: string]: any;
 }
 
-export interface Tab {
+export interface ITab {
     id: string;
     label: string;
     badge?: string | number;

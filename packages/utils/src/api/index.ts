@@ -1,4 +1,4 @@
-import { IApiResponse, IApiResult } from "@aryagg/types";
+import { IApiResponse, IApiResult } from "./types";
 import { isAxiosError } from "axios";
 
 // const { error: showError } = snackStore;

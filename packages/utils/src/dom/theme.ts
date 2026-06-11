@@ -1,14 +1,14 @@
-import { EStorageKey, ETheme } from "@aryagg/types";
+import { ETheme } from "./types";
 
-export const setTheme = (theme: ETheme): void => {
+export const setTheme = (theme: ETheme, key: string): void => {
     const themeLink = document.getElementById('theme-style') as HTMLLinkElement | null;
     if (themeLink) themeLink.href = `styles/theme-${theme}.css`;
     document.documentElement.setAttribute('data-theme', theme);
-    localStorage.setItem(EStorageKey.THEME, theme);
+    localStorage.setItem(key, theme);
 };
 
-export const enableDarkTheme = (): void => setTheme(ETheme.DARK);
-export const enableLightTheme = (): void => setTheme(ETheme.LIGHT);
+export const enableDarkTheme = (key: string): void => setTheme(ETheme.DARK, key);
+export const enableLightTheme = (key: string): void => setTheme(ETheme.LIGHT, key);
 
 export const getSystemTheme = (): ETheme =>
     window.matchMedia('(prefers-color-scheme: dark)').matches ? ETheme.DARK : ETheme.LIGHT;

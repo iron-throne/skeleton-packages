@@ -1,6 +1,8 @@
-import { DEBOUNCE_DELAY } from "@aryagg/types";
 // * Debounce means:
 //  *   - Wait for the user to stop triggering the function
+
+import { DEBOUNCE_DELAY } from "@aryagg/types";
+
 //  *   - Only run the function AFTER the delay
 export const debounce = <F extends (...args: any[]) => void>(func: F, delay: number = DEBOUNCE_DELAY): F => {
     let timeoutId: ReturnType<typeof setTimeout> | null = null;

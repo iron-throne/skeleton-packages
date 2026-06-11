@@ -1,5 +1,5 @@
 <script lang="ts">
-	import Avatar from '$lib/data-display/Avatar.svelte';
+	import Avatar from '$lib/atoms/avatar/Avatar.svelte';
 </script>
 
 <button class="btn btn-primary">Test</button>
