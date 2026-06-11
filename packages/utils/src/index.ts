@@ -1,4 +1,5 @@
 export * from './async';
+export * from './api';
 export * from './composables';
 export * from './data';
 export * from './browser';
