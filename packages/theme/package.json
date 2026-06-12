@@ -9,6 +9,15 @@
             "default": "./index.css"
         }
     },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/iron-throne/skeleton-packages.git",
+        "directory": "packages/theme"
+    },
+    "homepage": "https://github.com/iron-throne/skeleton-packages/tree/main/packages/theme",
+    "bugs": {
+        "url": "https://github.com/iron-throne/skeleton-packages/issues"
+    },
     "dependencies": {
         "@fontsource/fira-mono": "^5.1.1"
     },

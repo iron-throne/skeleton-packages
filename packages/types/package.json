@@ -19,6 +19,15 @@
   "scripts": {
     "build": "tsup"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/iron-throne/skeleton-packages.git",
+    "directory": "packages/types"
+  },
+  "homepage": "https://github.com/iron-throne/skeleton-packages/tree/main/packages/types",
+  "bugs": {
+    "url": "https://github.com/iron-throne/skeleton-packages/issues"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
