@@ -52,7 +52,6 @@
 <!-- ─── reusable snippets ────────────────────────────────────── -->
 
 {#snippet brandMark()}
-	<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -- brandHref is an arbitrary consumer-supplied prop, not a route known to this package -->
 	<a href={brandHref} class="flex shrink-0 items-center gap-2 no-underline opacity-100 hover:opacity-80">
 		{#if brandIcon}
 			{@const BrandIcon = brandIcon}
