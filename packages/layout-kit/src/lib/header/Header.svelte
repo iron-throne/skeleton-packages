@@ -6,6 +6,7 @@
 		brand,
 		brandHref = '/',
 		brandIcon,
+		tagline = '',
 		items = [],
 		actions,
 		variant = 'default',
@@ -14,12 +15,13 @@
 		brand: string;
 		brandHref?: string;
 		brandIcon?: any;
+		tagline?: string;
 		items?: NavItem[];
 		actions?: Snippet;
 		/** default  — brand left · nav left · actions right
 		 *  centered  — brand left · nav grid-centered · actions right
 		 *  stacked   — row 1: brand + actions  |  row 2: nav centered
-		 *  minimal   — brand left · actions right · no nav
+		 *  minimal   — brand left · tagline center · actions right · no nav
 		 */
 		variant?: 'default' | 'centered' | 'stacked' | 'minimal';
 		class?: string;
@@ -50,6 +52,7 @@
 <!-- ─── reusable snippets ────────────────────────────────────── -->
 
 {#snippet brandMark()}
+	<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -- brandHref is an arbitrary consumer-supplied prop, not a route known to this package -->
 	<a href={brandHref} class="flex shrink-0 items-center gap-2 no-underline opacity-100 hover:opacity-80">
 		{#if brandIcon}
 			{@const BrandIcon = brandIcon}
@@ -122,10 +125,8 @@
 										{#if openL2 === ci}
 											<div class="absolute left-full top-0 z-50 ml-1 min-w-48 rounded-2xl border border-border-primary bg-surface-primary p-1 shadow-lg">
 												{#each child.children as grandchild (grandchild.href)}
-												<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -- grandchild.href is an arbitrary consumer-supplied prop, not a route known to this package -->
-													<a
-													
-														href={grandchild.href ?? '#'}
+													<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -- grandchild.href is an arbitrary consumer-supplied prop, not a route known to this package -->
+													<a href={grandchild.href ?? '#'}
 														class="flex items-center gap-2 rounded-xl px-3 py-2 text-sm text-secondary no-underline transition-colors hover:bg-surface-secondary hover:text-primary"
 													>
 														{#if grandchild.icon}
@@ -143,8 +144,8 @@
 									</div>
 								{:else}
 									<!-- L2 leaf -->
-									<a
-										href={child.href ?? '#'}
+									<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -- child.href is an arbitrary consumer-supplied prop, not a route known to this package -->
+									<a href={child.href ?? '#'}
 										class="flex items-center gap-2 rounded-xl px-3 py-2 text-sm text-secondary no-underline transition-colors hover:bg-surface-secondary hover:text-primary"
 									>
 										{#if child.icon}
@@ -162,8 +163,8 @@
 					{/if}
 				{:else}
 					<!-- L1 leaf link -->
-					<a
-						href={item.href ?? '#'}
+					<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -- item.href is an arbitrary consumer-supplied prop, not a route known to this package -->
+					<a href={item.href ?? '#'}
 						class="btn-ghost btn-sm flex items-center gap-1.5 no-underline"
 					>
 						{#if item.icon}
@@ -228,9 +229,14 @@
 		</div>
 
 	{:else if variant === 'minimal'}
-		<!-- brand ··· actions — no nav -->
-		<div class="mx-auto flex h-14 max-w-7xl items-center justify-between px-4">
+		<!-- brand · tagline center · actions — no nav -->
+		<div class="mx-auto grid h-14 max-w-7xl grid-cols-[auto_1fr_auto] items-center gap-4 px-4">
 			{@render brandMark()}
+			{#if tagline}
+				<p class="text-center text-sm text-tertiary">{tagline}</p>
+			{:else}
+				<span></span>
+			{/if}
 			{@render actionBar()}
 		</div>
 	{/if}

@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { resolve } from '$app/paths';
 	import type { NavItem } from './types';
 
 	let {
@@ -63,7 +62,7 @@
 											{#each child.children as grandchild,i (i)}
 												<a href={grandchild.href ?? '#'}
 													class="flex items-center gap-2 rounded-xl px-3 py-2 text-sm text-secondary no-underline transition-colors hover:bg-surface-secondary hover:text-primary">
-													{#if grandchild.icon}{@const I = grandchild.icon}<I class="size-4 shrink-0 text-tertiary" />{/if}
+													{#if grandchild.icon} {@const I = grandchild.icon}<I class="size-4 shrink-0 text-tertiary" />{/if}
 													<span>{grandchild.label}</span>
 													{#if grandchild.badge}<span data-badge class="ml-auto">{grandchild.badge}</span>{/if}
 												</a>
@@ -72,7 +71,7 @@
 									{/if}
 								</div>
 							{:else}
-								<a href={child.href ?? '#'}
+							<a href={child.href ?? '#'}
 									class="flex items-center gap-2 rounded-xl px-3 py-2 text-sm text-secondary no-underline transition-colors hover:bg-surface-secondary hover:text-primary">
 									{#if child.icon}{@const I = child.icon}<I class="size-4 shrink-0 text-tertiary" />{/if}
 									<span>{child.label}</span>
@@ -83,7 +82,7 @@
 					</div>
 				{/if}
 			{:else}
-				<a href={item.href ?? '#'} class="btn-ghost btn-sm flex items-center gap-1.5 no-underline">
+			<a href={item.href ?? '#'} class="btn-ghost btn-sm flex items-center gap-1.5 no-underline">
 					{#if item.icon}{@const I = item.icon}<I class="size-4 shrink-0" />{/if}
 					<span>{item.label}</span>
 					{#if item.badge}<span data-badge>{item.badge}</span>{/if}

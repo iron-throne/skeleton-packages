@@ -14,6 +14,7 @@ export type HeaderProps = {
 	brand: string;
 	brandHref?: string;
 	brandIcon?: any;
+	tagline?: string;
 	items?: NavItem[];
 	actions?: Snippet;
 	variant?: HeaderVariant;
