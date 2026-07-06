@@ -61,7 +61,7 @@
 									{#if openL2 === ci}
 										<div class="absolute left-full top-0 z-50 ml-1 min-w-48 rounded-2xl border border-border-primary bg-surface-primary p-1 shadow-lg">
 											{#each child.children as grandchild,i (i)}
-												<a href={resolve(grandchild.href ?? '#',{})}
+												<a href={grandchild.href ?? '#'}
 													class="flex items-center gap-2 rounded-xl px-3 py-2 text-sm text-secondary no-underline transition-colors hover:bg-surface-secondary hover:text-primary">
 													{#if grandchild.icon}{@const I = grandchild.icon}<I class="size-4 shrink-0 text-tertiary" />{/if}
 													<span>{grandchild.label}</span>

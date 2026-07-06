@@ -32,6 +32,7 @@
 		openL2 = openL2 === i ? null : i;
 	}
 
+	
 	function onWindowClick(e: MouseEvent) {
 		if (!headerEl?.contains(e.target as Node)) {
 			openL1 = null;

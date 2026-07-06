@@ -49,7 +49,7 @@
 	class="sticky top-0 z-50 w-full border-b border-border-primary bg-surface-primary {klass}"
 >
 	<div class="mx-auto grid h-14 max-w-7xl grid-cols-[auto_1fr_auto] items-center gap-4 px-4">
-
+								<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -- brandHref is an arbitrary consumer-supplied prop, not a route known to this package -->
 		<a href={brandHref} class="flex shrink-0 items-center gap-2 no-underline opacity-100 hover:opacity-80">
 			{#if brandIcon}{@const Icon = brandIcon}<Icon class="size-5 text-accent" />{/if}
 			<span class="text-sm font-semibold text-primary">{brand}</span>

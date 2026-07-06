@@ -61,7 +61,7 @@
 
 {#snippet navList()}
 	<nav class="flex items-center gap-0.5">
-		{#each items as item, i}
+		{#each items as item, i (i)}
 			<div class="relative">
 				{#if item.children?.length}
 					<!-- L1 trigger -->
@@ -91,7 +91,7 @@
 					<!-- L2 dropdown -->
 					{#if openL1 === i}
 						<div class="absolute left-0 top-full z-50 mt-1.5 min-w-52 rounded-2xl border border-border-primary bg-surface-primary p-1 shadow-lg">
-							{#each item.children as child, ci}
+							{#each item.children as child, ci (ci)}
 								{#if child.children?.length}
 									<!-- L2 trigger + L3 flyout -->
 									<div class="relative">
@@ -121,8 +121,10 @@
 										<!-- L3 flyout -->
 										{#if openL2 === ci}
 											<div class="absolute left-full top-0 z-50 ml-1 min-w-48 rounded-2xl border border-border-primary bg-surface-primary p-1 shadow-lg">
-												{#each child.children as grandchild}
+												{#each child.children as grandchild (grandchild.href)}
+												<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -- grandchild.href is an arbitrary consumer-supplied prop, not a route known to this package -->
 													<a
+													
 														href={grandchild.href ?? '#'}
 														class="flex items-center gap-2 rounded-xl px-3 py-2 text-sm text-secondary no-underline transition-colors hover:bg-surface-secondary hover:text-primary"
 													>

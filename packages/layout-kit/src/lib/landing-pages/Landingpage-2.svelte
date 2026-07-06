@@ -5,7 +5,7 @@
 		placeholder = 'City, address, or ZIP',
 		buttonText = 'Search',
 		inputLabel = 'Search properties',
-		onSubmit = (_value: string) => {}
+		onSubmit
 	}: {
 		title?: string;
 		backgroundImage?: string;
@@ -19,7 +19,7 @@
 
 	function handleSubmit(e: SubmitEvent) {
 		e.preventDefault();
-		onSubmit(searchValue);
+		onSubmit?.(searchValue);
 	}
 </script>
 
