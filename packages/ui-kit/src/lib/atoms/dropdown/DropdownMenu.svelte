@@ -2,15 +2,15 @@
 	import type { Snippet } from 'svelte';
 	import { slide } from 'svelte/transition';
 	import { clickOutside } from '@aryagg/utils';
-	import type { MenuAlign, MenuItem } from './types';
+	import { type IMenu, EMenuAlign } from '@aryagg/types';
 
 	let {
-		items,
-		align = 'right',
+		menus,
+		align = EMenuAlign.RIGHT,
 		trigger
 	}: {
-		items: MenuItem[];
-		align?: MenuAlign;
+		menus: IMenu[];
+		align?: EMenuAlign;
 		/** The element that opens/closes the menu */
 		trigger: Snippet<[{ open: boolean; toggle: () => void }]>;
 	} = $props();
@@ -19,9 +19,9 @@
 	const toggle = () => (open = !open);
 	const close = () => (open = false);
 
-	const alignClass: Record<MenuAlign, string> = {
-		right: 'right-0',
-		left: 'left-0'
+	const alignClass: Record<EMenuAlign, string> = {
+		[EMenuAlign.RIGHT]: 'right-0',
+		[EMenuAlign.LEFT]: 'left-0'
 	};
 </script>
 
@@ -37,26 +37,26 @@
                    rounded-xl p-2 shadow-lg {alignClass[align]}"
 			role="menu"
 		>
-			{#each items as item, ind (ind)}
-				{#if item.divider}
+			{#each menus as menu, ind (ind)}
+				{#if menu.divider}
 					<div class="border-border-primary my-1 border-t"></div>
 				{/if}
 				<button
 					role="menuitem"
-					disabled={item.disabled}
+					disabled={menu.disabled}
 					onclick={() => {
-						item.onclick();
+						menu.onclick?.();
 						close();
 					}}
 					class="group flex w-full justify-normal border-0 p-2 text-xs transition-colors rounded-2xl
-                           {item.danger
+                           {menu.danger
 						? 'text-error hover:bg-error/10'
 						: 'hover:text-primary hover:bg-surface-secondary text-secondary '}"
 				>
-					{#if item.icon}
-						<item.icon width={15} height={15} class="shrink-0 opacity-70" />
+					{#if menu.icon}
+						<menu.icon width={15} height={15} class="shrink-0 opacity-70" />
 					{/if}
-					{item.label}
+					{menu.label}
 				</button>
 			{/each}
 		</div>

@@ -33,6 +33,18 @@ export interface TableColumn {
     type?: EDataType;
 }
 
+export interface IMenu {
+    label: string;
+    icon?: any;
+    selected?: any;
+    danger?: boolean;
+    disabled?: boolean;
+    subMenu?: IMenu[];
+    divider?: boolean;
+    id: string;
+    onclick?: () => void;
+}
+
 export enum ESnackType {
     SUCCESS = 'success',
     DANGER = 'danger',
@@ -49,4 +61,9 @@ export enum ELocale {
     EN = 'en',
     ES = 'es',
     AR = 'ar',
+}
+
+export enum EMenuAlign {
+    LEFT = 'left',
+    RIGHT = 'right',
 }
