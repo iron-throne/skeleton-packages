@@ -7,11 +7,12 @@ export interface TopbarProps {
 	homeClass?: string;
 	logoSrc?: string;
 	logoAlt?: string;
-	brand?: string;
 	brandClass?: string;
 
 	menus?: IMenu[];
 	activeHref?: string;
+	menuClass?: string;
+	menuLayout?: 'stacked' | 'horizontal';
 
 	searchField?: IFormField;
 	onSearchInput?: (value?: string) => void;
@@ -35,6 +36,13 @@ export interface TopbarProps {
 	rightSlot?: Snippet | null;
 	hclass?: string;
 	klass?: string;
+	brand?: string;
+	brandHref?: string;
+	tagline?: string;
+	items?: IMenu[];
+	actions?: Snippet;
+	variant?: HeaderVariant;
+	headerClass?: string;
 }
 
 export type NavItem = {
@@ -46,14 +54,3 @@ export type NavItem = {
 };
 
 export type HeaderVariant = 'default' | 'centered' | 'stacked' | 'minimal';
-
-export type HeaderProps = TopbarProps & {
-	brand?: string;
-	brandHref?: string;
-	brandIcon?: any;
-	tagline?: string;
-	items?: IMenu[];
-	actions?: Snippet;
-	variant?: HeaderVariant;
-	class?: string;
-};

@@ -84,7 +84,7 @@
 				menu.onclick?.();
 				close();
 			}}
-			class="group flex w-full items-center gap-2 rounded-2xl border-0 p-2 text-xs transition-colors
+			class="group flex w-full items-center gap-2 rounded-2xl border-0 p-2 text-xs transition-colors {menu.class}
                            {menu.danger
 				? 'text-error hover:bg-error/10'
 				: 'hover:text-primary hover:bg-surface-secondary text-secondary '}"

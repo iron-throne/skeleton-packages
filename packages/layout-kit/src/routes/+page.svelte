@@ -1,18 +1,57 @@
 <script lang="ts">
-	import { Header, Topbar, type HeaderVariant } from '$lib';
-	import { ETheme, type IMenu } from '@aryagg/types';
+	import { type HeaderVariant } from '$lib';
+	import Topbar from '$lib/topbar/Topbar.svelte';
+	import { EInputType, ETheme, type IFormField, type IMenu, type InputValue } from '@aryagg/types';
 	import {
+		ArrowClockwise,
+		ArrowCounterclockwise,
+		BellFill,
 		BoxArrowRight,
+		CloudDownload,
+		Eye,
+		FileEarmark,
+		FileEarmarkPlus,
+		Folder2Open,
 		Gear,
+		Grid,
+		Grid1x2,
 		Grid3x3Gap,
 		Grid3x3GapFill,
 		LightningCharge,
+		PaletteFill,
 		Person,
-		Search
+		PrinterFill,
+		Save2,
+		Search,
+		ShareFill,
+		ShieldLock,
+		Sliders,
+		Stack,
+		TextCenter,
+		Window,
+		XCircle
 	} from 'svelte-bootstrap-icons';
 
+	let searchField = $state<IFormField>({
+		key: 'search',
+		id: `search`,
+		label: 'Search',
+		hideLabel: true,
+		placeholder: 'Search...',
+		type: EInputType.SEARCH,
+		icon: Search,
+		classes: '',
+		onChange: (value: InputValue) => updateSearch(value)
+	});
+
 	const items: IMenu[] = [
-		{ label: 'Dashboard', href: '/', id: 'dashboard', icon: Grid3x3Gap, selectedIcon: Grid3x3GapFill },
+		{
+			label: 'Dashboard',
+			href: '/',
+			id: 'dashboard',
+			icon: Grid3x3Gap,
+			selectedIcon: Grid3x3GapFill
+		},
 		{
 			label: 'Products',
 			id: 'products',
@@ -25,9 +64,27 @@
 		{ label: 'Settings', href: '/settings', id: 'settings', icon: Gear }
 	];
 
+	// Nested under the profile menu to show DropdownMenu's recursive `children` support.
 	const profileItems: IMenu[] = [
 		{ label: 'Profile', href: '/profile', id: 'profile', icon: Person },
-		{ label: 'Logout', href: '/logout', id: 'logout', icon: BoxArrowRight, danger: true, divider: true }
+		{
+			label: 'Preferences',
+			id: 'preferences',
+			icon: Sliders,
+			children: [
+				{ label: 'Appearance', href: '#', id: 'appearance', icon: PaletteFill },
+				{ label: 'Notifications', href: '#', id: 'notifications', icon: BellFill },
+				{ label: 'Security', href: '#', id: 'security', icon: ShieldLock }
+			]
+		},
+		{
+			label: 'Logout',
+			href: '/logout',
+			id: 'logout',
+			icon: BoxArrowRight,
+			danger: true,
+			divider: true
+		}
 	];
 
 	const languages = [
@@ -36,240 +93,87 @@
 		{ label: 'ES', value: 'es' }
 	];
 
-	const variants: { id: HeaderVariant; label: string }[] = [
-		{ id: 'default', label: 'Default' },
-		{ id: 'centered', label: 'Centered' },
-		{ id: 'stacked', label: 'Stacked' },
-		{ id: 'minimal', label: 'Minimal' }
-	];
 
 	let theme = $state<ETheme>(ETheme.LIGHT);
 	let currentLanguage = $state('en');
-	let activeVariant = $state<HeaderVariant>('default');
+
+	$effect(() => {
+		document.documentElement.classList.toggle('dark', theme === ETheme.DARK);
+	});
 
 	function toggleTheme(next?: ETheme) {
 		if (next) theme = next;
 	}
 
-	function updateSearch(value?: string) {
+	function updateSearch(value?: InputValue) {
+		console.log('🚀 ~ updateSearch ~ value:', value);
 	}
 </script>
 
-<main class="bg-surface-primary text-primary min-h-screen">
-	<section class="mx-auto flex max-w-7xl flex-col gap-8 px-4 py-8">
-		<div class="flex flex-col gap-2">
-			<p class="text-accent text-xs font-semibold tracking-widest uppercase">Layout Kit</p>
-			<h1 class="text-3xl font-bold">Header and Topbar Scenarios</h1>
-			<p class="text-secondary max-w-2xl text-sm">
-				Every combination below uses the same combined header API: built-in search, custom search slot,
-				no search, built-in profile menu, custom profile slot, and no profile.
-			</p>
+{#snippet variantDemo(
+	variant: HeaderVariant,
+	title: string,
+	description: string,
+	menuLayout: 'stacked' | 'horizontal' = 'stacked'
+)}
+	<section class="border-b border-border-primary pb-8">
+		<div class="container mx-auto px-4 pt-6 pb-3">
+			<h2 class="text-primary text-sm font-semibold">{title}</h2>
+			<p class="text-tertiary text-xs">{description}</p>
 		</div>
-
-		<section class="flex flex-col gap-3">
-			<h2 class="text-lg font-semibold">Variant Switcher</h2>
-			<div class="flex flex-wrap gap-2">
-				{#each variants as variant (variant.id)}
-					<button
-						class="btn-sm {activeVariant === variant.id ? 'btn-primary' : 'btn-secondary'}"
-						onclick={() => (activeVariant = variant.id)}
-					>
-						{variant.label}
-					</button>
-				{/each}
-			</div>
-			<div class="rounded-lg border border-border-primary">
-				<Header
-					brand="Skeleton"
-					brandIcon={LightningCharge}
-					variant={activeVariant}
-					{items}
-					activeHref="/"
-					tagline="Build beautiful UIs faster."
-					onSearchInput={updateSearch}
-					{languages}
-					{currentLanguage}
-					onLanguageChange={(value) => value && (currentLanguage = value)}
-					{theme}
-					onThemeChange={toggleTheme}
-					userName="Romeo Juliet"
-					profileLabel="Me"
-					{profileItems}
-				>
-					{#snippet actions()}
-						<button class="btn-ghost btn-sm">Sign in</button>
-						<button class="btn-primary btn-sm">Get started</button>
-					{/snippet}
-				</Header>
-			</div>
-		</section>
-
-		<section class="flex flex-col gap-4">
-			<h2 class="text-lg font-semibold">All Search and Profile Combinations</h2>
-
-			<div class="rounded-lg border border-border-primary">
-				<Header
-					brand="Built-in Search + Built-in Profile"
-					variant="default"
-					{items}
-					activeHref="/settings"
-					onSearchInput={updateSearch}
-					{languages}
-					{currentLanguage}
-					onLanguageChange={(value) => value && (currentLanguage = value)}
-					{theme}
-					onThemeChange={toggleTheme}
-					userName="Avery Stone"
-					profileLabel="Avery"
-					{profileItems}
-				/>
-			</div>
-
-			<div class="rounded-lg border border-border-primary">
-				<Header
-					brand="Search Slot + Built-in Profile"
-					variant="centered"
-					{items}
-					activeHref="/"
-					{theme}
-					onThemeChange={toggleTheme}
-					userName="Mina Cole"
-					profileLabel="Mina"
-					{profileItems}
-				>
-					{#snippet searchSlot()}
-						<label class="bg-surface-secondary flex min-w-72 items-center gap-2 rounded-md border border-border-primary px-3 py-2">
-							<Search class="text-tertiary size-4" />
-							<input class="min-w-0 flex-1 bg-transparent text-sm outline-none" placeholder="Custom search slot" />
-							<span class="text-tertiary text-xs">Ctrl K</span>
-						</label>
-					{/snippet}
-				</Header>
-			</div>
-
-			<div class="rounded-lg border border-border-primary">
-				<Header
-					brand="No Search + Built-in Profile"
-					variant="stacked"
-					{items}
-					activeHref="/"
-					{theme}
-					onThemeChange={toggleTheme}
-					userName="Sam Rivera"
-					profileLabel="Sam"
-					{profileItems}
-				/>
-			</div>
-
-			<div class="rounded-lg border border-border-primary">
-				<Header
-					brand="Built-in Search + Profile Slot"
-					variant="default"
-					{items}
-					activeHref="/"
-					onSearchInput={updateSearch}
-					{theme}
-					onThemeChange={toggleTheme}
-				>
-					{#snippet profileSlot()}
-						<button class="btn-secondary btn-sm flex items-center gap-2">
-							<Person class="size-4" />
-							<span>Admin</span>
-						</button>
-					{/snippet}
-				</Header>
-			</div>
-
-			<div class="rounded-lg border border-border-primary">
-				<Header
-					brand="Search Slot + Profile Slot"
-					variant="minimal"
-					tagline="Custom middle content remains available."
-					{theme}
-					onThemeChange={toggleTheme}
-				>
-					{#snippet searchSlot()}
-						<div class="flex items-center gap-2">
-							<input class="w-56 rounded-md border border-border-primary px-3 py-2 text-sm" placeholder="Slot search" />
-							<button class="btn-primary btn-sm">Go</button>
-						</div>
-					{/snippet}
-					{#snippet profileSlot()}
-						<a href="/account" class="btn-ghost btn-sm flex items-center gap-2 no-underline">
-							<Person class="size-4" />
-							Account
-						</a>
-					{/snippet}
-				</Header>
-			</div>
-
-			<div class="rounded-lg border border-border-primary">
-				<Header
-					brand="Built-in Search + No Profile"
-					variant="centered"
-					{items}
-					activeHref="/settings"
-					onSearchInput={updateSearch}
-					{languages}
-					{currentLanguage}
-					onLanguageChange={(value) => value && (currentLanguage = value)}
-				/>
-			</div>
-
-			<div class="rounded-lg border border-border-primary">
-				<Header brand="Search Slot + No Profile" variant="default" {items} activeHref="/">
-					{#snippet searchSlot()}
-						<button class="btn-secondary btn-sm flex items-center gap-2">
-							<Search class="size-4" />
-							Open search
-						</button>
-					{/snippet}
-				</Header>
-			</div>
-
-			<div class="rounded-lg border border-border-primary">
-				<Header
-					brand="No Search + Profile Slot"
-					variant="stacked"
-					{items}
-					activeHref="/"
-					{languages}
-					{currentLanguage}
-					onLanguageChange={(value) => value && (currentLanguage = value)}
-				>
-					{#snippet profileSlot()}
-						<div class="flex items-center gap-2">
-							<span class="bg-accent size-2 rounded-full"></span>
-							<button class="btn-ghost btn-sm">Team</button>
-						</div>
-					{/snippet}
-				</Header>
-			</div>
-
-			<div class="rounded-lg border border-border-primary">
-				<Header brand="No Search + No Profile" variant="minimal" tagline="Plain minimal header">
-					{#snippet actions()}
-						<button class="btn-primary btn-sm">Action</button>
-					{/snippet}
-				</Header>
-			</div>
-		</section>
-
-		<section class="flex flex-col gap-4">
-			<h2 class="text-lg font-semibold">Topbar Compatibility</h2>
-			<div class="rounded-lg border border-border-primary">
-				<Topbar
-					brand="Topbar wrapper"
-					menus={items}
-					activeHref="/"
-					onSearchInput={updateSearch}
-					{theme}
-					onThemeChange={toggleTheme}
-					userName="Legacy User"
-					profileLabel="User"
-					{profileItems}
-				/>
-			</div>
-		</section>
+		<div class="overflow-hidden rounded-lg border border-border-primary shadow-sm">
+			<Topbar
+				brand="Skeleton"
+				{variant}
+				menus={items}
+				activeHref="/"
+				{menuLayout}
+				{languages}
+				{currentLanguage}
+				onLanguageChange={(value) => value && (currentLanguage = value)}
+				{theme}
+				onThemeChange={toggleTheme}
+				userName="Romeo Juliet"
+				profileLabel="Me"
+				{profileItems}
+				bind:searchField
+			></Topbar>
+		</div>
 	</section>
+{/snippet}
+
+<main class="min-h-screen space-y-6 bg-surface-tertiary text-primary">
+	<div class="container mx-auto px-4 py-6">
+		<h1 class="text-primary text-lg font-bold">Topbar alignment variants</h1>
+		<p class="text-tertiary text-sm">
+			The same brand, nav, search and action content laid out with each of the four
+			<code class="text-xs">HeaderVariant</code> options.
+		</p>
+	</div>
+
+	{@render variantDemo('default', 'Default', 'Brand, search and nav inline, actions pushed to the right.')}
+	{@render variantDemo('centered', 'Centered', 'Nav centered in the middle column between brand and actions.')}
+	{@render variantDemo('stacked', 'Stacked', 'Brand row on top, nav centered in its own row below.')}
+	{@render variantDemo('minimal', 'Minimal', 'Brand and actions only, with an optional centered tagline.')}
+
+	<div class="container mx-auto px-4 pt-6 pb-3">
+		<h1 class="text-primary text-lg font-bold">Nav item layouts</h1>
+		<p class="text-tertiary text-sm">
+			<code class="text-xs">HeaderNavList</code>'s <code class="text-xs">menuLayout</code> prop: icon
+			stacked above the label, or icon and label arranged horizontally.
+		</p>
+	</div>
+
+	{@render variantDemo(
+		'default',
+		'Stacked nav items',
+		'Icon on top, label below — compact, works well in a tab-style bar.',
+		'stacked'
+	)}
+	{@render variantDemo(
+		'default',
+		'Horizontal nav items',
+		'Icon and label side by side — reads more like a traditional nav link.',
+		'horizontal'
+	)}
 </main>

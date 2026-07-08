@@ -1,7 +1,16 @@
 <script lang="ts">
-	import { type IFormField, type InputValue, DEBOUNCE_DELAY, INPUT_TYPE_CLASSES, EInputType, type ISelectOption, REGEX, NATIVE_TEXT_TYPES } from '@aryagg/types';
+	import {
+		type IFormField,
+		type InputValue,
+		DEBOUNCE_DELAY,
+		INPUT_TYPE_CLASSES,
+		EInputType,
+		type ISelectOption,
+		REGEX,
+		NATIVE_TEXT_TYPES
+	} from '@aryagg/types';
 	import { onMount } from 'svelte';
-	import { Eye, EyeSlash, ExclamationCircle } from 'svelte-bootstrap-icons';
+	import { Eye, EyeSlash, ExclamationCircle, Search } from 'svelte-bootstrap-icons';
 
 	let { field = $bindable() }: { field: IFormField } = $props();
 
@@ -20,11 +29,13 @@
 		'bg-surface-secondary/50 text-content-primary text-sm',
 		'placeholder:text-content-tertiary',
 		// 'focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent',
-		'disabled:opacity-50 disabled:cursor-not-allowed transition',
+		'disabled:opacity-50 disabled:cursor-not-allowed transition'
 	].join(' ');
 
+	const isSearch = $derived(field.type === EInputType.SEARCH);
+
 	const inputClass = $derived(
-		`${inputBase} ${INPUT_TYPE_CLASSES[field.type] ?? ''} ${field.classes ?? ''}`.trim(),
+		`${inputBase} ${INPUT_TYPE_CLASSES[field.type] ?? ''} ${field.classes ?? ''} ${isSearch && 'pl-10'}`.trim()
 	);
 
 	const inputAttributes = $derived({
@@ -39,9 +50,10 @@
 		onblur: field.onBlur,
 		onfocus: field.onFocus,
 		onkeydown: field.onKeydown,
-		...field.errorMsg && { 'data-state': 'error' },
-		...field.attributes,
+		...(field.errorMsg && { 'data-state': 'error' }),
+		...field.attributes
 	});
+
 
 	function emit(inputVal: InputValue) {
 		const val = typeof inputVal === 'string' ? inputVal.trim() : inputVal;
@@ -83,12 +95,10 @@
 	onMount(() => {
 		field.rules = [
 			...(field.rules ?? []),
-			...(field.required
-				? [{ regex: REGEX.REQUIRED, message: `${field.label} is required` }]
-				: []),
+			...(field.required ? [{ regex: REGEX.REQUIRED, message: `${field.label} is required` }] : []),
 			...(field.type === EInputType.EMAIL
 				? [{ regex: REGEX.EMAIL, message: `${field.label} is not a valid email` }]
-				: []),
+				: [])
 		];
 	});
 </script>
@@ -110,6 +120,9 @@
 	<!-- ── TEXT-LIKE INPUTS ── -->
 	{#if NATIVE_TEXT_TYPES.has(field.type)}
 		<div class="relative">
+			{#if isSearch}
+				<Search class="absolute top-1/2 left-2.5 -translate-y-1/2 text-secondary z-10" />
+			{/if}
 			<input id={field.id} type={field.type} {...inputAttributes} />
 		</div>
 
@@ -209,8 +222,7 @@
 			onchange={(e) => emit((e.target as HTMLSelectElement).value)}
 		>
 			{#if field.placeholder}
-				<option value="" disabled selected class="text-content-tertiary"
-					>{field.placeholder}</option
+				<option value="" disabled selected class="text-content-tertiary">{field.placeholder}</option
 				>
 			{/if}
 			{#each field.options ?? [] as opt (opt.value)}
@@ -228,11 +240,7 @@
 					class="{inputBase} flex-1 py-2 text-sm"
 					onkeydown={(e) => e.key === 'Enter' && (e.preventDefault(), addOption())}
 				/>
-				<button
-					type="button"
-					onclick={addOption}
-					class="btn btn-secondary px-4 py-2 text-sm"
-				>
+				<button type="button" onclick={addOption} class="btn btn-secondary px-4 py-2 text-sm">
 					Add
 				</button>
 			</div>
@@ -243,14 +251,11 @@
 		<div class="flex flex-col gap-2">
 			<div class="bg-surface-secondary flex min-h-11 flex-wrap gap-2 rounded-lg border p-2">
 				{#each field.options ?? [] as opt (opt.value)}
-					{@const selected =
-						Array.isArray(field.value) && field.value.includes(opt.value)}
+					{@const selected = Array.isArray(field.value) && field.value.includes(opt.value)}
 					<button
 						type="button"
 						onclick={() => {
-							const current: InputValue[] = Array.isArray(field.value)
-								? [...field.value]
-								: [];
+							const current: InputValue[] = Array.isArray(field.value) ? [...field.value] : [];
 							const next = selected
 								? current.filter((v) => v !== opt.value)
 								: [...current, opt.value];
@@ -277,11 +282,7 @@
 						class="{inputBase} flex-1 py-2 text-sm"
 						onkeydown={(e) => e.key === 'Enter' && (e.preventDefault(), addOption())}
 					/>
-					<button
-						type="button"
-						onclick={addOption}
-						class="btn btn-secondary px-4 py-2 text-sm"
-					>
+					<button type="button" onclick={addOption} class="btn btn-secondary px-4 py-2 text-sm">
 						Add
 					</button>
 				</div>

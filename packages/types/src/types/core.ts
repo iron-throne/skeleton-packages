@@ -45,6 +45,7 @@ export interface IMenu {
     onclick?: () => void;
     href?: string;
     selectedIcon?: any;
+    class?: string;
 }
 
 export enum ESnackType {
