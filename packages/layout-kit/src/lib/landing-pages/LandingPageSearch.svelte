@@ -5,7 +5,13 @@
 		placeholder = 'City, address, or ZIP',
 		buttonText = 'Search',
 		inputLabel = 'Search properties',
-		onSubmit
+		onSubmit,
+		sectionCls,
+		overlayCls,
+		titleCls,
+		formCls,
+		inputCls,
+		ctaCls
 	}: {
 		title?: string;
 		backgroundImage?: string;
@@ -13,6 +19,12 @@
 		buttonText?: string;
 		inputLabel?: string;
 		onSubmit?: (value: string) => void;
+		sectionCls?: string;
+		overlayCls?: string;
+		titleCls?: string;
+		formCls?: string;
+		inputCls?: string;
+		ctaCls?: string;
 	} = $props();
 
 	let searchValue = $state('');
@@ -23,31 +35,33 @@
 	}
 </script>
 
-<section class="w-full h-screen">
+<section class="w-full h-screen {sectionCls}">
 	<div
-		class="w-full h-full opacity-90 bg-cover bg-no-repeat bg-center flex flex-col justify-center items-center"
+		class="w-full h-full opacity-90 bg-cover bg-no-repeat bg-center flex flex-col justify-center items-center {overlayCls}"
 		style={`background-image: url('${backgroundImage}')`}
 	>
 		<!-- Title -->
-		<h1
-			class="text-white text-center xl:text-5xl lg:text-4xl md:text-3xl sm:text-2xl text-xl font-semibold p-2 rounded-sm"
-		>
-			{title}
-		</h1>
+		{#if title}
+			<h1
+				class="text-white text-center xl:text-5xl lg:text-4xl md:text-3xl sm:text-2xl text-xl font-semibold p-2 rounded-sm {titleCls}"
+			>
+				{title}
+			</h1>
+		{/if}
 
 		<!-- Search Form -->
-		<div class="w-full mx-auto">
+		<div class="w-full mx-auto {formCls}">
 			<form onsubmit={handleSubmit}>
 				<div class="xl:w-1/2 lg:w-[60%] sm:w-[70%] w-[90%] mx-auto flex gap-2 md:mt-6 mt-4">
-					<label for="lp2-search" class="sr-only">{inputLabel}</label>
+					<label for="landing-search-input" class="sr-only">{inputLabel}</label>
 					<input
-						id="lp2-search"
+						id="landing-search-input"
 						type="text"
 						bind:value={searchValue}
-						class="border w-full p-2 rounded-md text-xl pl-2"
+						class="border w-full p-2 rounded-md text-xl pl-2 {inputCls}"
 						{placeholder}
 					/>
-					<button type="submit" class="btn btn-primary">
+					<button type="submit" class="btn btn-primary {ctaCls}">
 						{buttonText}
 					</button>
 				</div>

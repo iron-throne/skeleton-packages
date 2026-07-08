@@ -39,10 +39,12 @@ export interface IMenu {
     selected?: any;
     danger?: boolean;
     disabled?: boolean;
-    subMenu?: IMenu[];
+    children?: IMenu[];
     divider?: boolean;
     id: string;
     onclick?: () => void;
+    href?: string;
+    selectedIcon?: any;
 }
 
 export enum ESnackType {

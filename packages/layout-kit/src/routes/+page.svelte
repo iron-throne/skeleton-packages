@@ -1,31 +1,39 @@
 <script lang="ts">
-	import Header from '$lib/header/Header.svelte';
-	import type { NavItem, HeaderVariant } from '$lib/header/types.js';
+	import { Header, type HeaderVariant } from '$lib';
+	import type { IMenu } from '@aryagg/types';
 
-	const items: NavItem[] = [
-		{ label: 'Home', href: '/' },
+	const items: IMenu[] = [
+		{ label: 'Home', href: '/', id:"home" },
 		{
 			label: 'Products',
+			id:'products',
 			children: [
-				{ label: 'UI Kit', href: '/ui-kit' },
+				{ label: 'UI Kit', href: '/ui-kit', id: "kit" },
 				{
 					label: 'Layout Kit',
+					id:"layout-kit",
 					children: [
-						{ label: 'Header', href: '/header' },
-						{ label: 'Sidebar', href: '/sidebar' },
+						{ label: 'Header', href: '/header', id:"header" },
+						{ label: 'Topbar', href: '/topbar', id:"topbar" },
+						{ label: 'Landing Page', href: '/landing-page', id:"landing-page" },
+						{ label: 'Sidebar', href: '/sidebar', id:"sidebar" },
 					],
 				},
-				{ label: 'Theme', href: '/theme', badge: 'New' },
+				{ label: 'Theme', href: '/theme', id:"theme" },
 			],
 		},
 		{
 			label: 'Docs',
+			id:"docs",
 			children: [
-				{ label: 'Getting Started', href: '/docs/start' },
-				{ label: 'Components', href: '/docs/components' },
+				{ label: 'Getting Started', href: '/docs/start', id:"getting-started" },
+				{ label: 'Guides', href: '/docs/guides', id:"guides" },
+				{ label: 'API Reference', href: '/docs/api', id:"api-reference" },
+				{ label: 'Components', href: '/docs/components', id:"components" },
 			],
 		},
-		{ label: 'Pricing', href: '/pricing' },
+		{ label: 'Pricing', href: '/pricing', id:"pricing" },
+		{ label: 'About', href: '/about', id:"about" },
 	];
 
 	const headers: { id: HeaderVariant; label: string }[] = [

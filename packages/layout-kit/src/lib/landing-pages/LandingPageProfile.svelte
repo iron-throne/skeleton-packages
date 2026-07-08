@@ -20,7 +20,14 @@ soluta atque corrupti a alias perferendis.`,
 		FollowIcon = Heart as unknown as IconComponent,
 		ResumeIcon = Download as unknown as IconComponent,
 		onFollow = () => {},
-		onResume = () => {}
+		onResume = () => {},
+		wrapperCls,
+		leftCls,
+		headingCls,
+		descCls,
+		followCls,
+		resumeCls,
+		imgCls
 	}: {
 		greeting?: string;
 		role?: string;
@@ -33,41 +40,52 @@ soluta atque corrupti a alias perferendis.`,
 		ResumeIcon?: IconComponent;
 		onFollow?: () => void;
 		onResume?: () => void;
+		wrapperCls?: string;
+		leftCls?: string;
+		headingCls?: string;
+		descCls?: string;
+		followCls?: string;
+		resumeCls?: string;
+		imgCls?: string;
 	} = $props();
 </script>
 
-<div class="flex h-screen items-center justify-center bg-surface-secondary p-5">
+<div class="flex h-screen items-center justify-center bg-surface-secondary p-5 {wrapperCls}">
 	<div class="grid md:grid-cols-2 grid-cols-1 items-center gap-10 md:px-10">
-
 		<!-- LEFT SIDE -->
-		<div>
-			<h1 class="mb-2 text-3xl font-bold">
-				<span class="text-accent">{greeting}</span> {role}
+		<div class={leftCls}>
+			<h1 class="mb-2 text-3xl font-bold {headingCls}">
+				<span class="text-accent">{greeting}</span>
+				{role}
 			</h1>
 
-			<p class="mb-6">{description}</p>
+			<p class="mb-6 {descCls}">{description}</p>
 
 			<div class="flex justify-center space-x-5">
-				<button type="button" class="btn btn-primary w-full" onclick={onFollow}>
-					{followText}
-					<FollowIcon />
-				</button>
-
-				<button type="button" class="btn btn-secondary w-full" onclick={onResume}>
-					{resumeText}
-					<ResumeIcon />
-				</button>
+				{#if onFollow}
+					<button type="button" class="btn btn-primary w-full {followCls}" onclick={onFollow}>
+						{followText}
+						<FollowIcon />
+					</button>
+				{/if}
+				{#if onResume}
+					<button type="button" class="btn btn-secondary w-full {resumeCls}" onclick={onResume}>
+						{resumeText}
+						<ResumeIcon />
+					</button>
+				{/if}
 			</div>
 		</div>
 
 		<!-- RIGHT SIDE IMAGE -->
 		<div>
-			<img
-				src={image}
-				alt={imageAlt}
-				class="md:size-96 size-72 rounded-full object-cover"
-			/>
+			{#if image}
+				<img
+					src={image}
+					alt={imageAlt}
+					class="md:size-96 size-72 rounded-full object-cover {imgCls}"
+				/>
+			{/if}
 		</div>
-
 	</div>
 </div>
