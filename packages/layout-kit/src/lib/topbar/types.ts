@@ -1,4 +1,4 @@
-import { ETheme, type IMenu } from '@aryagg/types';
+import { ETheme, type IFormField, type IMenu } from '@aryagg/types';
 import type { Snippet } from 'svelte';
 
 export interface TopbarProps {
@@ -13,11 +13,9 @@ export interface TopbarProps {
 	menus?: IMenu[];
 	activeHref?: string;
 
-	searchPlaceholder?: string;
-	searchClass?: string;
-	searchIconClass?: string;
-	searchValue?: string;
+	searchField?: IFormField;
 	onSearchInput?: (value?: string) => void;
+	searchSlot?: Snippet | null;
 
 	languages?: { label?: string; value?: string }[];
 	currentLanguage?: string;
@@ -30,6 +28,7 @@ export interface TopbarProps {
 	userName?: string;
 	profileLabel?: string;
 	profileItems?: any[];
+	profileSlot?: Snippet | null;
 
 	leftSlot?: Snippet | null;
 	midSlot?: Snippet | null;
@@ -48,12 +47,12 @@ export type NavItem = {
 
 export type HeaderVariant = 'default' | 'centered' | 'stacked' | 'minimal';
 
-export type HeaderProps = {
-	brand: string;
+export type HeaderProps = TopbarProps & {
+	brand?: string;
 	brandHref?: string;
 	brandIcon?: any;
 	tagline?: string;
-	items?: NavItem[];
+	items?: IMenu[];
 	actions?: Snippet;
 	variant?: HeaderVariant;
 	class?: string;

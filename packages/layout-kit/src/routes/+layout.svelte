@@ -1,5 +1,5 @@
 <script lang="ts">
-	import '@aryagg/theme';
+	import '../app.css';
 	let { children } = $props();
 </script>
 

@@ -4,14 +4,17 @@
 	import { CaretDownFill } from 'svelte-bootstrap-icons';
 
 	let {
-		items
+		items,
+		activeHref = ''
 	}: {
 		items: IMenu[];
+		activeHref?: string;
 	} = $props();
 </script>
 
 <nav class="flex items-center gap-0.5">
 	{#each items as item, i (i)}
+		{@const isActive = activeHref === item.href}
 		<div class="relative">
 			{#if item.children?.length}
 				<DropdownMenu menus={item.children} align={EMenuAlign.LEFT}>
@@ -22,7 +25,13 @@
 							aria-expanded={open}
 							aria-haspopup="true"
 						>
-							{#if item.icon}{@const I = item.icon}<I class="size-4 shrink-0" />{/if}
+							{#if isActive && item.selectedIcon}
+								{@const I = item.selectedIcon}
+								<I class="size-4 shrink-0" />
+							{:else if item.icon}
+								{@const I = item.icon}
+								<I class="size-4 shrink-0" />
+							{/if}
 							<span>{item.label}</span>
 							<CaretDownFill
 								class="size-3 transition-transform duration-150 {open ? 'rotate-180' : ''}"
@@ -31,8 +40,19 @@
 					{/snippet}
 				</DropdownMenu>
 			{:else}
-				<a href={item.href ?? '#'} class="btn-ghost btn-sm flex items-center gap-1.5 no-underline">
-					{#if item.icon}{@const I = item.icon}<I class="size-4 shrink-0" />{/if}
+				<a
+					href={item.href ?? '#'}
+					class="btn-ghost btn-sm flex items-center gap-1.5 no-underline {isActive
+						? 'text-accent'
+						: 'text-secondary'}"
+				>
+					{#if isActive && item.selectedIcon}
+						{@const I = item.selectedIcon}
+						<I class="size-4 shrink-0" />
+					{:else if item.icon}
+						{@const I = item.icon}
+						<I class="size-4 shrink-0" />
+					{/if}
 					<span>{item.label}</span>
 				</a>
 			{/if}
