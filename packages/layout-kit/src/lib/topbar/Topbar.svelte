@@ -98,13 +98,22 @@
 					onclick={toggle}
 					aria-label="User menu"
 					aria-expanded={open}
-					class="group text-secondary hover:text-accent/80! flex flex-col items-center gap-1 border-0 px-3 pt-0 pb-1 text-[11px] font-medium transition-colors"
+					class="group hover:text-accent! relative flex flex-col items-center border-transparent bg-transparent px-3 pb-1 pt-0 text-[11px]! gap-0 font-medium transition-colors hover:bg-transparent {open
+						? 'text-accent'
+						: 'text-secondary'}"
 				>
 					<Avatar src={avatarSrc} name={userName} size="xs" />
 					<div class="flex items-center gap-1">
 						<span class="hidden sm:block">{profileLabel}</span>
-						<CaretDownFill class="mt-0.5 size-3 transition-transform {open ? 'rotate-180' : ''}" />
+						<CaretDownFill
+							class="mt-0.5 size-3 transition-transform group-hover:text-accent {open ? 'rotate-180' : ''}"
+						/>
 					</div>
+					<!-- <span
+						class="absolute bottom-0 h-0.5 w-full rounded-full transition-opacity {open
+							? 'bg-accent opacity-100'
+							: 'bg-transparent opacity-0 group-hover:bg-accent/40 group-hover:opacity-100'}"
+					></span> -->
 				</button>
 			{/snippet}
 		</DropdownMenu>
@@ -131,10 +140,17 @@
 						onclick={toggle}
 						aria-label="Switch language"
 						aria-expanded={open}
-						class="btn-ghost text-secondary hover:text-primary flex flex-col items-center gap-1 border-0 px-2 text-[11px] font-semibold"
+						class="group hover:text-accent! relative flex flex-col items-center border-transparent bg-transparent px-2 pb-1 pt-0 text-[11px]! gap-0 font-medium transition-colors hover:bg-transparent {open
+							? 'text-accent'
+							: 'text-secondary'}"
 					>
-						<Globe2 class="size-5" />
+						<Globe2 class="size-5 group-hover:text-accent" />
 						<div class="hidden uppercase sm:block">{currentLanguage}</div>
+						<span
+							class="absolute bottom-0 h-0.5 w-full rounded-full transition-opacity {open
+								? 'bg-accent opacity-100'
+								: 'bg-transparent opacity-0 group-hover:bg-accent/40 group-hover:opacity-100'}"
+						></span>
 					</button>
 				{/snippet}
 			</DropdownMenu>
@@ -144,13 +160,16 @@
 			<button
 				onclick={toggleTheme}
 				aria-label="Toggle theme"
-				class="btn-ghost text-secondary hover:text-primary flex flex-col items-center gap-1 border-0 px-3 py-1 text-[11px] font-semibold"
+				class="group hover:text-accent! text-secondary relative flex flex-col items-center border-transparent bg-transparent px-3 pb-1 pt-0 text-[11px]! gap-0 font-medium transition-colors hover:bg-transparent"
 			>
 				{#if theme === ETheme.LIGHT}
-					<Sun class="size-5" /><span class="hidden sm:block">Light</span>
+					<Sun class="size-5 group-hover:text-accent" /><span class="hidden sm:block">Light</span>
 				{:else}
-					<Moon class="size-5" /><span class="hidden sm:block">Dark</span>
+					<Moon class="size-5 group-hover:text-accent" /><span class="hidden sm:block">Dark</span>
 				{/if}
+				<span
+					class="absolute bottom-0 h-0.5 w-full rounded-full bg-transparent opacity-0 transition-opacity group-hover:bg-accent/40 group-hover:opacity-100"
+				></span>
 			</button>
 		{/if}
 

@@ -59,7 +59,7 @@
 					{/if}
 					<span>{item.label}</span>
 					<span
-						class="absolute inset-x-2 -bottom-1 h-0.5 rounded-full transition-opacity {isActive
+						class="absolute inset-x-2 bottom-0 h-0.5 rounded-full transition-opacity {isActive
 							? 'bg-accent opacity-100'
 							: 'bg-transparent opacity-0 group-hover:bg-accent/40 group-hover:opacity-100'}"
 					></span>
@@ -80,7 +80,7 @@
 					{/if}
 					<span class="hidden px-4 pt-1 sm:block">{item.label}</span>
 					<span
-						class="absolute -bottom-1 h-0.5 w-full rounded-full transition-opacity {isActive
+						class="absolute bottom-0 h-0.5 w-full rounded-full transition-opacity {isActive
 							? 'bg-accent opacity-100'
 							: 'bg-transparent opacity-0 group-hover:bg-accent/40 group-hover:opacity-100'}"
 					></span>
