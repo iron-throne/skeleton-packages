@@ -97,8 +97,8 @@
 
 {#snippet Label(text: string)}
 	<span
-		class="max-w-0 flex-1 truncate text-left opacity-0 transition-[max-width,opacity] duration-300 ease-in-out {collapsed
-			? ''
+		class="flex-1 truncate text-left transition-[max-width,opacity] duration-300 ease-in-out {collapsed
+			? 'max-w-0 opacity-0'
 			: 'max-w-44 opacity-100 delay-100'}"
 	>{text}</span>
 {/snippet}
