@@ -1,71 +1,105 @@
 <script lang="ts">
+	import type { Snippet } from 'svelte';
+
 	let {
+		// Text content
 		title = 'Discover Your New Home',
-		backgroundImage = 'https://images.unsplash.com/photo-1449844908441-8829872d2607?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w0NzEyNjZ8MHwxfHNlYXJjaHw2fHxob21lfGVufDB8MHx8fDE3MTA0MDE1NDZ8MA&ixlib=rb-4.0.3&q=80&w=1080',
 		placeholder = 'City, address, or ZIP',
 		buttonText = 'Search',
 		inputLabel = 'Search properties',
+
+		// Background image
+		backgroundImage = 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1600&q=80',
+		// Event handlers
 		onSubmit,
-		sectionCls,
-		overlayCls,
-		titleCls,
-		formCls,
-		inputCls,
-		ctaCls
+
+		// CSS class overrides
+		sectionClass,
+		overlayClass,
+		headerClass,
+		searchFormClass,
+		inputClass,
+		buttonClass,
+
+		// Slots
+		headerSlot,
+		searchSlot,
+		footerSlot,
+
+		// UI toggles
+		showSearch
 	}: {
 		title?: string;
-		backgroundImage?: string;
 		placeholder?: string;
 		buttonText?: string;
 		inputLabel?: string;
+		backgroundImage?: string;
+
 		onSubmit?: (value: string) => void;
-		sectionCls?: string;
-		overlayCls?: string;
-		titleCls?: string;
-		formCls?: string;
-		inputCls?: string;
-		ctaCls?: string;
+
+		sectionClass?: string;
+		overlayClass?: string;
+		headerClass?: string;
+		searchFormClass?: string;
+		inputClass?: string;
+		buttonClass?: string;
+
+		headerSlot?: Snippet;
+		searchSlot?: Snippet;
+		footerSlot?: Snippet;
+
+		showSearch?: boolean;
 	} = $props();
 
-	let searchValue = $state('');
+	let searchQuery = $state('');
 
 	function handleSubmit(e: SubmitEvent) {
 		e.preventDefault();
-		onSubmit?.(searchValue);
+		onSubmit?.(searchQuery);
 	}
 </script>
 
-<section class="w-full h-screen {sectionCls}">
+<section class="size-full {sectionClass}">
 	<div
-		class="w-full h-full opacity-90 bg-cover bg-no-repeat bg-center flex flex-col justify-center items-center {overlayCls}"
+		class="size-full opacity-90 bg-cover bg-no-repeat bg-center flex flex-col justify-center items-center {overlayClass}"
 		style={`background-image: url('${backgroundImage}')`}
 	>
-		<!-- Title -->
+		<!-- Header -->
 		{#if title}
 			<h1
-				class="text-white text-center xl:text-5xl lg:text-4xl md:text-3xl sm:text-2xl text-xl font-semibold p-2 rounded-sm {titleCls}"
+				class="text-white text-center xl:text-5xl lg:text-4xl md:text-3xl sm:text-2xl text-xl font-semibold p-2 rounded-sm {headerClass}"
 			>
 				{title}
 			</h1>
 		{/if}
 
+		{@render headerSlot?.()}
+
 		<!-- Search Form -->
-		<div class="w-full mx-auto {formCls}">
+		<div class="w-full mx-auto {searchFormClass}">
 			<form onsubmit={handleSubmit}>
 				<div class="xl:w-1/2 lg:w-[60%] sm:w-[70%] w-[90%] mx-auto flex gap-2 md:mt-6 mt-4">
 					<label for="landing-search-input" class="sr-only">{inputLabel}</label>
+
 					<input
 						id="landing-search-input"
 						type="text"
-						bind:value={searchValue}
-						class="border w-full p-2 rounded-md text-xl pl-2 {inputCls}"
+						bind:value={searchQuery}
+						class="border w-full p-2 rounded-md text-xl pl-2 {inputClass}"
 						{placeholder}
 					/>
-					<button type="submit" class="btn btn-primary {ctaCls}">
-						{buttonText}
-					</button>
+
+					{#if showSearch}
+						<button type="submit" class="btn btn-primary {buttonClass}">
+							{buttonText}
+						</button>
+					{/if}
+
+					{@render searchSlot?.()}
 				</div>
 			</form>
+
+			{@render footerSlot?.()}
 		</div>
 	</div>
 </section>

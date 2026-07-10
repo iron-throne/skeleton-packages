@@ -34,7 +34,7 @@
 		"svelte": "^5.0.0"
 	},
 	"devDependencies": {
-		"@aryagg/theme": "^0.0.2",
+		"@aryagg/theme": "file:../theme",
 		"@aryagg/types": "file:../types",
 		"@eslint/js": "^10.0.1",
 		"@sveltejs/adapter-auto": "^7.0.1",
