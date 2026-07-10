@@ -1,8 +1,10 @@
 <script lang="ts">
-	import type { Component, Snippet } from 'svelte';
-	import { slide } from 'svelte/transition';
+	import type { Snippet } from 'svelte';
+	import { scale } from 'svelte/transition';
+	import { cubicOut } from 'svelte/easing';
 	import { clickOutside } from '@aryagg/utils';
 	import { type IMenu, EMenuAlign } from '@aryagg/types';
+	import { CaretRightFill } from 'svelte-bootstrap-icons';
 
 	let {
 		menus,
@@ -18,15 +20,59 @@
 	} = $props();
 
 	let open = $state(false);
-	const toggle = () => (open = !open);
-	const close = () => (open = false);
+	let containerEl = $state<HTMLElement>();
+	let panelPos = $state({ top: 0, left: 0, right: 0, maxHeight: 320, useRight: false });
 
-	const alignClass: Record<EMenuAlign, string> = {
-		[EMenuAlign.RIGHT]: 'right-0',
-		[EMenuAlign.LEFT]: 'left-0'
-	};
+	// Menu panel is rendered with `position: fixed` (in the CSS, not the DOM) so it can
+	// escape any `overflow-hidden`/`overflow-auto` ancestor (e.g. a collapsing sidebar).
+	function updatePosition() {
+		if (!containerEl) return;
+		const rect = containerEl.getBoundingClientRect();
+		const gap = 6;
+		const maxHeight = Math.max(160, window.innerHeight - rect.top - 12);
+		if (align === EMenuAlign.RIGHT) {
+			panelPos = {
+				top: rect.top,
+				left: 0,
+				right: window.innerWidth - rect.left + gap,
+				maxHeight,
+				useRight: true
+			};
+		} else {
+			panelPos = {
+				top: rect.top,
+				left: rect.right + gap,
+				right: 0,
+				maxHeight,
+				useRight: false
+			};
+		}
+	}
 
-	type ItemIcon = Component<{ width?: number; height?: number; class?: string }>;
+	function show() {
+		updatePosition();
+		open = true;
+	}
+
+	function close() {
+		open = false;
+	}
+
+	function toggle() {
+		if (open) close();
+		else show();
+	}
+
+	$effect(() => {
+		if (!open) return;
+		const onReposition = () => updatePosition();
+		window.addEventListener('scroll', onReposition, true);
+		window.addEventListener('resize', onReposition);
+		return () => {
+			window.removeEventListener('scroll', onReposition, true);
+			window.removeEventListener('resize', onReposition);
+		};
+	});
 
 	function itemClass(menu: IMenu) {
 		if (menu.disabled) return 'cursor-not-allowed text-tertiary opacity-50';
@@ -37,11 +83,8 @@
 </script>
 
 {#snippet menuIcon(menu: IMenu)}
-	{@const icon = (menu.selected && menu.selectedIcon ? menu.selectedIcon : menu.icon) as
-		| ItemIcon
-		| undefined}
-	{#if icon}
-		{@const Icon = icon}
+	{@const Icon = menu.selected && menu.selectedIcon ? menu.selectedIcon : menu.icon}
+	{#if Icon}
 		<Icon width={15} height={15} class="shrink-0 opacity-70" />
 	{/if}
 {/snippet}
@@ -50,21 +93,27 @@
 	{#if menu.children?.length}
 		<div class="group/item relative">
 			<button
+				type="button"
 				role="menuitem"
 				disabled={menu.disabled}
 				aria-haspopup="true"
-				class="group flex w-full items-center gap-2 rounded-2xl border-0 p-2 text-xs transition-colors {itemClass(
+				class="group flex w-full items-center gap-2 rounded-2xl border-0 p-2 transition-colors duration-150 {itemClass(
 					menu
-				)}  {menu.class ?? ''}"
+				)} {menu.class ?? ''}"
 			>
 				{@render menuIcon(menu)}
 				<span class="flex-1 text-left">{menu.label}</span>
-				<span class="text-tertiary text-[10px]">></span>
+				<CaretRightFill
+					class="size-2.5 shrink-0 text-tertiary opacity-70 {align === EMenuAlign.RIGHT
+						? 'rotate-180'
+						: ''}"
+				/>
 			</button>
 			<div
 				class="bg-surface-primary! border-border-primary invisible absolute top-0 z-50 min-w-44
-					rounded-xl p-2 opacity-0 shadow-lg transition-opacity group-hover/item:visible group-hover/item:opacity-100
-					{align === EMenuAlign.RIGHT ? 'right-full mr-1' : 'left-full ml-1'}"
+					origin-top scale-95 rounded-xl border p-2 opacity-0 shadow-lg transition-[opacity,transform,visibility]
+					duration-150 ease-out group-hover/item:visible group-hover/item:scale-100 group-hover/item:opacity-100
+					{align === EMenuAlign.RIGHT ? 'right-full mr-1 origin-right' : 'left-full ml-1 origin-left'}"
 				role="menu"
 			>
 				{#each menu.children as child, childIndex (child.id ?? childIndex)}
@@ -81,7 +130,7 @@
 				menu.onclick?.();
 				close();
 			}}
-			class="group flex w-full items-center gap-2 rounded-2xl border-0 p-2 text-xs no-underline transition-colors {itemClass(
+			class="group flex w-full items-center gap-2 rounded-2xl border-0 p-2 no-underline transition-colors duration-150 {itemClass(
 				menu
 			)} {menu.class ?? ''}"
 		>
@@ -90,13 +139,14 @@
 		</a>
 	{:else}
 		<button
+			type="button"
 			role="menuitem"
 			disabled={menu.disabled}
 			onclick={() => {
 				menu.onclick?.();
 				close();
 			}}
-			class="group flex w-full items-center gap-2 rounded-2xl border-0 p-2 text-xs transition-colors {itemClass(
+			class="group flex w-full items-center gap-2 rounded-2xl border-0 p-2 transition-colors duration-150 {itemClass(
 				menu
 			)} {menu.class ?? ''}"
 		>
@@ -105,10 +155,11 @@
 		</button>
 	{/if}
 {/snippet}
-<!-- class="relative inline-block w-full" -->
+
 <div
 	role="presentation"
-	class="inline-block w-full"
+	class="relative inline-block w-full"
+	bind:this={containerEl}
 	use:clickOutside={close}
 	onkeydown={(e) => {
 		if (e.key === 'Escape') close();
@@ -117,14 +168,15 @@
 	<!-- Trigger slot -->
 	{@render trigger({ open, toggle })}
 
-	<!-- Menu panel -->
+	<!-- Menu panel: fixed-positioned so it can escape clipping/scrolling ancestors -->
 	{#if open}
 		<div
-			transition:slide={{ duration: 300 }}
-			class="bg-surface-primary! border-border-primary absolute z-50 min-w-44 w-full
-                   rounded-xl p-2 shadow-lg {align === EMenuAlign.RIGHT
-				? 'right-full mr-1'
-				: 'left-full ml-1'} {menuClass}"
+			transition:scale={{ duration: 160, start: 0.94, opacity: 0, easing: cubicOut }}
+			style="position: fixed; top: {panelPos.top}px; {panelPos.useRight
+				? `right: ${panelPos.right}px;`
+				: `left: ${panelPos.left}px;`} max-height: {panelPos.maxHeight}px;"
+			class="bg-surface-primary! border-border-primary z-50 min-w-48 overflow-y-auto
+				rounded-xl border p-2 shadow-xl {panelPos.useRight ? 'origin-top-right' : 'origin-top-left'} {menuClass}"
 			role="menu"
 		>
 			{#each menus as menu, ind (menu.id ?? ind)}

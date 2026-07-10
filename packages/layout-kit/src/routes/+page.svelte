@@ -112,7 +112,7 @@
 </script>
 
 <main class="flex h-screen bg-surface-tertiary text-primary">
-	<CollapsibleSidebar {menus} isCollapsed={false} logosrc="https://upload.wikimedia.org/wikipedia/commons/e/e0/SNice.svg" />
+	<CollapsibleSidebar {menus} bind:collapsed={isCollapsed} logosrc="https://upload.wikimedia.org/wikipedia/commons/e/e0/SNice.svg" />
 
 	<div class="flex-1 overflow-auto p-6">
 		<button
