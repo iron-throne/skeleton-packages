@@ -16,8 +16,8 @@
 
 		collapsed = $bindable(false),
 		collapsible = true,
+		collapsedMode = 'icons',
 		position = 'left',
-		ariaLabel = 'Sidebar navigation',
 
 		onToggle,
 
@@ -39,9 +39,17 @@
 		/** Bindable so the parent can read/drive the collapsed state, e.g. `bind:collapsed`. */
 		collapsed?: boolean;
 		collapsible?: boolean;
+		/**
+		 * How the sidebar behaves while `collapsed`:
+		 * - `'icons'` (default): shrinks to an icon-only rail; groups open their children via
+		 *   a flyout on hover/click.
+		 * - `'hide'`: collapses to zero width and is inerted, i.e. the whole sidebar disappears.
+		 *   Since its own toggle button disappears with it, `collapsed` must be driven externally
+		 *   (e.g. `bind:collapsed` from a topbar button) to bring it back.
+		 */
+		collapsedMode?: 'icons' | 'hide';
 		/** Which edge of the screen the sidebar sits on, used to pick flyout/toggle direction. */
 		position?: 'left' | 'right';
-		ariaLabel?: string;
 
 		onToggle?: (collapsed: boolean) => void;
 
@@ -58,6 +66,8 @@
 	// Inline accordion state for parent items, only relevant while the sidebar is expanded.
 	// While collapsed, children are shown via a flyout (DropdownMenu) instead.
 	let openGroups = $state(new Set<string>());
+
+	let isHidden = $derived(collapsed && collapsedMode === 'hide');
 
 	function toggleCollapsed() {
 		collapsed = !collapsed;
@@ -79,7 +89,7 @@
 			menu.disabled
 				? 'pointer-events-none cursor-not-allowed opacity-40'
 				: menu.selected
-					? 'bg-accent/75 text-on-accent'
+					? 'bg-accent/75 text-on-accent hover:text-on-accent!'
 					: 'text-primary/65 hover:bg-accent/10 hover:text-accent',
 			menu.class ?? ''
 		].join(' ');
@@ -91,23 +101,31 @@
 {#snippet ItemIcon(menu: IMenu)}
 	{@const Icon = menu.selected && menu.selectedIcon ? menu.selectedIcon : menu.icon}
 	{#if Icon}
-		<Icon class="size-5 shrink-0" />
+		<Icon
+			class="
+    size-5
+    shrink-0
+    transition-transform
+    duration-200
+    group-hover:scale-110
+    "
+		/>
 	{/if}
 {/snippet}
 
 {#snippet Label(text: string)}
 	<span
-		class="flex-1 truncate text-left transition-[max-width,opacity] duration-300 ease-in-out {collapsed
-			? 'max-w-0 opacity-0'
-			: 'max-w-44 opacity-100 delay-100'}"
-	>{text}</span>
+		class="overflow-hidden whitespace-nowrap transition-all duration-200 ease-out {collapsed
+			? 'max-w-0 -translate-x-2 opacity-0 hidden'
+			: 'max-w-44 translate-x-0 opacity-100 delay-100'}">{text}</span
+	>
 {/snippet}
 
 {#snippet Leaf(menu: IMenu, depth: number)}
 	{@const style = !collapsed && depth > 0 ? `padding-left:${0.75 + depth}rem` : undefined}
 	{#if menu.disabled}
 		<span
-			class="{rowClass(menu)} flex items-center gap-3 {collapsed
+			class="{rowClass(menu)} transition-all duration-200 flex items-center gap-3 {collapsed
 				? 'mx-auto size-10 justify-center'
 				: 'w-full px-3 py-2'} {itemClass}"
 			{style}
@@ -122,7 +140,7 @@
 		<a
 			href={menu.href ?? '#'}
 			onclick={menu.onclick}
-			class="{rowClass(menu)} flex items-center gap-3 {collapsed
+			class="{rowClass(menu)} transition-all duration-200 flex items-center gap-3 {collapsed
 				? 'mx-auto size-10 justify-center'
 				: 'w-full px-3 py-2'} {itemClass}"
 			{style}
@@ -150,6 +168,7 @@
 					title={menu.label}
 					disabled={menu.disabled}
 					onclick={toggle}
+					onmouseenter={() => !open && toggle()}
 					class="{rowClass(
 						menu
 					)} mx-auto flex size-10 items-center justify-center border-0 {itemClass}"
@@ -166,7 +185,9 @@
 			aria-expanded={isOpen}
 			disabled={menu.disabled}
 			onclick={() => toggleGroup(menu.id)}
-			class="{rowClass(menu)} flex w-full items-center gap-3 px-3 py-2 border-0 {itemClass}"
+			class="{rowClass(
+				menu
+			)} transition-all duration-200 flex w-full items-center gap-3 px-3 py-2 border-0 {itemClass}"
 			{style}
 		>
 			{@render ItemIcon(menu)}
@@ -203,7 +224,7 @@
 
 {#snippet SidebarContent()}
 	<div
-		class="flex shrink-0 items-center gap-2 p-3 {collapsed
+		class="flex shrink-0 items-center gap-2 p-3 border-b border-border-primary {collapsed
 			? 'flex-col'
 			: 'justify-between'} {logoClass}"
 	>
@@ -213,9 +234,19 @@
 			</a>
 		{/if}
 
-		{#if headerSlot && !collapsed}
-			{@render headerSlot()}
-		{/if}
+		<div
+			class="
+    overflow-hidden
+    transition-all
+    duration-200
+
+    {collapsed ? 'max-w-0 opacity-0' : 'max-w-xs opacity-100'}
+    "
+		>
+			{#if headerSlot}
+				{@render headerSlot()}
+			{/if}
+		</div>
 
 		{#if collapsible}
 			<button
@@ -236,8 +267,13 @@
 	</div>
 
 	<nav
-		aria-label={ariaLabel}
-		class="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto p-2 {listClass}"
+		class="flex
+    flex-1
+    flex-col
+    gap-2
+    overflow-y-auto
+    transition-all p-3
+    duration-300 {listClass}"
 	>
 		{#each menus as menu (menu.id)}
 			{@render MenuRow(menu, 0)}
@@ -266,9 +302,11 @@
 <aside
 	class="relative flex h-full shrink-0 flex-col overflow-hidden
 		bg-surface-primary shadow
-		transition-[width] duration-300 ease-in-out
-		{collapsed ? 'w-16' : 'w-60'}
+		transition-all duration-300 ease-[cubic-bezier(.22,1,.36,1)]
+		{isHidden ? 'w-0 border-0 shadow-none opacity-0 pointer-events-none' : collapsed ? 'w-16' : 'w-60'}
 		{mainClass}"
+	aria-hidden={isHidden}
+	inert={isHidden}
 	in:fly={{ x: position === 'right' ? 320 : -320, duration: 350, easing: cubicOut }}
 >
 	{@render SidebarContent()}

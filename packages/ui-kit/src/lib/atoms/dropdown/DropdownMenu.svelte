@@ -2,6 +2,7 @@
 	import type { Snippet } from 'svelte';
 	import { scale } from 'svelte/transition';
 	import { cubicOut } from 'svelte/easing';
+	import { SvelteMap, SvelteSet } from 'svelte/reactivity';
 	import { clickOutside } from '@aryagg/utils';
 	import { type IMenu, EMenuAlign } from '@aryagg/types';
 	import { CaretRightFill } from 'svelte-bootstrap-icons';
@@ -65,7 +66,12 @@
 
 	$effect(() => {
 		if (!open) return;
-		const onReposition = () => updatePosition();
+		const onReposition = () => {
+			updatePosition();
+			// Nested flyouts are positioned relative to their trigger's on-screen rect, so
+			// rather than recomputing every open level, just close them on scroll/resize.
+			submenuOpen.clear();
+		};
 		window.addEventListener('scroll', onReposition, true);
 		window.addEventListener('resize', onReposition);
 		return () => {
@@ -73,6 +79,41 @@
 			window.removeEventListener('resize', onReposition);
 		};
 	});
+
+	// Nested (grandchild+) flyouts: keyed by menu id, each with its own open state and
+	// `position: fixed` coordinates so they escape the parent panel's `overflow-y-auto`
+	// (a plain `absolute` submenu gets clipped by that scroll container).
+	type SubmenuPos = { top: number; left: number; right: number; maxHeight: number; useRight: boolean };
+	let submenuOpen = new SvelteSet<string>();
+	let submenuPos = new SvelteMap<string, SubmenuPos>();
+	const submenuCloseTimers = new Map<string, ReturnType<typeof setTimeout>>();
+
+	function computeSubmenuPos(el: HTMLElement): SubmenuPos {
+		const rect = el.getBoundingClientRect();
+		const gap = 4;
+		const maxHeight = Math.max(160, window.innerHeight - rect.top - 12);
+		return align === EMenuAlign.RIGHT
+			? { top: rect.top, left: 0, right: window.innerWidth - rect.left + gap, maxHeight, useRight: true }
+			: { top: rect.top, left: rect.right + gap, right: 0, maxHeight, useRight: false };
+	}
+
+	function openSubmenu(key: string, el: HTMLElement) {
+		clearTimeout(submenuCloseTimers.get(key));
+		submenuPos.set(key, computeSubmenuPos(el));
+		submenuOpen.add(key);
+	}
+
+	function cancelCloseSubmenu(key: string) {
+		clearTimeout(submenuCloseTimers.get(key));
+	}
+
+	function scheduleCloseSubmenu(key: string) {
+		clearTimeout(submenuCloseTimers.get(key));
+		submenuCloseTimers.set(
+			key,
+			setTimeout(() => submenuOpen.delete(key), 150)
+		);
+	}
 
 	function itemClass(menu: IMenu) {
 		if (menu.disabled) return 'cursor-not-allowed text-tertiary opacity-50';
@@ -91,12 +132,21 @@
 
 {#snippet menuItem(menu: IMenu)}
 	{#if menu.children?.length}
-		<div class="group/item relative">
+		{@const key = String(menu.id ?? menu.label)}
+		{@const isOpen = submenuOpen.has(key)}
+		{@const pos = submenuPos.get(key)}
+		<div
+			class="relative"
+			role="none"
+			onmouseenter={(e) => openSubmenu(key, e.currentTarget as HTMLElement)}
+			onmouseleave={() => scheduleCloseSubmenu(key)}
+		>
 			<button
 				type="button"
 				role="menuitem"
 				disabled={menu.disabled}
 				aria-haspopup="true"
+				aria-expanded={isOpen}
 				class="group flex w-full items-center gap-2 rounded-2xl border-0 p-2 transition-colors duration-150 {itemClass(
 					menu
 				)} {menu.class ?? ''}"
@@ -109,17 +159,24 @@
 						: ''}"
 				/>
 			</button>
-			<div
-				class="bg-surface-primary! border-border-primary invisible absolute top-0 z-50 min-w-44
-					origin-top scale-95 rounded-xl border p-2 opacity-0 shadow-lg transition-[opacity,transform,visibility]
-					duration-150 ease-out group-hover/item:visible group-hover/item:scale-100 group-hover/item:opacity-100
-					{align === EMenuAlign.RIGHT ? 'right-full mr-1 origin-right' : 'left-full ml-1 origin-left'}"
-				role="menu"
-			>
-				{#each menu.children as child, childIndex (child.id ?? childIndex)}
-					{@render menuItem(child)}
-				{/each}
-			</div>
+			{#if isOpen && pos}
+				<div
+					transition:scale={{ duration: 140, start: 0.94, opacity: 0, easing: cubicOut }}
+					style="position: fixed; top: {pos.top}px; {pos.useRight
+						? `right: ${pos.right}px;`
+						: `left: ${pos.left}px;`} max-height: {pos.maxHeight}px;"
+					class="bg-surface-primary! border-border-primary z-50 min-w-44 overflow-y-auto
+						rounded-xl border p-2 shadow-xl"
+					role="menu"
+					tabindex="-1"
+					onmouseenter={() => cancelCloseSubmenu(key)}
+					onmouseleave={() => scheduleCloseSubmenu(key)}
+				>
+					{#each menu.children as child, childIndex (child.id ?? childIndex)}
+						{@render menuItem(child)}
+					{/each}
+				</div>
+			{/if}
 		</div>
 	{:else if menu.href && !menu.disabled}
 		<a
