@@ -158,6 +158,7 @@
 		<DropdownMenu
 			menus={menu.children ?? []}
 			align={position === 'right' ? EMenuAlign.RIGHT : EMenuAlign.LEFT}
+			placement="side"
 			menuClass={'text-sm'}
 		>
 			{#snippet trigger({ open, toggle })}
@@ -200,7 +201,7 @@
 		</button>
 		{#if isOpen}
 			<div
-				class="flex flex-col gap-0.5 overflow-hidden"
+				class="flex flex-col gap-0.5"
 				transition:slide={{ duration: 220, easing: cubicOut }}
 			>
 				{#each menu.children ?? [] as child (child.id)}
@@ -236,7 +237,6 @@
 
 		<div
 			class="
-    overflow-hidden
     transition-all
     duration-200
 
@@ -271,7 +271,6 @@
     flex-1
     flex-col
     gap-2
-    overflow-y-auto
     transition-all p-3
     duration-300 {listClass}"
 	>
@@ -300,7 +299,7 @@
 {/snippet}
 
 <aside
-	class="relative flex h-full shrink-0 flex-col overflow-hidden
+	class="relative flex h-full shrink-0 flex-col
 		bg-surface-primary shadow
 		transition-all duration-300 ease-[cubic-bezier(.22,1,.36,1)]
 		{isHidden ? 'w-0 border-0 shadow-none opacity-0 pointer-events-none' : collapsed ? 'w-16' : 'w-60'}

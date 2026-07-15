@@ -12,9 +12,15 @@ export function clickOutside(
     callback: () => void
 ): { destroy: () => void } {
     function handleClick(event: MouseEvent) {
-        if (node && !node.contains(event.target as Node)) {
-            callback();
-        }
+        const target = event.target as Node;
+        if (node.contains(target)) return;
+
+        // Portaled content (e.g. a nested dropdown flyout moved to <body> to escape a
+        // scrollable ancestor) is no longer a DOM descendant of `node`, so it's tagged with
+        // `data-dropdown-menu` and treated as "inside" regardless of where it was moved to.
+        if (target instanceof Element && target.closest('[data-dropdown-menu]')) return;
+
+        callback();
     }
 
     document.addEventListener('mousedown', handleClick, true);

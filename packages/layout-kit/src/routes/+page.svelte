@@ -113,16 +113,4 @@
 
 <main class="flex h-screen bg-surface-tertiary text-primary">
 	<CollapsibleSidebar {menus} bind:collapsed={isCollapsed} logosrc="https://upload.wikimedia.org/wikipedia/commons/e/e0/SNice.svg" />
-
-	<div class="flex-1 overflow-auto p-6">
-		<button
-			type="button"
-			class="rounded-lg border border-border-primary px-3 py-1.5 text-sm"
-			onclick={() => (mobileOpen = true)}
-		>
-			Open mobile sidebar
-		</button>
-		<h1 class="mt-4 text-xl font-bold">Content area</h1>
-		<p class="text-secondary">Toggle the desktop sidebar's collapse button, or open the mobile drawer above.</p>
-	</div>
 </main>

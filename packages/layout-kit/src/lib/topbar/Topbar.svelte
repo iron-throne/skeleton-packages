@@ -55,7 +55,7 @@
 </script>
 
 {#snippet BrandMark()}
-	{#if logoSrc || brand }
+	{#if logoSrc || brand}
 		<a
 			href={brandLink}
 			class="flex shrink-0 items-center gap-2 no-underline opacity-100 transition-opacity hover:opacity-80 mr-3 {homeClass}"
@@ -92,10 +92,11 @@
 	{#if profileSlot}
 		{@render profileSlot()}
 	{:else if userName || profileItems.length}
+		{@const isDropdown = profileItems.length > 0}
 		<DropdownMenu menus={profileItems} align={EMenuAlign.RIGHT}>
 			{#snippet trigger({ open, toggle }: { open: boolean; toggle: () => void })}
 				<button
-					onclick={toggle}
+					onclick={isDropdown ? toggle : null}
 					aria-label="User menu"
 					aria-expanded={open}
 					class="group hover:text-accent! relative flex flex-col items-center border-transparent bg-transparent px-3 pb-1 pt-0 text-[11px]! gap-0 font-medium transition-colors hover:bg-transparent {open
@@ -103,12 +104,16 @@
 						: 'text-secondary'}"
 				>
 					<Avatar src={avatarSrc} name={userName} size="xs" />
-					<div class="flex items-center gap-1">
-						<span class="hidden sm:block">{profileLabel}</span>
-						<CaretDownFill
-							class="mt-0.5 size-3 transition-transform group-hover:text-accent {open ? 'rotate-180' : ''}"
-						/>
-					</div>
+					{#if isDropdown}
+						<div class="flex items-center gap-1">
+							<span class="hidden sm:block">{profileLabel}</span>
+							<CaretDownFill
+								class="mt-0.5 size-3 transition-transform group-hover:text-accent {open
+									? 'rotate-180'
+									: ''}"
+							/>
+						</div>
+					{/if}
 					<!-- <span
 						class="absolute bottom-0 h-0.5 w-full rounded-full transition-opacity {open
 							? 'bg-accent opacity-100'
