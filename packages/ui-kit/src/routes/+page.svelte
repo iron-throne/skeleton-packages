@@ -1,7 +1,5 @@
 <script lang="ts">
-	import Avatar from '$lib/atoms/avatar/Avatar.svelte';
+	import { Rating } from "$lib";
 </script>
 
-<button class="btn btn-primary">Test</button>
-
-<Avatar name="Romeo & Juliet" size="xs" />
+<Rating />
