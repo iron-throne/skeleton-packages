@@ -35,7 +35,7 @@
 	const isSearch = $derived(field.type === EInputType.SEARCH);
 
 	const inputClass = $derived(
-		`${inputBase} ${INPUT_TYPE_CLASSES[field.type] ?? ''} ${field.classes ?? ''} ${isSearch && 'pl-10'}`.trim()
+		`${inputBase} ${INPUT_TYPE_CLASSES[field.type] ?? ''} ${field.klass ?? ''} ${isSearch && 'pl-10'}`.trim()
 	);
 
 	const inputAttributes = $derived({

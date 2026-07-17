@@ -75,7 +75,7 @@
 	{#if searchSlot}
 		{@render searchSlot()}
 	{:else if searchField}
-		<div class="min-w-45 sm:min-w-60 md:min-w-75 relative {searchField.classes}">
+		<div class="min-w-45 sm:min-w-60 md:min-w-75 relative {searchField.klass}">
 			<Input bind:field={searchField} />
 		</div>
 	{/if}

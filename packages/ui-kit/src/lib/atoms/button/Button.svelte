@@ -3,7 +3,7 @@
 
 	let {
 		label,
-		classes = '',
+		klass = '',
 		type = 'button',
 		loading = false,
 		disabled = false,
@@ -13,7 +13,7 @@
 		onEnterKeydown,
 	}: {
 		label: string;
-		classes?: string;
+		klass?: string;
 		type?: 'button' | 'submit' | 'reset';
 		loading?: boolean;
 		disabled?: boolean;
@@ -40,7 +40,7 @@
 
 <button
 	{type}
-	class="btn btn-primary {classes}"
+	class="btn btn-primary {klass}"
 	disabled={disabled || loading}
 	aria-disabled={disabled || loading}
 	aria-busy={loading}
