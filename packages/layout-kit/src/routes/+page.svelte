@@ -17,6 +17,5 @@
 </script>
 
 <main class="flex h-screen bg-surface-tertiary text-primary">
-<OtpInput />
-	
+	<OtpInput />
 </main>
