@@ -41,7 +41,6 @@
 		rightSlot = null,
 		actions,
 		variant = 'default',
-		hclass = '',
 		klass = '',
 		headerClass = ''
 	}: TopbarProps = $props();
@@ -187,7 +186,7 @@
 {/snippet}
 
 <header
-	class="w-full border-b border-border-primary bg-surface-primary px-2 shadow-2xs flex-none {hclass} {headerClass}"
+	class="w-full border-b border-border-primary bg-surface-primary px-2 shadow flex-none {headerClass}"
 >
 	{#if variant === 'stacked'}
 		<div class="container mx-auto flex h-14 items-center gap-4 p-2 {klass}">

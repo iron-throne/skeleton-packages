@@ -34,7 +34,6 @@ export interface TopbarProps {
 	leftSlot?: Snippet | null;
 	midSlot?: Snippet | null;
 	rightSlot?: Snippet | null;
-	hclass?: string;
 	klass?: string;
 	brand?: string;
 	brandHref?: string;
