@@ -5,6 +5,7 @@
 	import { type IMenu, EMenuAlign } from '@aryagg/types';
 	import { portal } from '@aryagg/utils';
 	import { CaretRightFill } from 'svelte-bootstrap-icons';
+	import Icon from '../icon/Icon.svelte';
 
 	let {
 		menu,
@@ -81,10 +82,7 @@
 </script>
 
 {#snippet menuIcon(m: IMenu)}
-	{@const Icon = m.selected && m.selectedIcon ? m.selectedIcon : m.icon}
-	{#if Icon}
-		<Icon width={15} height={15} class="shrink-0 opacity-70" />
-	{/if}
+	<Icon icon={m.selected && m.selectedIcon ? m.selectedIcon : m.icon} klass="opacity-70 size-15"/>
 {/snippet}
 
 {#if menu.divider}

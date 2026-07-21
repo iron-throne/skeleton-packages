@@ -35,9 +35,9 @@
 								aria-haspopup="true"
 							>
 								{#if isActive && item.selectedIcon}
-									<Icon Icon={item.selectedIcon} class="size-4 shrink-0" />
+									<Icon icon={item.selectedIcon} klass="size-4 shrink-0" />
 								{:else if item.icon}
-									<Icon Icon={item.icon} class="size-4 shrink-0" />
+									<Icon icon={item.icon} klass="size-4 shrink-0" />
 								{/if}
 								<span>{item.label}</span>
 								<CaretDownFill
@@ -58,9 +58,9 @@
 								aria-haspopup="true"
 							>
 								{#if isActive && item.selectedIcon}
-									<Icon Icon={item.selectedIcon} class="size-5 group-hover:text-accent" />
+									<Icon icon={item.selectedIcon} klass="size-5 group-hover:text-accent" />
 								{:else if item.icon}
-									<Icon Icon={item.icon} class="size-5 group-hover:text-accent" />
+									<Icon icon={item.icon} klass="size-5 group-hover:text-accent" />
 								{/if}
 								<span class="hidden items-center gap-1 px-4 pt-1 sm:flex">
 									{item.label}
@@ -80,9 +80,9 @@
 						: 'text-secondary'}"
 				>
 					{#if isActive && item.selectedIcon}
-						<Icon Icon={item.selectedIcon} class="group-hover:text-accent" />
+						<Icon icon={item.selectedIcon} klass="group-hover:text-accent" />
 					{:else if item.icon}
-						<Icon Icon={item.icon} class="group-hover:text-accent" />
+						<Icon icon={item.icon} klass="group-hover:text-accent" />
 					{/if}
 					<span>{item.label}</span>
 					<span
@@ -99,9 +99,9 @@
 						: 'text-secondary'}"
 				>
 					{#if isActive && item.selectedIcon}
-						<Icon Icon={item.selectedIcon} class="size-5 group-hover:text-accent" />
+						<Icon icon={item.selectedIcon} klass="size-5 group-hover:text-accent" />
 					{:else if item.icon}
-						<Icon Icon={item.icon} class="size-5 group-hover:text-accent" />
+						<Icon icon={item.icon} klass="size-5 group-hover:text-accent" />
 					{/if}
 					<span class="hidden px-4 pt-1 sm:block">{item.label}</span>
 					<span

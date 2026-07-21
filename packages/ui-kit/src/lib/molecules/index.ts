@@ -1,3 +1,4 @@
+export { default as Card } from './card/Card.svelte';
 export { default as Combobox } from './combobox/Combobox.svelte';
 export { default as DatePicker } from './date-picker/DatePicker.svelte';
 export { default as Form } from './form/Form.svelte';

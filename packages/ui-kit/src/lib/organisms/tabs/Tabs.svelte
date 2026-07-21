@@ -42,7 +42,7 @@ import type { ITab } from '@aryagg/types';
 					? 'bg-primary text-surface-primary shadow-sm'
 					: 'text-secondary hover:text-primary border-0 bg-transparent'}"
 			>
-				<Icon Icon={tab.icon} klass="size-4 shrink-0"/>
+				<Icon icon={tab.icon} klass="size-4 shrink-0"/>
 				{tab.label}
 				{#if tab.badge != null}
 					<span

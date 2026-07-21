@@ -39,7 +39,7 @@
 			aria-label="Rate {i + 1} stars"
 		>
 			<Icon
-				Icon={isSelected ? selectedIcon : icon}
+				icon={isSelected ? selectedIcon : icon}
 				klass={isSelected ? selectedKlass : iconKlass}
 			/>
 		</button>

@@ -1,24 +1,36 @@
 <script lang="ts">
-	let {
-		Icon,
+    import type { SvelteComponent } from "svelte";	
+	const {
+		icon = null,
 		klass,
 		onclick,
+		disabled,
 		...rest
 	}: {
-		/** Raw SVG markup string, or a Svelte icon component (e.g. from svelte-bootstrap-icons) */
-		Icon?: string | any;
+		icon: string | (new (...args:any[]) => SvelteComponent)  | null;
 		klass?: string;
-		onclick?: (e: MouseEvent) => void;
+		disabled?: boolean;
+		onclick?: ((e: MouseEvent) => void) | undefined;
 		[key: string]: any;
 	} = $props();
+
+	const baseKlass = $derived(
+		'size-4 shrink-0 ' +
+			(onclick ? 'cursor-pointer' : disabled ? 'cursor-not-allowed opacity-65' : '')
+	);
 </script>
 
-{#if Icon}
-	{#if typeof Icon === 'string'}
-		<!-- svelte-ignore a11y_no_static_element_interactions -->
-		<!-- svelte-ignore a11y_click_events_have_key_events -->
-		<span class={`size-4 shrink-0 ${klass}`} {onclick}>{@html Icon}</span>
+{#if icon}
+	{#if typeof icon === 'string'}
+		<img
+			src={icon}
+			aria-hidden="true"
+			class={`${baseKlass} ${klass} `}
+			{onclick}
+			{...rest}
+		/>
 	{:else}
-		<Icon class={`size-4 shrink-0 ${klass}`} {onclick} {...rest} />
+		{@const Icon = icon}
+		<Icon class={`${baseKlass} ${klass}`} {onclick} {...rest} />
 	{/if}
 {/if}

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { EMenuAlign, type IMenu } from '@aryagg/types';
-	import { DropdownMenu } from '@aryagg/ui-kit';
+	import { DropdownMenu, Icon } from '@aryagg/ui-kit';
 	import type { Snippet } from 'svelte';
 	import { CaretDownFill, CaretLeftFill, Person } from 'svelte-bootstrap-icons';
 	import { flip } from 'svelte/animate';
@@ -99,18 +99,14 @@
 </script>
 
 {#snippet ItemIcon(menu: IMenu)}
-	{@const Icon = menu.selected && menu.selectedIcon ? menu.selectedIcon : menu.icon}
-	{#if Icon}
-		<Icon
-			class="
-    size-5
+	<Icon
+		icon={menu.selected && menu.selectedIcon ? menu.selectedIcon : menu.icon}
+		klass="size-5
     shrink-0
     transition-transform
     duration-200
-    group-hover:scale-110
-    "
-		/>
-	{/if}
+    group-hover:scale-110"
+	/>
 {/snippet}
 
 {#snippet Label(text: string)}
@@ -200,10 +196,7 @@
 			/>
 		</button>
 		{#if isOpen}
-			<div
-				class="flex flex-col gap-0.5"
-				transition:slide={{ duration: 220, easing: cubicOut }}
-			>
+			<div class="flex flex-col gap-0.5" transition:slide={{ duration: 220, easing: cubicOut }}>
 				{#each menu.children ?? [] as child (child.id)}
 					{@render MenuRow(child, depth + 1)}
 				{/each}
