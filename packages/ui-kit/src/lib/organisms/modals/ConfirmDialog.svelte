@@ -12,9 +12,9 @@
 		message = '',
 		confirmLabel = 'Confirm',
 		cancelLabel = 'Cancel',
-		variant = 'danger',
+		variant = 'warning',
 		loading = false,
-		isAbsoluteIcon = true,
+		isAbsoluteIcon = false,
 		parentKlass,
 		msgKlass,
 		onconfirm,
@@ -68,18 +68,24 @@
 			{@render iconSlot()}
 		{:else if isAbsoluteIcon}
 			<div
-				class="absolute -top-12 left-1/2 size-24 -translate-x-1/2 rounded-full border-4 shadow-md z-20 {variant === 'danger'
-					? 'border-error bg-error/20'
+				class="absolute -top-12 left-1/2 size-24 -translate-x-1/2 rounded-full border-4 shadow-md z-20 {variant ===
+				'danger'
+					? 'border-error bg-error'
 					: variant === 'warning'
-						? 'border-warning'
-						: 'border-info'}"
+						? 'border-warning bg-warning'
+						: 'border-info bg-info'}"
 			>
 				{@render ConfirmIcon()}
 			</div>
 		{:else}
 			{@render ConfirmIcon()}
 		{/if}
-		<p class="text-sm text-content-secondary text-center leading-relaxed {isAbsoluteIcon && 'pt-15'} {msgKlass}">{message}</p>
+		<p
+			class="text-sm text-content-secondary text-center leading-relaxed {isAbsoluteIcon &&
+				'pt-15'} {msgKlass}"
+		>
+			{message}
+		</p>
 	</div>
 
 	{#snippet footerSlot()}
@@ -111,18 +117,16 @@
 </Modal>
 
 {#snippet ConfirmIcon()}
-	{#if variant === 'danger' || variant === 'warning'}
-		<div class="flex justify-center">
-			<span
-				class="size-22 rounded-full flex items-center justify-center
+	<div class="flex justify-center">
+		<span
+			class="size-22 rounded-full flex items-center justify-center
 					{variant === 'danger'
-					? 'bg-error/10 text-error'
-					: variant === 'warning'
-						? 'bg-warning/10 text-warning'
-						: 'bg-info/10 text-info'}"
-			>
-				<Icon {icon} klass="size-14" />
-			</span>
-		</div>
-	{/if}
+				? 'bg-error text-on-error'
+				: variant === 'warning'
+					? 'bg-warning text-on-warning'
+					: 'bg-info text-on-info'}"
+		>
+			<Icon {icon} klass="size-14" />
+		</span>
+	</div>
 {/snippet}
