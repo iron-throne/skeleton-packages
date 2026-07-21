@@ -14,11 +14,13 @@
 		cancelLabel = 'Cancel',
 		variant = 'danger',
 		loading = false,
+		isAbsoluteIcon = true,
 		parentKlass,
 		msgKlass,
 		onconfirm,
 		oncancel,
-		confirmFooterSlot
+		confirmFooterSlot,
+		iconSlot
 	}: {
 		open: boolean;
 		icon?: string | (new (...args: any[]) => SvelteComponent) | null;
@@ -29,10 +31,12 @@
 		loading?: boolean;
 		parentKlass?: string;
 		msgKlass?: string;
+		isAbsoluteIcon?: boolean;
 
 		onconfirm?: () => void | Promise<void>;
 		oncancel?: () => void;
 		confirmFooterSlot?: Snippet;
+		iconSlot?: Snippet;
 	} = $props();
 
 	const btnClass: Record<Variant, string> = {
@@ -41,15 +45,15 @@
 		info: 'bg-accent text-white hover:bg-accent/90'
 	};
 
-	const handleConfirm = async ()=> {
+	const handleConfirm = async () => {
 		await onconfirm?.();
 		open = false;
-	}
+	};
 
-	const handleCancel =() => {
+	const handleCancel = () => {
 		oncancel?.();
 		open = false;
-	}
+	};
 </script>
 
 <Modal
@@ -60,19 +64,22 @@
 	footerKlass="border-t-0"
 >
 	<div class="flex flex-col gap-2 {parentKlass}">
-		{#if variant === 'danger' || variant === 'warning'}
-			<div class="flex justify-center">
-				<span
-					class="size-22 rounded-full flex items-center justify-center
-                    {variant === 'danger'
-						? 'bg-error/10 text-error'
-						: 'bg-warning/10 text-warning'}"
-				>
-					<Icon {icon} klass="size-14" />
-				</span>
+		{#if iconSlot}
+			{@render iconSlot()}
+		{:else if isAbsoluteIcon}
+			<div
+				class="absolute -top-12 left-1/2 size-24 -translate-x-1/2 rounded-full border-4 shadow-md z-20 {variant === 'danger'
+					? 'border-error bg-error/20'
+					: variant === 'warning'
+						? 'border-warning'
+						: 'border-info'}"
+			>
+				{@render ConfirmIcon()}
 			</div>
+		{:else}
+			{@render ConfirmIcon()}
 		{/if}
-		<p class="text-sm text-content-secondary text-center leading-relaxed {msgKlass}">{message}</p>
+		<p class="text-sm text-content-secondary text-center leading-relaxed {isAbsoluteIcon && 'pt-15'} {msgKlass}">{message}</p>
 	</div>
 
 	{#snippet footerSlot()}
@@ -102,3 +109,20 @@
 		{/if}
 	{/snippet}
 </Modal>
+
+{#snippet ConfirmIcon()}
+	{#if variant === 'danger' || variant === 'warning'}
+		<div class="flex justify-center">
+			<span
+				class="size-22 rounded-full flex items-center justify-center
+					{variant === 'danger'
+					? 'bg-error/10 text-error'
+					: variant === 'warning'
+						? 'bg-warning/10 text-warning'
+						: 'bg-info/10 text-info'}"
+			>
+				<Icon {icon} klass="size-14" />
+			</span>
+		</div>
+	{/if}
+{/snippet}
