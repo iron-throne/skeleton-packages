@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
-	import SkeletonLoader from '$lib/atoms/skeleton-loader/SkeletonLoader.svelte';
 	import type { CardVariant, CardPadding } from './types';
+	import { SkeletonLoader } from '$lib/atoms';
 
 	let {
 		variant = 'outlined',
@@ -72,21 +72,21 @@
 	const interactive = $derived(!disabled && !!(onClick || href));
 	const hasHeader = $derived(!!(header || title || subtitle || actions));
 
-	function handleClick(e: MouseEvent) {
+	const handleClick = (e: MouseEvent) => {
 		if (disabled || loading) {
 			e.preventDefault();
 			return;
 		}
 		onClick?.(e);
-	}
+	};
 
-	function handleKeydown(e: KeyboardEvent) {
+	const handleKeydown = (e: KeyboardEvent) => {
 		if (!interactive || href) return;
 		if (e.key === 'Enter' || e.key === ' ') {
 			e.preventDefault();
 			onClick?.(e as unknown as MouseEvent);
 		}
-	}
+	};
 </script>
 
 <svelte:element
@@ -101,7 +101,9 @@
 	onkeydown={interactive ? handleKeydown : undefined}
 	class="block rounded-2xl overflow-hidden transition-all duration-200 text-primary no-underline hover:no-underline hover:opacity-100
 		{variantClass[variant]}
-		{interactive ? 'cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50' : ''}
+		{interactive
+		? 'cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50'
+		: ''}
 		{(hoverable || interactive) && !disabled ? 'hover:shadow-md hover:-translate-y-0.5' : ''}
 		{selected ? 'border-accent! ring-2 ring-accent/30' : ''}
 		{disabled ? 'opacity-50 grayscale-[0.4] pointer-events-none' : ''}
