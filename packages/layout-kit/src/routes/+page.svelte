@@ -42,7 +42,6 @@
 		alert(`Signed in as ${credentials.email} (remember me: ${credentials.rememberMe})`);
 	}
 </script>
-
 <!-- ── Login component demos ─────────────────────────────────── -->
 <section class="border-border-primary relative border-t">
 	<div
