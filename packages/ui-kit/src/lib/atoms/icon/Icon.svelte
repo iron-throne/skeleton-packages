@@ -10,7 +10,7 @@
 		icon: IconType  | null |undefined;
 		klass?: string;
 		disabled?: boolean;
-		onclick?: ((e: any) => void) | undefined;
+		onclick?: ((...e: any) => void) | undefined;
 		[key: string]: any;
 	} = $props();
 

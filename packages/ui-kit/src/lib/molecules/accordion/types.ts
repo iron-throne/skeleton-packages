@@ -9,13 +9,14 @@ export interface IAccordionProps {
 
   // Behavior
   multiple?: boolean;              // allow multiple open
-  collapsible?: boolean;           // allow closing last item
+  collapsible?: boolean;           // allow closing the only open item (single mode)
   mandatory?: boolean;             // at least one must stay open
   mandatoryId?: number|string;
   disabled?: boolean;              // disable entire accordion
   readonly?: boolean;              // cannot toggle
   size?:ESize;
   disableListClick?:boolean;
+  expandedIds?: (number | string)[]; // bindable: currently open item ids
 
   // Styling
   variant?: "default" | "outlined" | "text" | "inset" | "accordion" | "popout";
