@@ -6,6 +6,7 @@
 	import type { Snippet } from 'svelte';
 	import { ChevronDown, ChevronLeft } from 'svelte-bootstrap-icons';
 	import Icon from '$lib/atoms/icon/Icon.svelte';
+	import { fade, slide } from 'svelte/transition';
 
 	function initialExpanded(
 		list: IAccordionData[] | undefined,
@@ -86,15 +87,17 @@
 			{@const isItemDisabled = disabled || item.disabled}
 			<li class="border-border-primary {item.klass} {listKlass}">
 				<details
-					open={isExpand}
+					open
 					class="group border-border-primary {isItemDisabled ? 'cursor-not-allowed opacity-50' : ''} {detailKlass}"
 				>
 					<summary
 						id="{id}-summary-{item.id}"
 						aria-controls="{id}-panel-{item.id}"
 						aria-disabled={isItemDisabled}
-						class="flex items-center gap-3 font-medium marker:content-none border-border-primary {densityClass[density]
-							.summary} {isItemDisabled ? 'pointer-events-none' : 'hover:cursor-pointer'} {summaryKlass}"
+						aria-expanded={isExpand}
+						class="flex items-center gap-3 font-medium marker:content-none border-border-primary transition-colors duration-200 {densityClass[
+							density
+						].summary} {isItemDisabled ? 'pointer-events-none' : 'hover:cursor-pointer'} {summaryKlass}"
 						onclick={(e) => {
 							e.preventDefault();
 							toggle(item);
@@ -128,13 +131,18 @@
 						{/if}
 					</summary>
 
-					<article
-						id="{id}-panel-{item.id}"
-						aria-labelledby="{id}-summary-{item.id}"
-						class="{densityClass[density].article} {articleKlass}"
-					>
-						{@render Render(item.content)}
-					</article>
+					{#if isExpand}
+						<article
+							id="{id}-panel-{item.id}"
+							aria-labelledby="{id}-summary-{item.id}"
+							class=""
+							transition:slide={{ duration: 200 }}
+						>
+							<div class="{densityClass[density].article} {articleKlass}" transition:fade={{ duration: 150 }}>
+								{@render Render(item.content)}
+							</div>
+						</article>
+					{/if}
 				</details>
 			</li>
 		{/each}
