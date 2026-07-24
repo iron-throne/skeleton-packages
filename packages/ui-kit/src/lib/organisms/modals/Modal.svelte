@@ -1,15 +1,17 @@
 <script lang="ts">
+	import { ESize } from '@aryagg/types';
 	import { fade, scale } from 'svelte/transition';
 	import { cubicOut } from 'svelte/easing';
 	import type { Snippet, SvelteComponent } from 'svelte';
 	import { XLg } from 'svelte-bootstrap-icons';
 	import { Icon } from '$lib/atoms';
+	import { SIZE_CLASS } from '$lib/constants';
 
 	let {
 		open = $bindable(false),
 		title = '',
 		icon = null,
-		size = 'md',
+		size = ESize.MD,
 		closeOnBackdrop = true,
 		closeOnEsc = true,
 		hideClose = false,
@@ -25,7 +27,7 @@
 		open: boolean;
 		title?: string;
 		icon?: string | (new (...args: any[]) => SvelteComponent) | null;
-		size?: 'sm' | 'md' | 'lg' | 'xl' | 'full';
+		size?: ESize;
 		closeOnBackdrop?: boolean;
 		closeOnEsc?: boolean;
 		hideClose?: boolean;
@@ -39,13 +41,7 @@
 		footerKlass?: string;
 	} = $props();
 
-	const sizeClass: Record<string, string> = {
-		sm: 'max-w-sm',
-		md: 'max-w-md',
-		lg: 'max-w-lg',
-		xl: 'max-w-2xl',
-		full: 'max-w-full mx-4'
-	};
+
 
 	const handleBackdrop = () => {
 		if (closeOnBackdrop) close();
@@ -77,7 +73,7 @@
 
 		<!-- Panel -->
 		<div
-			class="relative w-full {sizeClass[
+			class="relative w-full {SIZE_CLASS[
 				size
 			]} bg-surface-primary rounded-2xl shadow-2xl border border-border-primary flex flex-col max-h-[90vh] {panelKlass}"
 			transition:scale={{ duration: 220, easing: cubicOut, start: 0.95 }}

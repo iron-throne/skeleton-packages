@@ -3,6 +3,7 @@
 	import type { Snippet, SvelteComponent } from 'svelte';
 	import Modal from './Modal.svelte';
 	import { ExclamationTriangleFill } from 'svelte-bootstrap-icons';
+	import { ESize } from '@aryagg/types';
 
 	type Variant = 'danger' | 'warning' | 'info';
 
@@ -58,7 +59,7 @@
 
 <Modal
 	bind:open
-	size="sm"
+	size={ESize.SM}
 	closeOnBackdrop={!loading}
 	closeOnEsc={!loading}
 	footerKlass="border-t-0"

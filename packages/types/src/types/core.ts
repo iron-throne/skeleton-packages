@@ -1,72 +1,91 @@
 import type { EDataType, EInputType } from "./input";
 
 export interface IToast {
-    id: number;
-    message: string;
-    type: ESnackType;
+  id: number;
+  message: string;
+  type: ESnackType;
 }
 
 export interface ISnackData {
-    message: string;
-    type: ESnackType;
-    timeOut?: number;
-    class?: string;
+  message: string;
+  type: ESnackType;
+  timeOut?: number;
+  class?: string;
 }
 
 export interface IGenericObject {
-    [key: string]: any;
+  [key: string]: any;
 }
 
 export interface ITab {
-    id: string;
-    label: string;
-    badge?: string | number;
-    disabled?: boolean;
-    icon?: any;
+  id: string;
+  label: string;
+  badge?: string | number;
+  disabled?: boolean;
+  icon?: any;
 }
 
 export interface TableColumn {
-    key: string;
-    label: string;
-    sortable?: boolean;
-    class?: string;
-    type?: EDataType;
+  key: string;
+  label: string;
+  sortable?: boolean;
+  class?: string;
+  type?: EDataType;
 }
 
 export interface IMenu {
-    label: string;
-    icon?: any;
-    selected?: any;
-    danger?: boolean;
-    disabled?: boolean;
-    children?: IMenu[];
-    divider?: boolean;
-    id: string;
-    onclick?: () => void;
-    href?: string;
-    selectedIcon?: any;
-    class?: string;
+  label: string;
+  icon?: any;
+  selected?: any;
+  danger?: boolean;
+  disabled?: boolean;
+  children?: IMenu[];
+  divider?: boolean;
+  id: string;
+  onclick?: () => void;
+  href?: string;
+  selectedIcon?: any;
+  class?: string;
 }
 
 export enum ESnackType {
-    SUCCESS = 'success',
-    DANGER = 'danger',
-    WARNING = 'warning',
-    INFO = 'info',
+  SUCCESS = "success",
+  DANGER = "danger",
+  WARNING = "warning",
+  INFO = "info",
 }
 
 export enum ETheme {
-    LIGHT = 'light',
-    DARK = 'dark'
+  LIGHT = "light",
+  DARK = "dark",
 }
 
 export enum ELocale {
-    EN = 'en',
-    ES = 'es',
-    AR = 'ar',
+  EN = "en",
+  ES = "es",
+  AR = "ar",
 }
 
 export enum EMenuAlign {
-    LEFT = 'left',
-    RIGHT = 'right',
+  LEFT = "left",
+  RIGHT = "right",
+}
+
+export enum ESize {
+  XS = "xs",
+  SM = "sm",
+  MD = "md",
+  LG = "lg",
+  XL = "xl",
+  XL2 = "2xl",
+  XL3 = "3xl",
+  XL4 = "4xl",
+  XL5 = "5xl",
+  XL6 = "6xl",
+  XL7 = "7xl",
+
+  FULL = "full",
+  FIT = "fit",
+  MIN = "min",
+  MAX = "max",
 }
