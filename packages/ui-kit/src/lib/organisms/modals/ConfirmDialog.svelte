@@ -3,7 +3,7 @@
 	import type { Snippet, SvelteComponent } from 'svelte';
 	import Modal from './Modal.svelte';
 	import { ExclamationTriangleFill } from 'svelte-bootstrap-icons';
-	import { ESize } from '@aryagg/types';
+	import { ESize, type IconType } from '@aryagg/types';
 
 	type Variant = 'danger' | 'warning' | 'info';
 
@@ -24,7 +24,7 @@
 		iconSlot
 	}: {
 		open: boolean;
-		icon?: string | (new (...args: any[]) => SvelteComponent) | null;
+		icon?: IconType | null;
 		message?: string;
 		confirmLabel?: string;
 		cancelLabel?: string;

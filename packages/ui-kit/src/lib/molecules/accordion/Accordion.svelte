@@ -1,128 +1,103 @@
-<ul class="max-w-2xl mx-auto mt-20 divide-y shadow shadow-blue-600 rounded-xl">
-	<li>
-		<details class="group" open="">
-			<summary
-				class="flex items-center gap-3 px-4 py-3 font-medium marker:content-none hover:cursor-pointer"
-			>
-				<svg
-					class="w-5 h-5 text-gray-500 transition group-open:rotate-90"
-					xmlns="http://www.w3.org/2000/svg"
-					width="16"
-					height="16"
-					fill="currentColor"
-					viewBox="0 0 16 16"
-				>
-					<path
-						fill-rule="evenodd"
-						d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"
-					>
-					</path>
-				</svg>
-				<span>What am I getting as a Premium Member?</span>
-			</summary>
+<script lang="ts">
+	import { SIZE_CLASS } from '$lib/constants';
+	import { ESize } from '@aryagg/types';
+	import { isSnippet } from '@aryagg/utils';
+	import type { IAccordionProps } from './types';
+	import { onMount, type Snippet } from 'svelte';
+	import { ChevronDown, ChevronLeft } from 'svelte-bootstrap-icons';
+	import Icon from '$lib/atoms/icon/Icon.svelte';
 
-			<article class="px-4 pb-4">
-				<p>
-					Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed et ipsum sapien. Vestibulum
-					molestie porttitor augue vitae vulputate. Aliquam nec ex maximus, suscipit diam vel,
-					tristique tellus.
-				</p>
-			</article>
-		</details>
-	</li>
-	<li>
-		<details class="group">
-			<summary
-				class="flex items-center gap-3 px-4 py-3 font-medium marker:content-none hover:cursor-pointer"
-			>
-				<svg
-					class="w-5 h-5 text-gray-500 transition group-open:rotate-90"
-					xmlns="http://www.w3.org/2000/svg"
-					width="16"
-					height="16"
-					fill="currentColor"
-					viewBox="0 0 16 16"
-				>
-					<path
-						fill-rule="evenodd"
-						d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"
-					>
-					</path>
-				</svg>
-				<span>What am I getting as a Premium Member?</span>
-			</summary>
+	const {
+		id,
+		items,
+		size = ESize.MD,
+		leftIcon = { expandIcon: ChevronLeft, collapseIcon: ChevronDown },
+		rightIcon,
+		multiple,
+		mandatory,
+		mandatoryId,
+		disabled,
+		variant,
+		density,
+		parentklass,
+		listKlass,
+		detailKlass,
+		summaryKlass,
+		articleKlass,
+		disableListClick
+	}: IAccordionProps = $props();
 
-			<article class="px-4 pb-4">
-				<p>
-					Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed et ipsum sapien. Vestibulum
-					molestie porttitor augue vitae vulputate. Aliquam nec ex maximus, suscipit diam vel,
-					tristique tellus.
-				</p>
-			</article>
-		</details>
-	</li>
-	<li>
-		<details class="group">
-			<summary
-				class="flex items-center gap-3 px-4 py-3 font-medium marker:content-none hover:cursor-pointer"
-			>
-				<svg
-					class="w-5 h-5 text-gray-500 transition group-open:rotate-90"
-					xmlns="http://www.w3.org/2000/svg"
-					width="16"
-					height="16"
-					fill="currentColor"
-					viewBox="0 0 16 16"
-				>
-					<path
-						fill-rule="evenodd"
-						d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"
-					>
-					</path>
-				</svg>
-				<span>What am I getting as a Premium Member?</span>
-			</summary>
+	let expanded = $state<Set<number | string>>(new Set());
 
-			<article class="px-4 pb-4">
-				<p>
-					Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed et ipsum sapien. Vestibulum
-					molestie porttitor augue vitae vulputate. Aliquam nec ex maximus, suscipit diam vel,
-					tristique tellus.
-				</p>
-			</article>
-		</details>
-	</li>
-	<li>
-		<details class="group">
-			<summary
-				class="flex items-center gap-3 px-4 py-3 font-medium marker:content-none hover:cursor-pointer"
-			>
-				<svg
-					class="w-5 h-5 text-gray-500 transition group-open:rotate-90"
-					xmlns="http://www.w3.org/2000/svg"
-					width="16"
-					height="16"
-					fill="currentColor"
-					viewBox="0 0 16 16"
-				>
-					<path
-						fill-rule="evenodd"
-						d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"
-					>
-					</path>
-				</svg>
-				<span>What am I getting as a Premium Member?</span>
-			</summary>
+	onMount(() => {
+		mandatoryOpen();
+	});
+	const mandatoryOpen = () => {
+		if (mandatory) {
+			const idToOpen = mandatoryId || items?.[0]?.id;
+			if (idToOpen) {
+				expanded.add(idToOpen);
+			}
+		}
+	};
+	const toggleList = (id: number | string) => {
+		if (!multiple) expanded.clear();
+		expanded.add(id);
+	};
+</script>
 
-			<article class="px-4 pb-4">
-				<p>
-					Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed et ipsum sapien. Vestibulum
-					molestie porttitor augue vitae vulputate. Aliquam nec ex maximus, suscipit diam vel,
-					tristique tellus.
-				</p>
-			</article>
-		</details>
-	</li>
+<ul class="{SIZE_CLASS[size]} mx-auto mt-20 divide-y shadow rounded-xl {parentklass}" {id}>
+	{#if items.length}
+		{#each items as item, iInd (iInd)}
+			{@const isExpand = expanded.has(item.id)}
+			{@const { title, subtitle } = item}
+			<li class={listKlass} onclick={disableListClick ? '' : toggleList(item.id)}>
+				<details
+					class="group {isExpand ? 'open' : ''} {disabled
+						? 'cursor-not-allowed opacity-50 pointer-events-none'
+						: ''} {detailKlass}"
+				>
+					<summary
+						class="flex items-center gap-3 px-4 py-3 font-medium marker:content-none hover:cursor-pointer {summaryKlass}"
+					>
+						{#if leftIcon || !rightIcon}
+							<Icon
+								icon={isExpand ? leftIcon.expandIcon : leftIcon.collapseIcon}
+								onclick={leftIcon.onclick}
+							/>
+						{/if}
+						<p>
+							{@render Render(title)}
+						</p>
+						{#if subtitle}
+							<span>{subtitle}</span>
+						{/if}
+						{#if rightIcon}
+							<Icon
+								icon={isExpand ? rightIcon.expandIcon : rightIcon.collapseIcon}
+								onclick={rightIcon.onclick}
+							/>
+						{/if}
+					</summary>
+
+					<article class="px-4 pb-4">
+						<p>
+							{@render Render(item.content)}
+						</p>
+					</article>
+				</details>
+			</li>
+		{/each}
+	{:else}
+		No data to display
+	{/if}
 </ul>
-
-<script lang="ts"></script>
+{#snippet Render(content: string | Snippet)}
+	{#if content}
+		{#if isSnippet(content)}
+			{@render content()}
+		{:else}
+			{content}
+		{/if}
+	{/if}
+{/snippet}

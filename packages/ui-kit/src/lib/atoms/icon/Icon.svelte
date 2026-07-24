@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { SvelteComponent } from "svelte";	
+	import type { IconType } from "@aryagg/types";
 	const {
 		icon = null,
 		klass,
@@ -7,10 +7,10 @@
 		disabled,
 		...rest
 	}: {
-		icon: string | (new (...args:any[]) => SvelteComponent)  | null;
+		icon: IconType  | null |undefined;
 		klass?: string;
 		disabled?: boolean;
-		onclick?: ((e: MouseEvent) => void) | undefined;
+		onclick?: ((e: any) => void) | undefined;
 		[key: string]: any;
 	} = $props();
 

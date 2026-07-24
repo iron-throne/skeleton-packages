@@ -1,4 +1,5 @@
 import type { EDataType, EInputType } from "./input";
+import type { SvelteComponent } from "svelte";
 
 export interface IToast {
   id: number;
@@ -10,7 +11,7 @@ export interface ISnackData {
   message: string;
   type: ESnackType;
   timeOut?: number;
-  class?: string;
+  klass?: string;
 }
 
 export interface IGenericObject {
@@ -47,6 +48,7 @@ export interface IMenu {
   selectedIcon?: any;
   class?: string;
 }
+export type IconType = string | (new (...args: any[]) => SvelteComponent);
 
 export enum ESnackType {
   SUCCESS = "success",

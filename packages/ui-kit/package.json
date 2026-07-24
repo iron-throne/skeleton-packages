@@ -69,7 +69,7 @@
         "svelte"
     ],
     "dependencies": {
-        "@aryagg/utils": "^1.1.2",
+        "@aryagg/utils": "file:../utils",
         "chart.js": "^4.5.1",
         "svelte-bootstrap-icons": "^3.3.0"
     }

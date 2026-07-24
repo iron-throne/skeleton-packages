@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { ESize } from '@aryagg/types';
+	import { ESize, type IconType } from '@aryagg/types';
 	import { fade, scale } from 'svelte/transition';
 	import { cubicOut } from 'svelte/easing';
 	import type { Snippet, SvelteComponent } from 'svelte';
@@ -26,7 +26,7 @@
 	}: {
 		open: boolean;
 		title?: string;
-		icon?: string | (new (...args: any[]) => SvelteComponent) | null;
+		icon?: IconType | null;
 		size?: ESize;
 		closeOnBackdrop?: boolean;
 		closeOnEsc?: boolean;
