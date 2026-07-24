@@ -46,14 +46,6 @@
 		expandedIds = $bindable(initialExpanded(items, mandatory, mandatoryId))
 	}: IAccordionProps = $props();
 
-	const variantClass: Record<NonNullable<IAccordionProps['variant']>, string> = {
-		default: '',
-		accordion: '',
-		outlined: 'border border-border-primary rounded-lg mb-2 last:mb-0',
-		text: 'bg-transparent',
-		inset: 'mx-2 my-1 rounded-lg bg-surface-secondary',
-		popout: 'shadow-md rounded-lg mb-2 last:mb-0 bg-surface-primary'
-	};
 
 	const densityClass: Record<NonNullable<IAccordionProps['density']>, { summary: string; article: string }> = {
 		compact: { summary: 'px-3 py-1.5', article: 'px-3 pb-2' },
@@ -87,21 +79,21 @@
 	};
 </script>
 
-<ul class="{SIZE_CLASS[size]} divide-y shadow rounded-xl {parentklass}" {id}>
+<ul class="{SIZE_CLASS[size]} divide-y divider-border-primary shadow rounded-xl {parentklass}" {id}>
 	{#if items?.length}
 		{#each items as item (item.id)}
 			{@const isExpand = isItemOpen(item.id)}
 			{@const isItemDisabled = disabled || item.disabled}
-			<li class="{variantClass[variant]} {item.klass} {listKlass}">
+			<li class="border-border-primary {item.klass} {listKlass}">
 				<details
 					open={isExpand}
-					class="group {isItemDisabled ? 'cursor-not-allowed opacity-50' : ''} {detailKlass}"
+					class="group border-border-primary {isItemDisabled ? 'cursor-not-allowed opacity-50' : ''} {detailKlass}"
 				>
 					<summary
 						id="{id}-summary-{item.id}"
 						aria-controls="{id}-panel-{item.id}"
 						aria-disabled={isItemDisabled}
-						class="flex items-center gap-3 font-medium marker:content-none {densityClass[density]
+						class="flex items-center gap-3 font-medium marker:content-none border-border-primary {densityClass[density]
 							.summary} {isItemDisabled ? 'pointer-events-none' : 'hover:cursor-pointer'} {summaryKlass}"
 						onclick={(e) => {
 							e.preventDefault();
