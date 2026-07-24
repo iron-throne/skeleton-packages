@@ -113,6 +113,7 @@
 								icon={isExpand ? leftIcon.expandIcon : leftIcon.collapseIcon}
 								onclick={leftIcon.onclick &&
 									((e: MouseEvent) => {
+										e.preventDefault();
 										e.stopPropagation();
 										leftIcon.onclick?.(item.id);
 									})}
@@ -127,6 +128,7 @@
 								icon={isExpand ? rightIcon.expandIcon : rightIcon.collapseIcon}
 								onclick={rightIcon.onclick &&
 									((e: MouseEvent) => {
+										e.preventDefault();
 										e.stopPropagation();
 										rightIcon.onclick?.(item.id);
 									})}
