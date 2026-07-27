@@ -158,7 +158,7 @@
 
 			<div class="grid gap-6 sm:grid-cols-2">
 				{#each section.fields as field, fInd (field.key)}
-					<div class={field.classes ?? ''}>
+					<div class={field.klass ?? ''}>
 						<Input bind:field={section.fields[fInd]!} />
 					</div>
 				{/each}

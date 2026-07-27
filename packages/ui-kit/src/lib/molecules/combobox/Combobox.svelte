@@ -14,7 +14,7 @@
 		returnObject,
 		hideInput,
 		icon,
-		classes,
+		klass,
 		onUpdateValue,
 		handleChangeInput,
 		disabled,
@@ -32,7 +32,7 @@
 		returnObject?: boolean;
 		hideInput?: boolean;
 		icon?: string;
-		classes?: string;
+		klass?: string;
 		onUpdateValue: (val: any) => void;
 		handleChangeInput?: (val: any) => void;
 		disabled?: boolean;
@@ -249,7 +249,7 @@
 				{disabled}
 				autocomplete="new-password"
 				{id}
-				class={`block w-full cursor-pointer rounded-md border-none sm:py-3 pr-7! font-normal text-black ${icon ? 'pl-10!' : 'pl-4!'} outline-none! sm:leading-6 ${classes}`}
+				class={`block w-full cursor-pointer rounded-md border-none sm:py-3 pr-7! font-normal text-black ${icon ? 'pl-10!' : 'pl-4!'} outline-none! sm:leading-6 ${klass}`}
 			/>
 		{/if}
 

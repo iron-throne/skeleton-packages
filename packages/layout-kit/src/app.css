@@ -1,0 +1,5 @@
+/* 1. Shared design system — imports Tailwind base + theme colors + global styles */
+@import "@aryagg/theme";
+
+/* 2. Scan ui-kit for Tailwind classes (node_modules are skipped by default in v4) */
+@source "../../ui-kit/dist"

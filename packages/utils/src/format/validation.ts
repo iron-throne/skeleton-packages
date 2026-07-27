@@ -41,3 +41,16 @@ export const parseInputValue = (value: unknown, type?: EDataType): unknown => {
     }
     return value;
 };
+
+export const isDisplayable = (value: any) => {
+    // null or undefined → safe
+    // string, number, boolean → safe
+    // Date → safe
+    // Snippet (Svelte) → safe
+    // Everything else → NOT safe (array, object, map, set, etc.)
+    return value == null || ["string", "number", "boolean"].includes(typeof value) || value instanceof Date || typeof value === "function";
+}
+
+export const isSnippet = (value: unknown) => {
+  return typeof value === "function";
+}

@@ -1,60 +1,92 @@
 <script lang="ts">
-	import Header from '$lib/header/Header.svelte';
-	import type { NavItem, HeaderVariant } from '$lib/header/types.js';
+	import { Chart, OtpInput } from '@aryagg/ui-kit';
+	import { LoginSimple, LoginSplit, LoginCover, type LoginCredentials } from '$lib/login';
+	import { type ChartData } from 'chart.js';
+	// Sample Data for iReview Comment Status
+	const iReviewData: ChartData<'bar', number[], string> = {
+		labels: ['Submission', 'Technical Review', 'Response', 'Closure'],
+		datasets: [
+			{
+				label: 'Comments Resolved',
+				data: [15, 25, 40, 65],
+				backgroundColor: 'rgba(75, 192, 192, 0.6)',
+				borderColor: 'rgba(75, 192, 192, 1)',
+				borderWidth: 1
+			}
+		]
+	};
 
-	const items: NavItem[] = [
-		{ label: 'Home', href: '/' },
-		{
-			label: 'Products',
-			children: [
-				{ label: 'UI Kit', href: '/ui-kit' },
-				{
-					label: 'Layout Kit',
-					children: [
-						{ label: 'Header', href: '/header' },
-						{ label: 'Sidebar', href: '/sidebar' },
-					],
-				},
-				{ label: 'Theme', href: '/theme', badge: 'New' },
-			],
-		},
-		{
-			label: 'Docs',
-			children: [
-				{ label: 'Getting Started', href: '/docs/start' },
-				{ label: 'Components', href: '/docs/components' },
-			],
-		},
-		{ label: 'Pricing', href: '/pricing' },
-	];
+	// ── Login demo ─────────────────────────────────────────────
+	const loginVariants = [
+		{ key: 'simple', label: 'Simple' },
+		{ key: 'split', label: 'Split' },
+		{ key: 'cover', label: 'Cover' }
+	] as const;
 
-	const headers: { id: HeaderVariant; label: string }[] = [
-		{ id: 'default', label: 'default — brand left · nav left · actions right' },
-		{ id: 'centered', label: 'centered — brand left · nav grid-centered · actions right' },
-		{ id: 'stacked', label: 'stacked — row 1: brand+actions / row 2: nav' },
-		{ id: 'minimal', label: 'minimal — brand · tagline · actions · no nav' },
-	];
+	let activeLogin = $state<(typeof loginVariants)[number]['key']>('simple');
+	let demoLoading = $state(false);
+	let demoError = $state('');
 
-	let active = $state<HeaderVariant>('default');
+	// Sample onSubmit callback — logs the parsed credentials instead of hitting a real backend
+	async function handleDemoSubmit(credentials: LoginCredentials) {
+		demoError = '';
+		demoLoading = true;
+		await new Promise((r) => setTimeout(r, 800));
+		demoLoading = false;
+
+		if (credentials.password.length < 4) {
+			demoError = 'Password must be at least 4 characters.';
+			return;
+		}
+		console.log('[LoginDemo] submitted', credentials);
+		alert(`Signed in as ${credentials.email} (remember me: ${credentials.rememberMe})`);
+	}
 </script>
-
-<Header brand="Skeleton" variant={active} {items} tagline="Build beautiful UIs faster.">
-	{#snippet actions()}
-		<button class="btn-ghost btn-sm">Sign in</button>
-		<button class="btn-primary btn-sm">Get started</button>
-	{/snippet}
-</Header>
-
-<main class="mx-auto max-w-7xl px-4 py-10 flex flex-col gap-4">
-	<h2>Header variants</h2>
-	<div class="flex flex-col gap-2">
-		{#each headers as h (h.id)}
+<!-- ── Login component demos ─────────────────────────────────── -->
+<section class="border-border-primary relative border-t">
+	<div
+		class="bg-surface-primary sticky top-0 z-20 flex items-center gap-2 border-b border-border-primary p-4"
+	>
+		<span class="text-secondary mr-2 text-sm font-semibold">Login demo:</span>
+		{#each loginVariants as variant (variant.key)}
 			<button
-				class="btn-sm text-left {active === h.id ? 'btn-primary' : 'btn-secondary'}"
-				onclick={() => (active = h.id)}
+				type="button"
+				class="btn btn-sm {activeLogin === variant.key ? 'btn-primary' : ''}"
+				onclick={() => (activeLogin = variant.key)}
 			>
-				{h.label}
+				{variant.label}
 			</button>
 		{/each}
 	</div>
-</main>
+
+	{#if activeLogin === 'simple'}
+		<LoginSimple
+			appName="Acme"
+			title="Welcome back"
+			subtitle="Sign in to your Acme account"
+			loading={demoLoading}
+			error={demoError}
+			onSubmit={handleDemoSubmit}
+		/>
+	{:else if activeLogin === 'split'}
+		<LoginSplit
+			appName="Acme"
+			title="Welcome back"
+			subtitle="Sign in to your Acme account"
+			panelHeading="Build something great"
+			panelDescription="Sign in to pick up right where you left off."
+			loading={demoLoading}
+			error={demoError}
+			onSubmit={handleDemoSubmit}
+		/>
+	{:else}
+		<LoginCover
+			appName="Acme"
+			title="Welcome back"
+			subtitle="Sign in to your Acme account"
+			loading={demoLoading}
+			error={demoError}
+			onSubmit={handleDemoSubmit}
+		/>
+	{/if}
+</section>

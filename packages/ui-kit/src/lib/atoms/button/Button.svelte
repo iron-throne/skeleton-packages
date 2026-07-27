@@ -6,6 +6,7 @@
 
 	let {
 		label,
+		klass = '',
 		classes = '',
 		variant = 'primary',
 		size = 'md',
@@ -21,6 +22,7 @@
 		onEnterKeydown,
 	}: {
 		label: string;
+		klass?: string;
 		classes?: string;
 		variant?: ButtonVariant;
 		size?: ButtonSize;
@@ -70,6 +72,7 @@
 
 <button
 	{type}
+	class="btn btn-primary {klass}"
 	class={buttonClass}
 	disabled={disabled || loading}
 	aria-disabled={disabled || loading}

@@ -28,7 +28,7 @@ export interface IFormField {
     attributes?: Record<string, string | number | boolean>;
     disabled?: boolean;
     readOnly?: boolean;
-    classes?: string;
+    klass?: string;
     options?: Array<ISelectOption>;
     multiple?: boolean;
     errorMsg?: string;
