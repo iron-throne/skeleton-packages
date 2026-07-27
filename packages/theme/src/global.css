@@ -1,7 +1,33 @@
 
 :root {
---font-body: 'Inter', system-ui, sans-serif;
---font-heading: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
+    --font-body: 'Inter', system-ui, sans-serif;
+    --font-heading: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
+
+    --surface-primary: #ffffff;
+    --surface-secondary: #fafafa;
+    --surface-tertiary: #f8f8f8;
+    --on-surface-primary: #000000;
+    --on-surface-secondary: #5e5253;
+    --on-surface-tertiary: #606060;
+
+    --text-primary: #000000;
+    --text-secondary: #657487;
+    --text-tertiary: #606060;
+    --border-primary: #e1dfdd;
+
+    --semantic-success: #107c10;
+    --semantic-warning: #f8d22a;
+    --semantic-error: #d13438;
+    --semantic-info: #6264a7;
+    --semantic-accent: #ca0613;
+    --semantic-secondary: #5e5253;
+
+    --on-accent: #ffffff;
+    --on-secondary: #ffffff;
+    --on-success: #ffffff;
+    --on-warning: #000000;
+    --on-error: #ffffff;
+    --on-info: #ffffff;
 }
 *,
 *::before,

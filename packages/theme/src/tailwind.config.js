@@ -29,6 +29,8 @@ const config = {
                 info: 'var(--semantic-info)',         // tooltips, info banners
 
                 'on-accent': 'var(--on-accent)',
+                'brand-secondary': 'var(--semantic-secondary)',
+                'on-secondary-brand': 'var(--on-secondary)',
                 'on-success': 'var(--on-success)',   // confirmations, valid states
                 'on-warning': 'var(--on-warning)',   // alerts, pending states
                 'on-error': 'var(--on-error)',       // errors, destructive actions
