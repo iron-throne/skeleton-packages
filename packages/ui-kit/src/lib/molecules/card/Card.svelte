@@ -15,12 +15,12 @@
 		href,
 		target,
 		onClick,
-		class: klass = '',
-		media,
-		header,
-		actions,
-		footer,
-		children
+		klass = '',
+		mediaSlot,
+		headerSlot,
+		actionsSlot,
+		footerSlot,
+		childrenSlot
 	}: {
 		variant?: CardVariant;
 		padding?: CardPadding;
@@ -36,16 +36,16 @@
 		href?: string;
 		target?: string;
 		onClick?: (e: MouseEvent) => void | Promise<void>;
-		class?: string;
+		klass?: string;
 		/** Edge-to-edge region above the header, e.g. a banner image */
-		media?: Snippet;
+		mediaSlot?: Snippet;
 		/** Replaces the default title/subtitle markup entirely */
-		header?: Snippet;
+		headerSlot?: Snippet;
 		/** Right-aligned controls next to the title (icon buttons, menus, badges) */
-		actions?: Snippet;
+		actionsSlot?: Snippet;
 		/** Bottom region, separated by a border, e.g. actions/buttons */
-		footer?: Snippet;
-		children?: Snippet;
+		footerSlot?: Snippet;
+		childrenSlot?: Snippet;
 	} = $props();
 
 	const variantClass: Record<CardVariant, string> = {
@@ -70,7 +70,7 @@
 	};
 
 	const interactive = $derived(!disabled && !!(onClick || href));
-	const hasHeader = $derived(!!(header || title || subtitle || actions));
+	const hasHeader = $derived(!!(headerSlot || title || subtitle || actionsSlot));
 
 	const handleClick = (e: MouseEvent) => {
 		if (disabled || loading) {
@@ -109,9 +109,9 @@
 		{disabled ? 'opacity-50 grayscale-[0.4] pointer-events-none' : ''}
 		{klass}"
 >
-	{#if media}
+	{#if mediaSlot}
 		<div class="w-full">
-			{@render media()}
+			{@render mediaSlot()}
 		</div>
 	{/if}
 
@@ -122,9 +122,9 @@
 		</div>
 	{:else}
 		{#if hasHeader}
-			<div class="{paddingClass[padding]} {children ? 'pb-0' : ''}">
-				{#if header}
-					{@render header()}
+			<div class="{paddingClass[padding]} {childrenSlot ? 'pb-0' : ''}">
+				{#if headerSlot}
+					{@render headerSlot()}
 				{:else}
 					<div class="flex items-start justify-between gap-3">
 						<div class="min-w-0">
@@ -135,9 +135,9 @@
 								<p class="text-xs text-tertiary mt-0.5">{subtitle}</p>
 							{/if}
 						</div>
-						{#if actions}
+						{#if actionsSlot}
 							<div class="shrink-0 flex items-center gap-2">
-								{@render actions()}
+								{@render actionsSlot()}
 							</div>
 						{/if}
 					</div>
@@ -145,18 +145,18 @@
 			</div>
 		{/if}
 
-		{#if children}
+		{#if childrenSlot}
 			<div class="{paddingClass[padding]} {hasHeader ? 'pt-4' : ''}">
-				{@render children()}
+				{@render childrenSlot()}
 			</div>
 		{/if}
 	{/if}
 
-	{#if footer && !loading}
+	{#if footerSlot && !loading}
 		<div
 			class="{paddingXClass[padding]} py-4 border-t border-border-primary flex items-center gap-3"
 		>
-			{@render footer()}
+			{@render footerSlot()}
 		</div>
 	{/if}
 </svelte:element>

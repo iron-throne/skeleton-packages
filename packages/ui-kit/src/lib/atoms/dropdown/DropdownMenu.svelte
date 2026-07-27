@@ -99,7 +99,7 @@
 	});
 </script>
 
-<div bind:this={wrapperEl} role="presentation" class="relative inline-block w-full" use:clickOutside={close}>
+<div bind:this={wrapperEl} role="presentation" class="relative inline-block w-full text-sm" use:clickOutside={close}>
 	<!-- Trigger slot -->
 	{@render trigger({ open, toggle })}
 

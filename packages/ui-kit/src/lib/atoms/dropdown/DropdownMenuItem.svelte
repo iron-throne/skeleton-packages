@@ -82,7 +82,7 @@
 </script>
 
 {#snippet menuIcon(m: IMenu)}
-	<Icon icon={m.selected && m.selectedIcon ? m.selectedIcon : m.icon} klass="opacity-70 size-15"/>
+	<Icon icon={m.selected && m.selectedIcon ? m.selectedIcon : m.icon} klass="opacity-70 size-5"/>
 {/snippet}
 
 {#if menu.divider}
@@ -103,7 +103,7 @@
 			disabled={menu.disabled}
 			aria-haspopup="true"
 			aria-expanded={isOpen}
-			class="group flex w-full items-center gap-2 rounded-2xl border-0 p-2 transition-colors duration-150 {itemClass(
+			class="group flex w-full items-center gap-2 rounded-2xl border-0 p-2 transition-colors duration-150  {itemClass(
 				menu
 			)} {menu.class ?? ''}"
 		>
@@ -143,7 +143,7 @@
 			menu.onclick?.();
 			onNavigate();
 		}}
-		class="group flex w-full items-center gap-2 rounded-2xl border-0 p-2 no-underline transition-colors duration-150 {itemClass(
+		class="group flex w-full items-center gap-2 rounded-2xl border-0 p-2 no-underline transition-colors duration-150  {itemClass(
 			menu
 		)} {menu.class ?? ''}"
 	>
@@ -159,7 +159,7 @@
 			menu.onclick?.();
 			onNavigate();
 		}}
-		class="group flex w-full items-center gap-2 rounded-2xl border-0 p-2 transition-colors duration-150 {itemClass(
+		class="group flex w-full items-center gap-2 rounded-2xl border-0 p-2 transition-colors duration-150 szie-5 {itemClass(
 			menu
 		)} {menu.class ?? ''}"
 	>
