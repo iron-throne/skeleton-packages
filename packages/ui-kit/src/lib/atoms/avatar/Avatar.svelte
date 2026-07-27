@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { initials } from '@aryagg/utils';
 	import type { Size } from './types';
 
 	let {
@@ -38,15 +39,6 @@
 		xl: 'w-3.5 h-3.5 ring-2'
 	};
 
-	const initials = $derived(
-		name
-			.trim()
-			.split(/\s+/)
-			.map((w) => w[0]?.toUpperCase() ?? '')
-			.slice(0, 2)
-			.join('')
-	);
-
 	let imgError = $state(false);
 	const showImage = $derived(!!src && !imgError);
 </script>
@@ -65,7 +57,7 @@
 				onerror={() => (imgError = true)}
 			/>
 		{:else}
-			{initials || '?'}
+			{initials(name) || '?'} 
 		{/if}
 	</span>
 

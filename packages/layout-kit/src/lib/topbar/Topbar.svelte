@@ -4,6 +4,7 @@
 	import { CaretDownFill, Globe2, Moon, Search, Sun } from 'svelte-bootstrap-icons';
 	import type { TopbarProps } from './types';
 	import HeaderNavList from './components/HeaderNavList.svelte';
+	import { enableDarkTheme, enableLightTheme } from '@aryagg/utils';
 
 	let {
 		homeHref = '/',
@@ -28,6 +29,7 @@
 		onLanguageChange,
 
 		theme = ETheme.LIGHT,
+		themeStorageKey = 'theme',
 		onThemeChange,
 
 		avatarSrc = '',
@@ -49,6 +51,11 @@
 
 	function toggleTheme() {
 		const next = theme === ETheme.DARK ? ETheme.LIGHT : ETheme.DARK;
+		if (next === ETheme.DARK) {
+			enableDarkTheme(themeStorageKey);
+		} else {
+			enableLightTheme(themeStorageKey);
+		}
 		onThemeChange?.(next);
 	}
 </script>
