@@ -28,9 +28,10 @@
 		currentLanguage = '',
 		onLanguageChange,
 
-		theme = ETheme.LIGHT,
+		theme = $bindable(ETheme.LIGHT),
 		themeStorageKey = 'theme',
 		onThemeChange,
+		showThemeToggle = false,
 
 		avatarSrc = '',
 		userName = '',
@@ -50,13 +51,13 @@
 	const brandLink = $derived(brandHref ?? homeHref);
 
 	function toggleTheme() {
-		const next = theme === ETheme.DARK ? ETheme.LIGHT : ETheme.DARK;
-		if (next === ETheme.DARK) {
+		theme = theme === ETheme.DARK ? ETheme.LIGHT : ETheme.DARK;
+		if (theme === ETheme.DARK) {
 			enableDarkTheme(themeStorageKey);
 		} else {
 			enableLightTheme(themeStorageKey);
 		}
-		onThemeChange?.(next);
+		onThemeChange?.();
 	}
 </script>
 
@@ -167,7 +168,7 @@
 			</DropdownMenu>
 		{/if}
 
-		{#if onThemeChange}
+		{#if showThemeToggle}
 			<button
 				onclick={toggleTheme}
 				aria-label="Toggle theme"
@@ -213,7 +214,7 @@
 		</div>
 	{:else if variant === 'centered'}
 		<div
-			class="container mx-auto grid h-14 grid-cols-[auto_1fr_auto] items-center gap-4 px-2 {klass}"
+			class="container mx-auto grid h-14 grid-cols-[auto_1fr_auto] items-center gap-4 p-2 {klass}"
 		>
 			<div class="flex items-center gap-2">
 				{#if leftSlot}{@render leftSlot()}{/if}
@@ -230,7 +231,7 @@
 		</div>
 	{:else if variant === 'minimal'}
 		<div
-			class="container mx-auto grid h-14 grid-cols-[auto_1fr_auto] items-center gap-4 px-2 {klass}"
+			class="container mx-auto grid h-14 grid-cols-[auto_1fr_auto] items-center gap-4 p-2 {klass}"
 		>
 			<div class="flex items-center gap-2">
 				{#if leftSlot}{@render leftSlot()}{/if}
@@ -249,7 +250,7 @@
 			</div>
 		</div>
 	{:else}
-		<div class="container mx-auto flex h-14 items-center gap-4 px-2 {klass}">
+		<div class="container mx-auto flex h-14 items-center gap-4 p-2 {klass}">
 			{#if leftSlot}
 				<div class="flex items-center gap-2">{@render leftSlot()}</div>
 			{/if}

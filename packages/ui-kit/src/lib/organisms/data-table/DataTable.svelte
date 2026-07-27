@@ -20,7 +20,7 @@
 		hidePagination = false,
 		actions,
 		CustomHeader,
-		CustomCell,
+		CustomCell
 	}: {
 		columns: TableColumn[];
 		rows: any[];
@@ -70,8 +70,8 @@
 			columns.some((col) =>
 				String(row[col.key] ?? '')
 					.toLowerCase()
-					.includes(q),
-			),
+					.includes(q)
+			)
 		);
 	});
 
@@ -95,37 +95,37 @@
 </script>
 
 <div class="flex flex-col gap-3">
-	<!-- Search bar -->
-	{#if searchable}
-		<div class="relative w-full max-w-xs">
-			<span
-				class="text-tertiary pointer-events-none absolute top-1/2 left-3 -translate-y-1/2"
-			>
-				<Search width={14} height={14} />
-			</span>
-			<input
-				type="search"
-				placeholder={searchPlaceholder}
-				bind:value={query}
-				class="bg-surface-secondary text-primary placeholder:text-tertiary focus:border-accent focus:ring-accent w-full rounded-lg
+	<div class="flex justify-between gap-2">
+		<!-- Search bar -->
+		{#if searchable}
+			<div class="relative w-full max-w-xs">
+				<span class="text-tertiary pointer-events-none absolute top-1/2 left-3 -translate-y-1/2">
+					<Search width={14} height={14} />
+				</span>
+				<input
+					type="search"
+					placeholder={searchPlaceholder}
+					bind:value={query}
+					class="bg-surface-secondary text-primary placeholder:text-tertiary focus:border-accent focus:ring-accent w-full rounded-lg
                        border py-2 pr-4
                        pl-9 text-sm transition focus:ring-1 focus:outline-none"
-			/>
-		</div>
-	{/if}
+				/>
+			</div>
+		{/if}
 
-	<!-- Pagination -->
-	{#if !hidePagination}
-		<div class="px-2 pt-4">
-			<Pagination
-				bind:currentPage
-				bind:pageSize
-				{totalPages}
-				totalItems={sorted.length}
-				{pageSizeOptions}
-			/>
-		</div>
-	{/if}
+		<!-- Pagination -->
+		{#if !hidePagination}
+			<div class="px-2 pt-4">
+				<Pagination
+					bind:currentPage
+					bind:pageSize
+					{totalPages}
+					totalItems={sorted.length}
+					{pageSizeOptions}
+				/>
+			</div>
+		{/if}
+	</div>
 
 	<!-- Table -->
 	<div class="w-full overflow-auto rounded-xl border">
@@ -149,24 +149,12 @@
 									{#if col.sortable}
 										{#if sortKey === col.key}
 											{#if sortDir === 'asc'}
-												<SortAlphaDown
-													width={13}
-													height={13}
-													class="text-accent"
-												/>
+												<SortAlphaDown width={13} height={13} class="text-accent" />
 											{:else}
-												<SortAlphaUp
-													width={13}
-													height={13}
-													class="text-accent"
-												/>
+												<SortAlphaUp width={13} height={13} class="text-accent" />
 											{/if}
 										{:else}
-											<ArrowDownUp
-												width={11}
-												height={11}
-												class="opacity-30"
-											/>
+											<ArrowDownUp width={11} height={11} class="opacity-30" />
 										{/if}
 									{/if}
 								{/if}

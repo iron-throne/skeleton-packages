@@ -16,7 +16,7 @@
 	} = $props();
 </script>
 
-<nav class="flex items-center gap-0.5 {menuClass}">
+<nav class="flex items-center gap-0.5 pt-2 {menuClass}">
 	{#each items as item, i (i)}
 		{@const isActive = activeHref === item.href}
 		<div class="relative">
