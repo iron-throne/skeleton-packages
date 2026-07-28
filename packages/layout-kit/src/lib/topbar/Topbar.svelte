@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Avatar, DropdownMenu, Input } from '@aryagg/ui-kit';
-	import { EMenuAlign, ETheme, type IMenu } from '@aryagg/types';
+	import { EMenuAlign, EStorageKey, ETheme, type IMenu } from '@aryagg/types';
 	import { CaretDownFill, Globe2, Moon, Search, Sun } from 'svelte-bootstrap-icons';
 	import type { TopbarProps } from './types';
 	import HeaderNavList from './components/HeaderNavList.svelte';
@@ -29,7 +29,7 @@
 		onLanguageChange,
 
 		theme = $bindable(ETheme.LIGHT),
-		themeStorageKey = 'theme',
+		themeStorageKey = EStorageKey.THEME,
 		onThemeChange,
 		showThemeToggle = false,
 
