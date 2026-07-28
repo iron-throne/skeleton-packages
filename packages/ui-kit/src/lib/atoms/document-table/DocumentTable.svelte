@@ -56,7 +56,9 @@
 	}
 </script>
 
-<section class="overflow-hidden rounded-2xl border border-border-primary bg-surface-primary {klass}">
+<section
+	class="overflow-hidden rounded-2xl border border-border-primary bg-surface-primary {klass}"
+>
 	{#if showToolbar}
 		<div class="flex flex-wrap items-center gap-2 border-b border-border-primary px-3 py-3">
 			<div class="relative min-w-64 flex-1 md:max-w-md">
@@ -73,7 +75,7 @@
 
 			<button
 				type="button"
-				class="!h-8 !rounded-md !border-border-primary !bg-surface-primary !px-3 !py-1.5 !text-xs !font-medium !text-primary hover:!bg-surface-secondary"
+				class="h-8! rounded-md! border-border-primary! bg-surface-primary! px-3! py-1.5! text-xs! font-medium! text-primary! hover:bg-surface-secondary!"
 			>
 				<Funnel width={13} height={13} />
 				Filter
@@ -81,7 +83,7 @@
 
 			<button
 				type="button"
-				class="!h-8 !rounded-md !border-border-primary !bg-surface-primary !px-3 !py-1.5 !text-xs !font-medium !text-primary hover:!bg-surface-secondary"
+				class="h-8! rounded-md! border-border-primary! bg-surface-primary! px-3! py-1.5! text-xs! font-medium! text-primary! hover:bg-surface-secondary!"
 			>
 				<Columns width={13} height={13} />
 				Columns
@@ -118,7 +120,9 @@
 
 			<tbody>
 				{#each filteredRows as row}
-					<tr class="border-b border-border-primary transition-colors last:border-b-0 hover:bg-surface-secondary/60">
+					<tr
+						class="border-b border-border-primary transition-colors last:border-b-0 hover:bg-surface-secondary/60"
+					>
 						<td class="px-3 py-3 align-middle">
 							<input
 								type="checkbox"

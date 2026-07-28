@@ -131,7 +131,7 @@
 		<button
 			type="button"
 			class="group flex w-full items-center gap-2 text-left transition {documentStyle
-				? '!border-0 !bg-transparent !shadow-none !ring-0 rounded-md hover:!bg-transparent active:!scale-100'
+				? 'border-0! bg-transparent! shadow-none! ring-0! rounded-md! hover:bg-transparent! active:scale-100!'
 				: 'rounded-lg hover:border-border-primary hover:bg-surface-secondary'} {FOLDER_HIERARCHY_DENSITY_CLASS[
 				documentStyle ? 'compact' : density
 			]} {active && !documentStyle ? 'border-accent/30 bg-accent/10 text-primary' : 'text-secondary'}"
