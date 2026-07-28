@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { Icon } from '$lib/atoms';
+	import type { IconType } from '@aryagg/types';
 	import { Star, StarFill } from 'svelte-bootstrap-icons';
 
 	let {
@@ -13,8 +14,8 @@
 	}: {
 		length?: number;
 		value?: number;
-		icon?: any;
-		selectedIcon?: any;
+		icon?: IconType;
+		selectedIcon?: IconType;
 		readonly?: boolean;
 		iconKlass?: string;
 		selectedKlass?: string;
@@ -39,7 +40,7 @@
 			aria-label="Rate {i + 1} stars"
 		>
 			<Icon
-				icon={isSelected ? selectedIcon : icon}
+				icon={isSelected ? selectedIcon || icon : icon}
 				klass={isSelected ? selectedKlass : iconKlass}
 			/>
 		</button>

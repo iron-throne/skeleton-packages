@@ -23,7 +23,8 @@ export interface ITab {
   label: string;
   badge?: string | number;
   disabled?: boolean;
-  icon?: any;
+  icon?: IconType;
+  selectedIcon?:IconType;
 }
 
 export interface TableColumn {
@@ -36,7 +37,7 @@ export interface TableColumn {
 
 export interface IMenu {
   label: string;
-  icon?: any;
+  icon?: IconType;
   selected?: any;
   danger?: boolean;
   disabled?: boolean;
@@ -45,8 +46,10 @@ export interface IMenu {
   id: string;
   onclick?: () => void;
   href?: string;
-  selectedIcon?: any;
-  class?: string;
+  selectedIcon?: IconType;
+  klass?: string;
+  iconClass?: string;
+  selectedIconKlass?: string;
 }
 export type IconType = string | (new (...args: any[]) => SvelteComponent);
 
