@@ -4,7 +4,7 @@ export { default as Avatar } from './avatar/Avatar.svelte';
 export { default as Badge } from './badge/Badge.svelte';
 export { default as Button } from './button/Button.svelte';
 export { default as Icon } from './icon/Icon.svelte';
-export { default as Card } from './card/Card.svelte';
+export { default as MetricCard } from './card/Card.svelte';
 export { default as DocumentTable } from './document-table/DocumentTable.svelte';
 export { default as DropdownMenu } from './dropdown/DropdownMenu.svelte';
 export { default as FolderHierarchy } from './folder-hierarchy/FolderHierarchy.svelte';

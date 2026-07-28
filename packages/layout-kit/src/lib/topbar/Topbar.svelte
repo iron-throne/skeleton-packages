@@ -161,7 +161,7 @@
 						<span
 							class="absolute bottom-0 h-0.5 w-full rounded-full transition-opacity {open
 								? 'bg-accent opacity-100'
-								: 'bg-transparent opacity-0 group-hover:bg-accent/40 group-hover:opacity-100'}"
+								: 'bg-transparent opacity-0 group-hover:bg-accent/40 group-hover:opacity-100 group-hover:font-medium'}"
 						></span>
 					</button>
 				{/snippet}

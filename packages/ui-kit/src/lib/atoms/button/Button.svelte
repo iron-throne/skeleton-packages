@@ -72,8 +72,7 @@
 
 <button
 	{type}
-	class="btn btn-primary {klass}"
-	class={buttonClass}
+	class="btn btn-primary {buttonClass} {klass}"
 	disabled={disabled || loading}
 	aria-disabled={disabled || loading}
 	aria-busy={loading}
