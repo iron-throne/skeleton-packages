@@ -106,20 +106,20 @@
 					onclick={isDropdown ? toggle : null}
 					aria-label="User menu"
 					aria-expanded={open}
-					class="group hover:text-accent! relative flex flex-col items-center border-transparent bg-transparent px-3 pb-1 pt-0 text-[11px]! gap-0 font-medium transition-colors hover:bg-transparent {open
+					class="group hover:text-accent! relative flex flex-col items-center justify-between border-0 bg-transparent pb-1 text-[11px]! font-medium transition-colors hover:bg-transparent {open
 						? 'text-accent'
 						: 'text-secondary'}"
 				>
 					<Avatar src={avatarSrc} name={userName} size="xs" />
 					{#if isDropdown}
-						<div class="flex items-center gap-1">
-							<span class="hidden sm:block">{profileLabel}</span>
+						<span class="hidden items-center gap-1 px-4 pt-1 sm:flex">
+							{profileLabel}
 							<CaretDownFill
-								class="mt-0.5 size-3 transition-transform group-hover:text-accent {open
+								class="size-3 transition-transform group-hover:text-accent {open
 									? 'rotate-180'
 									: ''}"
 							/>
-						</div>
+						</span>
 					{/if}
 					<!-- <span
 						class="absolute bottom-0 h-0.5 w-full rounded-full transition-opacity {open
@@ -133,7 +133,7 @@
 {/snippet}
 
 {#snippet actionBar()}
-	<div class="flex items-center gap-2">
+	<div class="flex items-center">
 		{#if actions}
 			{@render actions()}
 		{/if}
@@ -152,12 +152,12 @@
 						onclick={toggle}
 						aria-label="Switch language"
 						aria-expanded={open}
-						class="group hover:text-accent! relative flex flex-col items-center border-transparent bg-transparent px-2 pb-1 pt-0 text-[11px]! gap-0 font-medium transition-colors hover:bg-transparent {open
+						class="group hover:text-accent! relative flex flex-col items-center justify-between border-0 bg-transparent pb-1 text-[11px]! font-medium transition-colors hover:bg-transparent {open
 							? 'text-accent'
 							: 'text-secondary'}"
 					>
 						<Globe2 class="size-5 group-hover:text-accent" />
-						<div class="hidden uppercase sm:block">{currentLanguage}</div>
+						<span class="hidden px-4 pt-1 uppercase sm:block">{currentLanguage}</span>
 						<span
 							class="absolute bottom-0 h-0.5 w-full rounded-full transition-opacity {open
 								? 'bg-accent opacity-100'
@@ -172,12 +172,12 @@
 			<button
 				onclick={toggleTheme}
 				aria-label="Toggle theme"
-				class="group hover:text-accent! text-secondary relative flex flex-col items-center border-transparent bg-transparent px-3 pb-1 pt-0 text-[11px]! gap-0 font-medium transition-colors hover:bg-transparent"
+				class="group hover:text-accent! text-secondary relative flex flex-col items-center justify-between border-0 bg-transparent pb-1 px-0 text-[11px]! font-medium transition-colors hover:bg-transparent"
 			>
 				{#if theme === ETheme.LIGHT}
-					<Sun class="size-5 group-hover:text-accent" /><span class="hidden sm:block">Light</span>
+					<Sun class="size-5 group-hover:text-accent" /><span class="hidden px-4 pt-1 sm:block">Light</span>
 				{:else}
-					<Moon class="size-5 group-hover:text-accent" /><span class="hidden sm:block">Dark</span>
+					<Moon class="size-5 group-hover:text-accent" /><span class="hidden px-4 pt-1 sm:block">Dark</span>
 				{/if}
 				<span
 					class="absolute bottom-0 h-0.5 w-full rounded-full bg-transparent opacity-0 transition-opacity group-hover:bg-accent/40 group-hover:opacity-100"
@@ -197,31 +197,31 @@
 	class="w-full border-b border-border-primary bg-surface-primary px-2 shadow flex-none {headerClass}"
 >
 	{#if variant === 'stacked'}
-		<div class="container mx-auto flex h-14 items-center gap-4 p-2 {klass}">
+		<div class="container mx-auto flex h-15 gap-4  pt-1 {klass}">
 			{#if leftSlot}
 				<div class="flex items-center gap-2">{@render leftSlot()}</div>
 			{/if}
 			{@render BrandMark()}
-			<div class="ml-auto flex items-center gap-3 pt-2">
-				{@render searchBar()}
+			{@render searchBar()}
+			<div class="ml-auto flex gap-3">
 				{@render actionBar()}
 			</div>
 		</div>
 		<div class="border-t border-border-primary">
-			<div class="container mx-auto flex h-14 items-center justify-center p-2">
+			<div class="container mx-auto flex h-15 justify-center">
 				{@render navList()}
 			</div>
 		</div>
 	{:else if variant === 'centered'}
 		<div
-			class="container mx-auto grid h-14 grid-cols-[auto_1fr_auto] items-center gap-4 p-2 {klass}"
+			class="container mx-auto grid h-15 grid-cols-[auto_1fr_auto] gap-4 {klass}"
 		>
 			<div class="flex items-center gap-2">
 				{#if leftSlot}{@render leftSlot()}{/if}
 				{@render BrandMark()}
 				{@render searchBar()}
 			</div>
-			<div class="flex items-center justify-center gap-4 p-2">
+			<div class="flex items-center justify-center gap-4">
 				{@render navList()}
 				{#if midSlot}{@render midSlot()}{/if}
 			</div>
@@ -231,7 +231,7 @@
 		</div>
 	{:else if variant === 'minimal'}
 		<div
-			class="container mx-auto grid h-14 grid-cols-[auto_1fr_auto] items-center gap-4 p-2 {klass}"
+			class="container mx-auto grid h-15 grid-cols-[auto_1fr_auto] items-center gap-4 {klass}"
 		>
 			<div class="flex items-center gap-2">
 				{#if leftSlot}{@render leftSlot()}{/if}
@@ -250,7 +250,7 @@
 			</div>
 		</div>
 	{:else}
-		<div class="container mx-auto flex h-14 items-center gap-4 p-2 {klass}">
+		<div class="container mx-auto flex h-15 gap-4  pt-1{klass}">
 			{#if leftSlot}
 				<div class="flex items-center gap-2">{@render leftSlot()}</div>
 			{/if}
@@ -260,7 +260,7 @@
 			{#if midSlot}
 				<div class="flex items-center gap-2">{@render midSlot()}</div>
 			{/if}
-			<div class="ml-auto flex items-center gap-3 pt-2">
+			<div class="ml-auto flex items-center gap-3">
 				{@render actionBar()}
 			</div>
 		</div>
