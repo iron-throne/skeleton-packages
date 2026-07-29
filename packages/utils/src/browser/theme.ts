@@ -2,7 +2,7 @@ import { ETheme } from "@aryagg/types";
 
 export const setTheme = (theme: ETheme, key: string): void => {
     const themeLink = document.getElementById('theme-style') as HTMLLinkElement | null;
-    if (themeLink) themeLink.href = `styles/theme-${theme}.css`;
+    if (themeLink) themeLink.href = themeLink.href.replace(/theme-(dark|light)\.css(?:$|\?)/, `theme-${theme}.css`);
     document.documentElement.setAttribute('data-theme', theme);
     localStorage.setItem(key, theme);
 };
