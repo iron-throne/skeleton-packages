@@ -1,3 +1,4 @@
+
 <!-- eslint-disable @typescript-eslint/no-unused-vars  -->
 <script lang="ts">
 	import type { Snippet } from 'svelte';
@@ -97,7 +98,7 @@
 	<div class="flex justify-between gap-2">
 		<!-- Search bar -->
 		{#if searchable}
-			<div class="relative w-full max-w-xs">
+			<div class="relative w-full max-w-xs h-fit">
 				<span class="text-tertiary pointer-events-none absolute top-1/2 left-3 -translate-y-1/2">
 					<Search width={14} height={14} />
 				</span>
