@@ -18,7 +18,7 @@
 	const sections = [
 		{ id: 'topbar', label: 'Topbar' },
 		{ id: 'sidebar', label: 'Collapsible Sidebar' },
-		{ id: 'landing', label: 'Landing Page' },
+		{ id: 'landing', label: 'Landing Pages' },
 		{ id: 'login', label: 'Login' }
 	] as const;
 
@@ -57,7 +57,6 @@
 
 	const sidebarMenus: IMenu[] = [
 		{ id: 'dashboard', label: 'Dashboard', href: '#', icon: HouseDoorFill, selected: true },
-		{ id: 'div-1', label: '', divider: true, href: '#' },
 		{
 			id: 'catalog',
 			label: 'Catalog',
@@ -65,7 +64,8 @@
 			children: [
 				{ id: 'courses', label: 'Courses', href: '#' },
 				{ id: 'categories', label: 'Categories', href: '#' }
-			]
+			],
+			divider: true
 		},
 		{
 			id: 'people',
@@ -78,15 +78,14 @@
 		},
 		{ id: 'reports', label: 'Reports', href: '#', icon: BarChartFill },
 		{ id: 'docs', label: 'Documents', href: '#', icon: FileEarmarkTextFill, disabled: true },
-		{ id: 'div-2', label: '', divider: true, href: '#' },
 		{ id: 'settings', label: 'Settings', href: '#', icon: GearFill }
 	];
 
-	// ── Landing Hero demo ─────────────────────────────────────────────
+	// ── Landing Pages demo ─────────────────────────────────────────────
+	const landingVariants = ['hero', 'search'] as const;
+	let activeLandingVariant = $state<(typeof landingVariants)[number]>('hero');
 	let hideHeroDivider = $state(false);
 	let showHeroLogo = $state(true);
-
-	// ── Landing Search demo ─────────────────────────────────────────────
 	let showLandingSearchButton = $state(true);
 
 	// ── Login demos ─────────────────────────────────────────────
@@ -262,54 +261,56 @@
 			</div>
 		</section>
 
-		<!-- LANDING HERO -->
-		<section class="space-y-4" class:hidden={activeComponent !== 'hero'}>
-			<div class="flex items-start justify-between gap-4">
-				<div>
-					<h2 class="text-xl font-bold">Landing Page Hero</h2>
-					<p class="mt-1 max-w-2xl text-sm text-slate-500">Brand-led hero with highlighted copy, primary action and a supporting image.</p>
-				</div>
-				<div class="flex flex-wrap items-center gap-x-5 gap-y-2">
-					<label class="flex cursor-pointer items-center gap-2 text-sm text-slate-700"><input type="checkbox" class="accent-blue-600" bind:checked={showHeroLogo} /> logo</label>
-					<label class="flex cursor-pointer items-center gap-2 text-sm text-slate-700"><input type="checkbox" class="accent-blue-600" bind:checked={hideHeroDivider} /> hideDivider</label>
-				</div>
-			</div>
-
-			<div class="overflow-hidden rounded-lg border border-slate-200">
-				<div class="h-112">
-					<LandingPageHero
-						title="Acme"
-						heading="Build something great"
-						highlight="great"
-						description="Create beautiful, responsive layouts with flexible, ready-made components."
-						ctaText="Get Started"
-						hideDivider={hideHeroDivider}
-						logo={showHeroLogo ? demoLogo : ''}
-					/>
-				</div>
-			</div>
-		</section>
-
-		<!-- LANDING SEARCH -->
+		<!-- LANDING PAGES -->
 		<section class="space-y-4" class:hidden={activeComponent !== 'landing'}>
-			<div class="flex items-start justify-between gap-4">
+			<div>
+				<h2 class="text-xl font-bold">Landing Pages</h2>
+				<p class="mt-1 max-w-2xl text-sm text-slate-500">
+					Two presentation variants — <code class="rounded bg-slate-100 px-1 py-0.5 font-mono text-[13px]">LandingPageHero</code>
+					and <code class="rounded bg-slate-100 px-1 py-0.5 font-mono text-[13px]">LandingPageSearch</code> — high-impact public-facing sections.
+				</p>
+			</div>
+
+			<div class="flex flex-wrap items-start gap-x-8 gap-y-4 rounded-lg border border-slate-200 bg-slate-50 p-4">
 				<div>
-					<h2 class="text-xl font-bold">Landing Page Search</h2>
-					<p class="mt-1 max-w-2xl text-sm text-slate-500">Search-first campaign section for discovery experiences.</p>
+					<p class="mb-2 text-[11px] font-semibold uppercase tracking-wider text-slate-500">variant</p>
+					{@render SegButtons(landingVariants, activeLandingVariant, (v) => (activeLandingVariant = v))}
 				</div>
-				<label class="flex cursor-pointer items-center gap-2 text-sm text-slate-700"><input type="checkbox" class="accent-blue-600" bind:checked={showLandingSearchButton} /> showSearch</label>
+				<div class="flex flex-wrap gap-x-5 gap-y-2 self-center">
+					{#if activeLandingVariant === 'hero'}
+						<label class="flex cursor-pointer items-center gap-2 text-sm text-slate-700"><input type="checkbox" class="accent-blue-600" bind:checked={showHeroLogo} /> logo</label>
+						<label class="flex cursor-pointer items-center gap-2 text-sm text-slate-700"><input type="checkbox" class="accent-blue-600" bind:checked={hideHeroDivider} /> hideDivider</label>
+					{:else}
+						<label class="flex cursor-pointer items-center gap-2 text-sm text-slate-700"><input type="checkbox" class="accent-blue-600" bind:checked={showLandingSearchButton} /> showSearch</label>
+					{/if}
+				</div>
 			</div>
 
 			<div class="overflow-hidden rounded-lg border border-slate-200">
-				<div class="h-96">
-					<LandingPageSearch
-						title="Discover Your New Home"
-						placeholder="City, address, or ZIP"
-						buttonText="Search"
-						showSearch={showLandingSearchButton}
-						onSubmit={(value: string) => console.log('[LandingPageSearch] submitted', value)}
-					/>
-				</div>
+				{#if activeLandingVariant === 'hero'}
+					<div class="h-112">
+						<LandingPageHero
+							title="Acme"
+							heading="Build something great"
+							highlight="great"
+							description="Create beautiful, responsive layouts with flexible, ready-made components."
+							ctaText="Get Started"
+							hideDivider={hideHeroDivider}
+							logo={showHeroLogo ? demoLogo : ''}
+							imageClass="h-112!"
+						/>
+					</div>
+				{:else}
+					<div class="h-96">
+						<LandingPageSearch
+							title="Discover Your New Home"
+							placeholder="City, address, or ZIP"
+							buttonText="Search"
+							showSearch={showLandingSearchButton}
+							onSubmit={(value: string) => console.log('[LandingPageSearch] submitted', value)}
+						/>
+					</div>
+				{/if}
 			</div>
 		</section>
 
