@@ -1,5 +1,4 @@
 <script lang="ts">
-	import type { Snippet } from 'svelte';
 	import {
 		CARD_ICON_CLASS,
 		CARD_PADDING_CLASS,
@@ -8,11 +7,12 @@
 		CARD_TREND_SYMBOL,
 		CARD_VARIANT_CLASS
 	} from './constants';
-	import type { CardPadding, CardTone, CardTrend, CardVariant } from './types';
+	import type { CardProps } from './types';
 
 	let {
 		variant = 'default',
 		padding = 'md',
+		radius = 'md',
 		tone = 'neutral',
 		title = '',
 		subtitle = '',
@@ -28,41 +28,31 @@
 		chartValues = [],
 		ariaLabel = '',
 		class: klass = '',
+		style = '',
+		backgroundColor = '',
+		textColor = '',
+		borderColor = '',
+		borderWidth = '',
+		borderRadius = '',
+		shadow = '',
+		hoverShadow = '',
+		hoverOffset = '',
+		paddingBlock = '',
+		paddingInline = '',
 		children,
 		media,
 		actions,
-		footer
-	}: {
-		variant?: CardVariant;
-		padding?: CardPadding;
-		tone?: CardTone;
-		title?: string;
-		subtitle?: string;
-		eyebrow?: string;
-		value?: string | number;
-		trend?: CardTrend;
-		trendLabel?: string;
-		badge?: string;
-		href?: string;
-		selected?: boolean;
-		interactive?: boolean;
-		icon?: any;
-		chartValues?: number[];
-		ariaLabel?: string;
-		class?: string;
-		children?: Snippet;
-		media?: Snippet;
-		actions?: Snippet;
-		footer?: Snippet;
-	} = $props();
+		footer,
+		...restProps
+	}: CardProps = $props();
 
 	const rootClass = $derived(
 		[
 			CARD_VARIANT_CLASS[variant],
 			CARD_PADDING_CLASS[padding],
 			href ? 'block no-underline text-primary hover:text-primary hover:font-normal' : '',
-			interactive || href ? 'transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md' : '',
-			selected ? 'ring-2 ring-accent/40 border-accent/50' : '',
+			interactive || href ? 'ui-card-interactive' : '',
+			selected ? 'ui-card-selected' : '',
 			klass
 		]
 			.filter(Boolean)
@@ -70,7 +60,24 @@
 	);
 
 	const hasHeader = $derived(!!eyebrow || !!title || !!subtitle || !!icon || !!badge || !!actions);
-     
+
+	const rootStyle = $derived(
+		[
+			backgroundColor && `--card-bg:${backgroundColor}`,
+			textColor && `--card-color:${textColor}`,
+			borderColor && `--card-border-color:${borderColor}`,
+			borderWidth && `--card-border-width:${borderWidth}`,
+			borderRadius && `--card-radius:${borderRadius}`,
+			shadow && `--card-shadow:${shadow}`,
+			hoverShadow && `--card-hover-shadow:${hoverShadow}`,
+			hoverOffset && `--card-hover-translate-y:${hoverOffset}`,
+			paddingBlock && `--card-padding-block:${paddingBlock}`,
+			paddingInline && `--card-padding-inline:${paddingInline}`,
+			style
+		]
+			.filter(Boolean)
+			.join(';')
+	);
 
 	const chart = $derived.by(() => {
 		if (chartValues.length < 2) return null;
@@ -92,14 +99,32 @@
 </script>
 
 {#if href}
-	<a class={rootClass} {href} aria-label={ariaLabel || title}>
+	<a
+		{...restProps}
+		class={rootClass}
+		style={rootStyle || undefined}
+		{href}
+		aria-label={ariaLabel || title}
+		data-variant={variant}
+		data-padding={padding}
+		data-radius={radius}
+		data-selected={selected || undefined}
+	>
 		{@render CardContent()}
 	</a>
 {:else}
-	<div class={rootClass} aria-label={ariaLabel || undefined}>
+	<div
+		{...restProps}
+		class={rootClass}
+		style={rootStyle || undefined}
+		aria-label={ariaLabel || undefined}
+		data-variant={variant}
+		data-padding={padding}
+		data-radius={radius}
+		data-selected={selected || undefined}
+	>
 		{@render CardContent()}
 	</div>
-
 {/if}
 
 {#snippet CardContent()}
@@ -117,7 +142,7 @@
 		{/if}
 
 		{#if hasHeader}
-			<div class="flex items-start gap-3">
+			<div class="ui-card-header flex items-start gap-3">
 				<div class="min-w-0 flex-1">
 					{#if eyebrow}
 						<div class="text-[11px] font-semibold uppercase tracking-[0.07em] text-tertiary">
@@ -126,7 +151,7 @@
 					{/if}
 
 					{#if title}
-						<h3 class="mt-1 truncate text-sm font-semibold text-primary">{title}</h3>
+						<h3 class="ui-card-title mt-1 truncate font-semibold text-primary">{title}</h3>
 					{/if}
 
 					{#if subtitle}
@@ -169,8 +194,18 @@
 		{/if}
 
 		{#if chart}
-			<svg viewBox="0 0 100 32" class="mt-3 h-8 w-full" preserveAspectRatio="none" aria-hidden="true">
-				<polygon points={chart.area} fill="currentColor" class={CARD_TONE_CLASS[tone]} opacity="0.12" />
+			<svg
+				viewBox="0 0 100 32"
+				class="mt-3 h-8 w-full"
+				preserveAspectRatio="none"
+				aria-hidden="true"
+			>
+				<polygon
+					points={chart.area}
+					fill="currentColor"
+					class={CARD_TONE_CLASS[tone]}
+					opacity="0.12"
+				/>
 				<polyline
 					points={chart.line}
 					fill="none"
@@ -182,13 +217,13 @@
 		{/if}
 
 		{#if children}
-			<div class={hasHeader || value !== '' || trendLabel || chart ? 'mt-4' : ''}>
+			<div class={value !== '' || trendLabel || chart ? 'mt-4' : ''}>
 				{@render children()}
 			</div>
 		{/if}
 
 		{#if footer}
-			<div class="mt-4 border-t border-border-primary pt-3">
+			<div class="ui-card-footer mt-4 border-t border-border-primary pt-3">
 				{@render footer()}
 			</div>
 		{/if}

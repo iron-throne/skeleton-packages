@@ -12,7 +12,15 @@
 	import { onMount } from 'svelte';
 	import { Eye, EyeSlash, ExclamationCircle, Search } from 'svelte-bootstrap-icons';
 
-	let { field = $bindable() }: { field: IFormField } = $props();
+	let {
+		field = $bindable(),
+		icon,
+		iconPosition = 'left'
+	}: {
+		field: IFormField;
+		icon?: any;
+		iconPosition?: 'left' | 'right';
+	} = $props();
 
 	let showPassword = $state(false);
 	let newOptionLabel = $state('');
@@ -33,9 +41,20 @@
 	].join(' ');
 
 	const isSearch = $derived(field.type === EInputType.SEARCH);
+	const InputIcon = $derived(icon ?? (isSearch ? Search : undefined));
+	const hasLeftIcon = $derived(!!InputIcon && iconPosition === 'left');
+	const hasRightIcon = $derived(!!InputIcon && iconPosition === 'right');
 
 	const inputClass = $derived(
-		`${inputBase} ${INPUT_TYPE_CLASSES[field.type] ?? ''} ${field.klass ?? ''} ${isSearch && 'pl-10'}`.trim()
+		[
+			inputBase,
+			INPUT_TYPE_CLASSES[field.type] ?? '',
+			field.klass ?? '',
+			hasLeftIcon ? 'pl-10' : '',
+			hasRightIcon || field.type === EInputType.PASSWORD ? 'pr-10' : ''
+		]
+			.filter(Boolean)
+			.join(' ')
 	);
 
 	const inputAttributes = $derived({
@@ -53,7 +72,6 @@
 		...(field.errorMsg && { 'data-state': 'error' }),
 		...field.attributes
 	});
-
 
 	function emit(inputVal: InputValue) {
 		const val = typeof inputVal === 'string' ? inputVal.trim() : inputVal;
@@ -120,8 +138,13 @@
 	<!-- ── TEXT-LIKE INPUTS ── -->
 	{#if NATIVE_TEXT_TYPES.has(field.type)}
 		<div class="relative">
-			{#if isSearch}
-				<Search class="absolute top-1/2 left-2.5 -translate-y-1/2 text-secondary z-10" />
+			{#if InputIcon}
+				<InputIcon
+					width={15}
+					height={15}
+					class="pointer-events-none absolute top-1/2 z-10 -translate-y-1/2 text-secondary
+						{iconPosition === 'left' ? 'left-3' : 'right-3'}"
+				/>
 			{/if}
 			<input id={field.id} type={field.type} {...inputAttributes} />
 		</div>
@@ -129,6 +152,14 @@
 		<!-- ── PASSWORD ── -->
 	{:else if field.type === EInputType.PASSWORD}
 		<div class="relative">
+			{#if InputIcon}
+				<InputIcon
+					width={15}
+					height={15}
+					class="pointer-events-none absolute top-1/2 z-10 -translate-y-1/2 text-secondary
+						{iconPosition === 'left' ? 'left-3' : 'right-10'}"
+				/>
+			{/if}
 			<input
 				id={field.id}
 				type={showPassword ? EInputType.TEXT : EInputType.PASSWORD}

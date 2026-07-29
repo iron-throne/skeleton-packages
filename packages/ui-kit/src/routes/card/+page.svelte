@@ -1,8 +1,9 @@
 <script lang="ts">
 	import Avatar from '$lib/atoms/avatar/Avatar.svelte';
 	import Badge from '$lib/atoms/badge/Badge.svelte';
+	import Button from '$lib/atoms/button/Button.svelte';
 	import Card from '$lib/atoms/card/Card.svelte';
-	import { Building, Clock, Folder2Open, Stars } from 'svelte-bootstrap-icons';
+	import { Building, Clock, Folder2Open, Stars, ThreeDotsVertical } from 'svelte-bootstrap-icons';
 </script>
 
 <main class="min-h-screen overflow-auto bg-surface-tertiary px-4 py-6 text-primary sm:px-6 lg:px-8">
@@ -14,6 +15,52 @@
 				Reusable card styles for metrics, project summaries, panels, insights, and feature callouts.
 			</p>
 		</header>
+
+		<section class="grid grid-cols-1 gap-4 lg:grid-cols-2">
+			<Card variant="content" title="Discipline breakdown">
+				{#snippet actions()}
+					<Button
+						label="More actions"
+						icon={ThreeDotsVertical}
+						iconOnly
+						size="icon"
+						variant="ghost"
+					/>
+				{/snippet}
+
+				<div class="space-y-3 text-xs">
+					<div class="flex items-center justify-between gap-4">
+						<span>Architecture</span>
+						<strong>4,820</strong>
+					</div>
+					<div class="h-1.5 overflow-hidden rounded-full bg-surface-tertiary">
+						<div class="h-full w-[92%] bg-accent"></div>
+					</div>
+					<div class="flex items-center justify-between gap-4">
+						<span>Structural</span>
+						<strong>3,120</strong>
+					</div>
+					<div class="h-1.5 overflow-hidden rounded-full bg-surface-tertiary">
+						<div class="h-full w-[60%] bg-info"></div>
+					</div>
+				</div>
+			</Card>
+
+			<Card
+				variant="content"
+				title="Custom project card"
+				backgroundColor="#fff8ed"
+				borderColor="#f0b45f"
+				borderRadius="16px"
+				paddingInline="22px"
+				shadow="0 6px 20px rgb(161 96 0 / 12%)"
+			>
+				<p class="text-sm leading-6 text-secondary">
+					A project can introduce a completely new card appearance without adding another library
+					variant.
+				</p>
+			</Card>
+		</section>
 
 		<section class="grid grid-cols-1 gap-3 md:grid-cols-3">
 			<Card
