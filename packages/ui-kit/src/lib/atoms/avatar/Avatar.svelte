@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { initials } from '@aryagg/utils';
 	import { ESize } from '@aryagg/types';
+	import { initials } from '@aryagg/utils';
 	import type { AvatarProps } from './types';
 
 	let {
@@ -8,18 +8,30 @@
 		name = '',
 		size = ESize.MD,
 		status,
-		class: klass = '',
-		avatarKlass = '',
-		imgKlass = '',
-		dotKlass = ''
+		klass = '',
+		avatarKlass,
+		imgKlass,
+		dotKlass
 	}: AvatarProps = $props();
 
-	const sizeClass: Partial<Record<ESize, string>> = {
-		[ESize.XS]: 'w-6 h-6 text-[9px]',
-		[ESize.SM]: 'w-8 h-8 text-xs',
-		[ESize.MD]: 'w-10 h-10 text-sm',
-		[ESize.LG]: 'w-12 h-12 text-base',
-		[ESize.XL]: 'w-16 h-16 text-xl'
+	const sizeClass: Record<ESize, string> = {
+		xs: 'size-6   text-[9px]',
+		sm: 'size-8   text-xs',
+		md: 'size-10  text-sm',
+		lg: 'size-12  text-base',
+		xl: 'size-16  text-xl',
+
+		'2xl': 'size-20  text-2xl',
+		'3xl': 'size-24  text-3xl',
+		'4xl': 'size-28  text-4xl',
+		'5xl': 'size-32  text-5xl',
+		'6xl': 'size-36  text-6xl',
+		'7xl': 'size-40  text-7xl',
+
+		full: 'w-full h-full text-inherit',
+		fit: 'w-fit  h-fit  text-inherit',
+		min: 'w-min  h-min  text-inherit',
+		max: 'w-max  h-max  text-inherit'
 	};
 
 	const statusClass: Record<string, string> = {
@@ -28,12 +40,24 @@
 		away: 'bg-warning'
 	};
 
-	const dotSize: Partial<Record<ESize, string>> = {
-		[ESize.XS]: 'w-1.5 h-1.5 ring-1',
-		[ESize.SM]: 'w-2 h-2 ring-1',
-		[ESize.MD]: 'w-2.5 h-2.5 ring-2',
-		[ESize.LG]: 'w-3 h-3 ring-2',
-		[ESize.XL]: 'w-3.5 h-3.5 ring-2'
+	const dotSize: Record<ESize, string> = {
+		xs: 'size-1.5 ring-1',
+		sm: 'size-2   ring-1',
+		md: 'size-2.5 ring-2',
+		lg: 'size-3   ring-2',
+		xl: 'size-3.5 ring-2',
+
+		'2xl': 'size-4   ring-2',
+		'3xl': 'size-5   ring-2',
+		'4xl': 'size-6   ring-2',
+		'5xl': 'size-7   ring-2',
+		'6xl': 'size-8   ring-2',
+		'7xl': 'size-9   ring-2',
+
+		full: 'size-full ring-2',
+		fit: 'size-fit  ring-2',
+		min: 'size-min  ring-2',
+		max: 'size-max  ring-2'
 	};
 
 	let imgError = $state(false);
