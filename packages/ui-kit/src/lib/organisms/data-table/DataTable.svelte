@@ -18,6 +18,7 @@
 		pageSizeOptions = [10, 25, 50],
 		emptyText = 'No data found.',
 		hidePagination = false,
+		paginationKlass = "",
 		actions,
 		CustomHeader,
 		CustomCell
@@ -30,6 +31,7 @@
 		pageSize?: number;
 		pageSizeOptions?: number[];
 		emptyText?: string;
+		paginationKlass?: string;
 		hidePagination?: boolean;
 		actions?: Snippet<[any]>;
 		CustomHeader?: Snippet<[TableColumn, number]>;
@@ -95,7 +97,7 @@
 </script>
 
 <div class="flex flex-col gap-3">
-	<div class="flex justify-between gap-2">
+	<div class="flex justify-between gap-2 items-baseline">
 		<!-- Search bar -->
 		{#if searchable}
 			<div class="relative w-full max-w-xs h-fit">
@@ -115,7 +117,7 @@
 
 		<!-- Pagination -->
 		{#if !hidePagination}
-			<div class="px-2 pt-4">
+			<div class="px-2 {paginationKlass}">
 				<Pagination
 					bind:currentPage
 					bind:pageSize
