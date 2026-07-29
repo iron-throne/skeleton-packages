@@ -9,20 +9,21 @@ export const IMAGE_FIT_CLASS: Record<ImageFit, string> = {
 };
 
 export const IMAGE_ASPECT_CLASS: Record<ImageAspect, string> = {
-	auto: '',
-	square: 'aspect-square',
-	video: 'aspect-video',
-	wide: 'aspect-[21/9]',
-	portrait: 'aspect-[3/4]'
+	auto: 'image-aspect-auto',
+	square: 'image-aspect-square',
+	video: 'image-aspect-video',
+	wide: 'image-aspect-wide',
+	portrait: 'image-aspect-portrait',
+	project: 'image-aspect-project'
 };
 
 export const IMAGE_RADIUS_CLASS: Record<ImageRadius, string> = {
-	none: 'rounded-none',
-	sm: 'rounded-md',
-	md: 'rounded-lg',
-	lg: 'rounded-xl',
-	xl: 'rounded-2xl',
-	full: 'rounded-full'
+	none: 'image-radius-none',
+	sm: 'image-radius-sm',
+	md: 'image-radius-md',
+	lg: 'image-radius-lg',
+	xl: 'image-radius-xl',
+	full: 'image-radius-full'
 };
 
 export const IMAGE_OVERLAY_CLASS: Record<ImageOverlay, string> = {

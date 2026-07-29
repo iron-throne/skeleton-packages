@@ -1,53 +1,78 @@
 <script lang="ts">
-	import type { Snippet } from 'svelte';
-	import type { BadgeVariant, BadgeSize } from './types';
+	import type { BadgeProps } from './types';
 
 	let {
+		label = '',
 		variant = 'default',
+		appearance = 'soft',
 		size = 'md',
+		radius = 'full',
 		dot = false,
-		children
-	}: {
-		variant?: BadgeVariant;
-		size?: BadgeSize;
-		/** Show a coloured dot instead of text */
-		dot?: boolean;
-		children?: Snippet;
-	} = $props();
+		dotOnly = false,
+		uppercase = false,
+		icon,
+		class: klass = '',
+		style = '',
+		backgroundColor = '',
+		textColor = '',
+		borderColor = '',
+		borderWidth = '',
+		borderRadius = '',
+		height = '',
+		paddingInline = '',
+		fontSize = '',
+		fontWeight = '',
+		dotColor = '',
+		children,
+		...restProps
+	}: BadgeProps = $props();
 
-	const variantClass: Record<BadgeVariant, string> = {
-		default: 'bg-surface-tertiary  text-content-secondary',
-		accent: 'bg-accent/15         text-accent',
-		success: 'bg-success/15        text-success',
-		warning: 'bg-warning/20        text-content-primary',
-		error: 'bg-error/15          text-error',
-		info: 'bg-info/15           text-info'
-	};
-
-	const dotColor: Record<BadgeVariant, string> = {
-		default: 'bg-content-tertiary',
-		accent: 'bg-accent',
-		success: 'bg-success',
-		warning: 'bg-warning',
-		error: 'bg-error',
-		info: 'bg-info'
-	};
-
-	const sizeClass: Record<BadgeSize, string> = {
-		sm: 'px-1.5 py-0.5 text-[10px]',
-		md: 'px-2   py-0.5 text-xs'
-	};
+	const rootStyle = $derived(
+		[
+			backgroundColor && `--badge-bg:${backgroundColor}`,
+			textColor && `--badge-color:${textColor}`,
+			borderColor && `--badge-border-color:${borderColor}`,
+			borderWidth && `--badge-border-width:${borderWidth}`,
+			borderRadius && `--badge-radius:${borderRadius}`,
+			height && `--badge-height:${height}`,
+			paddingInline && `--badge-padding-inline:${paddingInline}`,
+			fontSize && `--badge-font-size:${fontSize}`,
+			fontWeight && `--badge-font-weight:${fontWeight}`,
+			dotColor && `--badge-dot-color:${dotColor}`,
+			style
+		]
+			.filter(Boolean)
+			.join(';')
+	);
 </script>
 
-{#if dot}
-	<span class="inline-block w-2 h-2 rounded-full {dotColor[variant]}" aria-hidden="true"></span>
-{:else}
-	<span
-		class="inline-flex items-center gap-1 rounded-full font-medium leading-none
-               {variantClass[variant]} {sizeClass[size]}"
-	>
+<span
+	{...restProps}
+	class="ui-badge ui-badge-{variant} ui-badge-{appearance} ui-badge-{size}
+		ui-badge-radius-{radius}
+		{dotOnly ? 'ui-badge-dot-only' : ''}
+		{uppercase ? 'ui-badge-uppercase' : ''}
+		{klass}"
+	style={rootStyle || undefined}
+	data-variant={variant}
+	data-appearance={appearance}
+	data-size={size}
+	data-radius={radius}
+>
+	{#if dot || dotOnly}
+		<span class="ui-badge-dot" aria-hidden="true"></span>
+	{/if}
+
+	{#if !dotOnly}
+		{#if icon}
+			{@const Icon = icon}
+			<Icon width="12" height="12" aria-hidden="true" />
+		{/if}
+
 		{#if children}
 			{@render children()}
+		{:else}
+			{label}
 		{/if}
-	</span>
-{/if}
+	{/if}
+</span>

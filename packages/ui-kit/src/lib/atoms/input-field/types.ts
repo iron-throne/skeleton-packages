@@ -23,6 +23,8 @@ export type InputFieldState = 'default' | 'success' | 'warning' | 'error';
 
 export type InputFieldSize = 'sm' | 'md' | 'lg';
 
+export type InputFieldIconPosition = 'left' | 'right';
+
 export type InputFieldOption = {
 	label: string;
 	value: string;

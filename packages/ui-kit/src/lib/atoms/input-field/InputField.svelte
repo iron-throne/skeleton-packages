@@ -9,6 +9,7 @@
 	} from './constants';
 	import type {
 		InputFieldOption,
+		InputFieldIconPosition,
 		InputFieldSize,
 		InputFieldState,
 		InputFieldType,
@@ -35,6 +36,8 @@
 		max,
 		step,
 		rows = 4,
+		icon,
+		iconPosition = 'left',
 		class: klass = '',
 		onChange
 	}: {
@@ -57,6 +60,8 @@
 		max?: number | string;
 		step?: number | string;
 		rows?: number;
+		icon?: any;
+		iconPosition?: InputFieldIconPosition;
 		class?: string;
 		onChange?: (value: InputFieldValue) => void;
 	} = $props();
@@ -69,6 +74,8 @@
 			INPUT_FIELD_BASE_CLASS,
 			type === 'textarea' ? 'min-h-24 py-2.5 leading-6' : INPUT_FIELD_SIZE_CLASS[size],
 			INPUT_FIELD_STATE_CLASS[validationState],
+			icon && iconPosition === 'left' ? 'pl-10' : '',
+			(icon && iconPosition === 'right') || type === 'password' ? 'pr-10' : '',
 			klass
 		]
 			.filter(Boolean)
@@ -150,7 +157,8 @@
 			<span class="space-y-0.5">
 				<span class="block text-sm font-medium text-primary">{label}</span>
 				{#if helperText}
-					<span class="block text-xs {INPUT_FIELD_HELPER_CLASS[validationState]}">{helperText}</span>
+					<span class="block text-xs {INPUT_FIELD_HELPER_CLASS[validationState]}">{helperText}</span
+					>
 				{/if}
 			</span>
 		</label>
@@ -225,6 +233,17 @@
 		/>
 	{:else}
 		<div class="relative">
+			{#if icon}
+				{@const Icon = icon}
+				<span
+					class="pointer-events-none absolute top-1/2 z-10 -translate-y-1/2 text-secondary
+						{iconPosition === 'left' ? 'left-3' : type === 'password' ? 'right-10' : 'right-3'}"
+					aria-hidden="true"
+				>
+					<Icon width={15} height={15} />
+				</span>
+			{/if}
+
 			<input
 				{id}
 				type={nativeType}
@@ -259,6 +278,8 @@
 	{/if}
 
 	{#if helperText && type !== 'checkbox'}
-		<p id={`${id}-helper`} class="text-xs {INPUT_FIELD_HELPER_CLASS[validationState]}">{helperText}</p>
+		<p id={`${id}-helper`} class="text-xs {INPUT_FIELD_HELPER_CLASS[validationState]}">
+			{helperText}
+		</p>
 	{/if}
 </div>

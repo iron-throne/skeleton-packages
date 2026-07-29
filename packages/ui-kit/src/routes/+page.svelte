@@ -1,42 +1,54 @@
-<main class="min-h-screen bg-surface-tertiary p-6 text-primary">
-	<section class="card max-w-xl space-y-4">
-		<div>
-			<p class="section-label">UI Kit</p>
-			<h1 class="mt-2">Component previews</h1>
-		</div>
-
-		<div class="flex flex-wrap gap-3">
-			<a class="btn btn-primary w-fit" href="/card">Open card </a>
-			<a class="btn btn-muted w-fit" href="/autocomplete">Open autocomplete </a>
-			<a class="btn btn-secondary w-fit" href="/button">Open button </a>
-			<a class="btn btn-muted w-fit" href="/image">Open image </a>
-			<a class="btn btn-muted w-fit" href="/input">Open input </a>
-			<a class="btn btn-muted w-fit" href="/folder-hierarchy">Open folder hierarchy</a>
-			<a class="btn btn-muted w-fit" href="/table">Open table </a>
-			<a class="btn btn-outline w-fit" href="/theme">Open theme colors</a>
-		</div>
-	</section>
-</main>
 <script lang="ts">
+	import Badge from '$lib/atoms/badge/Badge.svelte';
 	import Accordion from '$lib/molecules/accordion/Accordion.svelte';
 	import type { IAccordionData } from '$lib/molecules/accordion/types';
 	import { Trash } from 'svelte-bootstrap-icons';
 
 	const basicItems: IAccordionData[] = [
-		{ id: 1, title: 'What is Skeleton UI Kit?', content: 'A shared component library used across the workspace apps.' },
-		{ id: 2, title: 'How do I install it?', content: 'It is consumed as a workspace package, no separate install needed.' },
-		{ id: 3, title: 'Can I customize the styles?', content: 'Yes — every part accepts a klass prop (parentklass, listKlass, detailKlass, summaryKlass, articleKlass).' }
+		{
+			id: 1,
+			title: 'What is Skeleton UI Kit?',
+			content: 'A shared component library used across the workspace apps.'
+		},
+		{
+			id: 2,
+			title: 'How do I install it?',
+			content: 'It is consumed as a workspace package, no separate install needed.'
+		},
+		{
+			id: 3,
+			title: 'Can I customize the styles?',
+			content:
+				'Yes — every part accepts a klass prop (parentklass, listKlass, detailKlass, summaryKlass, articleKlass).'
+		}
 	];
 
 	const multipleItems: IAccordionData[] = [
-		{ id: 'a', title: 'Section A', content: 'Multiple sections can be open at the same time here.' },
-		{ id: 'b', title: 'Section B', content: 'Try opening this one without closing Section A.', expanded: true },
+		{
+			id: 'a',
+			title: 'Section A',
+			content: 'Multiple sections can be open at the same time here.'
+		},
+		{
+			id: 'b',
+			title: 'Section B',
+			content: 'Try opening this one without closing Section A.',
+			expanded: true
+		},
 		{ id: 'c', title: 'Section C', content: 'Content for section C.' }
 	];
 
 	const mandatoryItems: IAccordionData[] = [
-		{ id: 'first', title: 'Always at least one open', content: 'This one opens by default via mandatoryId.' },
-		{ id: 'second', title: 'Try closing the other item', content: 'You cannot close the last remaining open item.' }
+		{
+			id: 'first',
+			title: 'Always at least one open',
+			content: 'This one opens by default via mandatoryId.'
+		},
+		{
+			id: 'second',
+			title: 'Try closing the other item',
+			content: 'You cannot close the last remaining open item.'
+		}
 	];
 
 	let controlledIds = $state<(number | string)[]>(['x2']);
@@ -53,13 +65,54 @@
 	];
 
 	const actionItems: IAccordionData[] = [
-		{ id: 1, title: 'Row with a delete action', content: 'Click the trash icon without toggling this row.' },
+		{
+			id: 1,
+			title: 'Row with a delete action',
+			content: 'Click the trash icon without toggling this row.'
+		},
 		{ id: 2, title: 'Another row', content: 'The trash click also logs which item id was clicked.' }
 	];
 	const handleDelete = (itemId: number | string) => {
 		console.log('delete clicked for item', itemId);
 	};
 </script>
+
+<main class="min-h-screen bg-surface-tertiary p-6 text-primary">
+	<section class="card max-w-xl space-y-4">
+		<div>
+			<p class="section-label">UI Kit</p>
+			<h1 class="mt-2">Component previews</h1>
+		</div>
+
+		<div class="flex flex-wrap gap-3">
+			<a class="btn btn-primary w-fit" href="/card">Open card </a>
+			<a class="btn btn-muted w-fit" href="/autocomplete">Open autocomplete </a>
+			<a class="btn btn-secondary w-fit" href="/button">Open button </a>
+			<a class="btn btn-muted w-fit" href="/badge">Open badge </a>
+			<a class="btn btn-muted w-fit" href="/image">Open image </a>
+			<a class="btn btn-muted w-fit" href="/input">Open input </a>
+			<a class="btn btn-muted w-fit" href="/folder-hierarchy">Open folder hierarchy</a>
+			<a class="btn btn-muted w-fit" href="/table">Open table </a>
+			<a class="btn btn-outline w-fit" href="/theme">Open theme colors</a>
+		</div>
+	</section>
+
+	<section class="card mt-6 max-w-xl space-y-4">
+		<div>
+			<p class="section-label">Badge</p>
+			<h2 class="mt-2 text-lg">V3 project statuses</h2>
+		</div>
+
+		<div class="flex flex-wrap items-center gap-2">
+			<Badge variant="success" appearance="solid" size="sm" uppercase>Active</Badge>
+			<Badge variant="blue">Stage 4</Badge>
+			<Badge variant="red">142 issues</Badge>
+			<Badge variant="green">94% ISO</Badge>
+		</div>
+
+		<a class="text-sm font-medium text-accent" href="/badge">View all Badge options →</a>
+	</section>
+</main>
 
 {#snippet SectionTitle(text: string)}
 	<h2 class="text-lg font-semibold text-primary mb-3">{text}</h2>
@@ -97,7 +150,12 @@
 				Close all
 			</button>
 		</div>
-		<Accordion id="controlled-accordion" items={controlledItems} multiple bind:expandedIds={controlledIds} />
+		<Accordion
+			id="controlled-accordion"
+			items={controlledItems}
+			multiple
+			bind:expandedIds={controlledIds}
+		/>
 		<p class="text-sm text-secondary mt-2">Open ids: {controlledIds.join(', ') || 'none'}</p>
 	</section>
 
@@ -135,6 +193,8 @@
 			items={actionItems}
 			rightIcon={{ expandIcon: Trash, collapseIcon: Trash, onclick: handleDelete }}
 		/>
-		<p class="text-sm text-secondary mt-2">Open devtools console and click the icon — it won't toggle the row.</p>
+		<p class="text-sm text-secondary mt-2">
+			Open devtools console and click the icon — it won't toggle the row.
+		</p>
 	</section>
 </div>

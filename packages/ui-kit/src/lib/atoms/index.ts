@@ -28,7 +28,21 @@ export type {
 	AutocompleteState,
 	AutocompleteValue
 } from './autocomplete/types';
-export type { CardPadding, CardTone, CardTrend, CardVariant } from './card/types';
+export type {
+	BadgeAppearance,
+	BadgeProps,
+	BadgeRadius,
+	BadgeSize,
+	BadgeVariant
+} from './badge/types';
+export type {
+	CardPadding,
+	CardProps,
+	CardRadius,
+	CardTone,
+	CardTrend,
+	CardVariant
+} from './card/types';
 export type {
 	DocumentTableColumn,
 	DocumentTableColumnKey,
@@ -46,6 +60,7 @@ export type {
 export type { ImageAspect, ImageFit, ImageOverlay, ImageProps, ImageRadius } from './image/types';
 export type {
 	InputFieldOption,
+	InputFieldIconPosition,
 	InputFieldSize,
 	InputFieldState,
 	InputFieldType,

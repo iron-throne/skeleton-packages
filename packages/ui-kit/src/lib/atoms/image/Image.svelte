@@ -6,11 +6,11 @@
 		IMAGE_OVERLAY_CLASS,
 		IMAGE_RADIUS_CLASS
 	} from './constants';
-	import type { ImageAspect, ImageFit, ImageOverlay, ImageRadius } from './types';
+	import type { ImageProps } from './types';
 
 	let {
-		src,
-		alt,
+		src = '',
+		alt = '',
 		caption = '',
 		fit = 'cover',
 		aspect = 'video',
@@ -18,78 +18,134 @@
 		overlay = 'none',
 		loading = 'lazy',
 		class: klass = '',
-		actions
-	}: {
-		src: string;
-		alt: string;
-		caption?: string;
-		fit?: ImageFit;
-		aspect?: ImageAspect;
-		radius?: ImageRadius;
-		overlay?: ImageOverlay;
-		loading?: 'lazy' | 'eager';
-		class?: string;
-		actions?: import('svelte').Snippet;
-	} = $props();
+		imageClass = '',
+		style = '',
+		width = '',
+		height = '',
+		backgroundColor = '',
+		gradientFrom = '',
+		gradientTo = '',
+		borderColor = '',
+		borderWidth = '',
+		borderRadius = '',
+		objectPosition = '',
+		overlayColor = '',
+		fallbackText = 'Image unavailable',
+		showBlueprint = false,
+		blueprintColor = '',
+		actions,
+		topLeft,
+		topRight,
+		children,
+		...imageProps
+	}: ImageProps = $props();
 
 	let loaded = $state(false);
 	let failed = $state(false);
 
+	$effect(() => {
+		src;
+		loaded = false;
+		failed = false;
+	});
+
+	const showFallback = $derived(!src || failed);
+
 	const rootClass = $derived(
-		[
-			'relative overflow-hidden border border-border-primary bg-surface-secondary',
-			IMAGE_ASPECT_CLASS[aspect],
-			IMAGE_RADIUS_CLASS[radius],
-			klass
-		]
+		['ui-image', IMAGE_ASPECT_CLASS[aspect], IMAGE_RADIUS_CLASS[radius], klass]
 			.filter(Boolean)
 			.join(' ')
 	);
+
+	const rootStyle = $derived(
+		[
+			width && `--image-width:${width}`,
+			height && `--image-height:${height}`,
+			backgroundColor && `--image-bg:${backgroundColor}`,
+			gradientFrom &&
+				gradientTo &&
+				`--image-bg:linear-gradient(135deg,${gradientFrom},${gradientTo})`,
+			gradientFrom && `--image-gradient-from:${gradientFrom}`,
+			gradientTo && `--image-gradient-to:${gradientTo}`,
+			borderColor && `--image-border-color:${borderColor}`,
+			borderWidth && `--image-border-width:${borderWidth}`,
+			borderRadius && `--image-radius:${borderRadius}`,
+			overlayColor && `--image-overlay-color:${overlayColor}`,
+			blueprintColor && `--image-blueprint-color:${blueprintColor}`,
+			style
+		]
+			.filter(Boolean)
+			.join(';')
+	);
 </script>
 
-<figure class="space-y-2">
-	<div class={rootClass}>
-		{#if !loaded && !failed}
-			<div class="absolute inset-0 animate-pulse bg-surface-tertiary"></div>
+<figure class="ui-image-figure">
+	<div class={rootClass} style={rootStyle || undefined}>
+		{#if src && !loaded && !failed}
+			<div class="ui-image-loading" aria-hidden="true"></div>
 		{/if}
 
-		{#if failed}
-			<div class="grid h-full min-h-40 place-items-center text-tertiary">
-				<div class="grid justify-items-center gap-2 text-xs">
-					<CardImage width={26} height={26} />
-					<span>Image unavailable</span>
-				</div>
+		{#if showFallback}
+			<div class="ui-image-fallback">
+				<CardImage width={26} height={26} aria-hidden="true" />
+				<span>{fallbackText}</span>
 			</div>
-		{:else}
+		{:else if src}
 			<img
+				{...imageProps}
 				{src}
 				{alt}
 				{loading}
-				class="h-full w-full {IMAGE_FIT_CLASS[fit]} transition-opacity duration-300 {loaded
-					? 'opacity-100'
-					: 'opacity-0'}"
+				class="ui-image-element {IMAGE_FIT_CLASS[fit]} {imageClass}"
+				style:object-position={objectPosition || undefined}
+				class:is-loaded={loaded}
 				onload={() => (loaded = true)}
 				onerror={() => (failed = true)}
 			/>
 		{/if}
 
-		{#if overlay !== 'none' && (caption || actions)}
-			<div class="absolute inset-0 flex p-3 text-white {IMAGE_OVERLAY_CLASS[overlay]}">
-				<div class="flex w-full items-end justify-between gap-3">
-					{#if caption}
-						<figcaption class="min-w-0 truncate text-sm font-semibold">{caption}</figcaption>
-					{/if}
-					{#if actions}
-						<div class="shrink-0">
-							{@render actions()}
-						</div>
-					{/if}
-				</div>
+		{#if showBlueprint}
+			<div class="ui-image-blueprint" aria-hidden="true">
+				<span class="ui-image-blueprint-line blueprint-outer"></span>
+				<span class="ui-image-blueprint-line blueprint-middle"></span>
+				<span class="ui-image-blueprint-line blueprint-inner"></span>
+			</div>
+		{/if}
+
+		{#if overlay !== 'none'}
+			<div class="ui-image-overlay {IMAGE_OVERLAY_CLASS[overlay]}" aria-hidden="true"></div>
+		{/if}
+
+		{#if topLeft}
+			<div class="ui-image-top-left">
+				{@render topLeft()}
+			</div>
+		{/if}
+
+		{#if topRight}
+			<div class="ui-image-top-right">
+				{@render topRight()}
+			</div>
+		{/if}
+
+		{#if children}
+			<div class="ui-image-content">
+				{@render children()}
+			</div>
+		{/if}
+
+		{#if caption && overlay !== 'none'}
+			<div class="ui-image-caption">{caption}</div>
+		{/if}
+
+		{#if actions}
+			<div class="ui-image-actions">
+				{@render actions()}
 			</div>
 		{/if}
 	</div>
 
 	{#if caption && overlay === 'none'}
-		<figcaption class="text-xs text-secondary">{caption}</figcaption>
+		<figcaption class="ui-image-figcaption">{caption}</figcaption>
 	{/if}
 </figure>

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import Card from '$lib/atoms/card/Card.svelte';
 	import InputField from '$lib/atoms/input-field/InputField.svelte';
+	import { Envelope, Search } from 'svelte-bootstrap-icons';
 	import { DISCIPLINE_OPTIONS, STATUS_OPTIONS } from './constants';
 
 	let textValue = $state('Tottenham Court');
@@ -25,18 +26,35 @@
 			<p class="section-label">Atom</p>
 			<h1>Inputs</h1>
 			<p class="max-w-2xl text-sm leading-6 text-secondary">
-				Common form inputs for text, number, file uploads, selects, checks, radio groups, ranges, dates,
-				and validation states.
+				Common form inputs for text, number, file uploads, selects, checks, radio groups, ranges,
+				dates, and validation states.
 			</p>
 		</header>
 
 		<section class="grid grid-cols-1 gap-4 lg:grid-cols-2">
 			<Card variant="panel" title="Text inputs">
 				<div class="grid gap-4">
-					<InputField label="Project name" bind:value={textValue} placeholder="Enter project name" />
-					<InputField label="Email" type="email" bind:value={emailValue} />
+					<InputField
+						label="Project name"
+						bind:value={textValue}
+						placeholder="Enter project name"
+					/>
+					<InputField
+						label="Email"
+						type="email"
+						bind:value={emailValue}
+						icon={Envelope}
+						iconPosition="left"
+					/>
 					<InputField label="Password" type="password" bind:value={passwordValue} />
-					<InputField label="Search" type="search" bind:value={searchValue} placeholder="Search documents..." />
+					<InputField
+						label="Search"
+						type="search"
+						bind:value={searchValue}
+						placeholder="Search documents..."
+						icon={Search}
+						iconPosition="right"
+					/>
 				</div>
 			</Card>
 
@@ -100,9 +118,19 @@
 
 		<Card variant="panel" title="States">
 			<div class="grid grid-cols-1 gap-4 md:grid-cols-3">
-				<InputField label="Approved code" value="LDN-CRL-TCR" state="success" helperText="Looks good." />
+				<InputField
+					label="Approved code"
+					value="LDN-CRL-TCR"
+					state="success"
+					helperText="Looks good."
+				/>
 				<InputField label="Revision" value="P04" state="warning" helperText="Check latest issue." />
-				<InputField label="Required field" value="" state="error" helperText="This field is required." />
+				<InputField
+					label="Required field"
+					value=""
+					state="error"
+					helperText="This field is required."
+				/>
 			</div>
 		</Card>
 	</div>
