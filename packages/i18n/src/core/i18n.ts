@@ -1,6 +1,9 @@
 import { interpolate } from './interpolate';
 import type { I18nOptions, Locale, TranslationMap, TranslationMessages } from '../types';
 
+/** Locales treated as right-to-left when an I18n instance doesn't override `rtlLocales`. */
+export const DEFAULT_RTL_LOCALES: Locale[] = ['ar', 'he', 'fa', 'ur'];
+
 export class I18n {
     // The currently active language (e.g., "en", "ar")
     private locale: Locale;
@@ -14,6 +17,9 @@ export class I18n {
     // Optional callback when a translation key is missing
     private missing?: (key: string, locale: Locale) => void;
 
+    // Locales that read right-to-left
+    private rtlLocales: Set<Locale>;
+
     constructor(options: I18nOptions) {
         // Set the initial locale
         this.locale = options.locale;
@@ -26,6 +32,9 @@ export class I18n {
 
         // Optional "missing key" handler
         this.missing = options.missing;
+
+        // RTL locale set, overridable per instance
+        this.rtlLocales = new Set(options.rtlLocales ?? DEFAULT_RTL_LOCALES);
     }
 
     // Return the current active locale
@@ -71,6 +80,16 @@ export class I18n {
      */
     getLocales(): Locale[] {
         return Object.keys(this.messages);
+    }
+
+    /** True if `locale` (defaults to the active locale) reads right-to-left */
+    isRTL(locale: Locale = this.locale) {
+        return this.rtlLocales.has(locale)
+    }
+
+    /** "rtl" or "ltr" for `locale` (defaults to the active locale) */
+    dir(locale: Locale = this.locale) {
+        return this.isRTL(locale) ? 'rtl' : 'ltr'
     }
 
     /**

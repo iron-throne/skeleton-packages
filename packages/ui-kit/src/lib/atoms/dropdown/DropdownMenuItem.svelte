@@ -10,12 +10,15 @@
 	let {
 		menu,
 		align,
-		onNavigate
+		onNavigate,
+		selected = $bindable()
 	}: {
 		menu: IMenu;
 		align: EMenuAlign;
 		/** Called when a leaf item is activated, so the root DropdownMenu can close itself. */
 		onNavigate: () => void;
+		/** id of the last-clicked leaf item, two-way bound up through the whole menu tree. */
+		selected?: string;
 	} = $props();
 
 	// A menu item with children is itself a trigger for a nested flyout, so it recurses
@@ -73,16 +76,27 @@
 		closeTimer = setTimeout(() => (isOpen = false), 150);
 	}
 
+	function isSelected(m: IMenu) {
+		return Boolean(m.selected) || (m.id !== undefined && m.id === selected);
+	}
+
 	function itemClass(m: IMenu) {
 		if (m.disabled) return 'cursor-not-allowed text-tertiary opacity-50';
 		if (m.danger) return 'text-error hover:bg-error/10';
-		if (m.selected) return 'bg-accent/10 text-accent';
-		return 'hover:text-primary hover:bg-surface-secondary text-secondary';
+		if (isSelected(m)) return 'bg-accent/10 text-accent';
+		return 'hover:text-accent hover:bg-accent/10 text-secondary';
+	}
+
+	function iconKlass(m: IMenu) {
+		return (isSelected(m) ? m.selectedIconKlass || m.iconClass : m.iconClass) ?? '';
 	}
 </script>
 
 {#snippet menuIcon(m: IMenu)}
-	<Icon icon={m.selected && m.selectedIcon ? m.selectedIcon : m.icon} klass="opacity-70 size-5"/>
+	<Icon
+		icon={isSelected(m) && m.selectedIcon ? m.selectedIcon || m.icon : m.icon}
+		klass="opacity-70 size-5 {iconKlass(m)}"
+	/>
 {/snippet}
 
 {#if menu.divider}
@@ -90,12 +104,7 @@
 {/if}
 
 {#if menu.children?.length}
-	<div
-		class="relative"
-		role="none"
-		onmouseenter={openSubmenu}
-		onmouseleave={scheduleCloseSubmenu}
-	>
+	<div class="relative" role="none" onmouseenter={openSubmenu} onmouseleave={scheduleCloseSubmenu}>
 		<button
 			bind:this={triggerEl}
 			type="button"
@@ -103,9 +112,9 @@
 			disabled={menu.disabled}
 			aria-haspopup="true"
 			aria-expanded={isOpen}
-			class="group flex w-full items-center gap-2 rounded-2xl border-0 p-2 transition-colors duration-150  {itemClass(
+			class="group flex w-full items-center justify-start gap-2 rounded-2xl border-0 p-2 transition-colors duration-300 {itemClass(
 				menu
-			)} {menu.class ?? ''}"
+			)} {menu.klass ?? ''}"
 		>
 			{@render menuIcon(menu)}
 			<span class="flex-1 text-left">{menu.label}</span>
@@ -129,7 +138,7 @@
 				onmouseleave={scheduleCloseSubmenu}
 			>
 				{#each menu.children as child, childIndex (child.id ?? childIndex)}
-					<DropdownMenuItem menu={child} {align} {onNavigate} />
+					<DropdownMenuItem menu={child} {align} {onNavigate} bind:selected />
 				{/each}
 			</div>
 		{/if}
@@ -138,14 +147,15 @@
 	<a
 		role="menuitem"
 		href={menu.href}
-		aria-current={menu.selected ? 'page' : undefined}
+		aria-current={isSelected(menu) ? 'page' : undefined}
 		onclick={() => {
+			selected = menu.id;
 			menu.onclick?.();
 			onNavigate();
 		}}
-		class="group flex w-full items-center gap-2 rounded-2xl border-0 p-2 no-underline transition-colors duration-150  {itemClass(
+		class="group flex w-full items-center justify-start gap-2 rounded-2xl border-0 p-2 no-underline transition-colors duration-300 {itemClass(
 			menu
-		)} {menu.class ?? ''}"
+		)} {menu.klass ?? ''}"
 	>
 		{@render menuIcon(menu)}
 		{menu.label}
@@ -156,12 +166,13 @@
 		role="menuitem"
 		disabled={menu.disabled}
 		onclick={() => {
+			selected = menu.id;
 			menu.onclick?.();
 			onNavigate();
 		}}
-		class="group flex w-full items-center gap-2 rounded-2xl border-0 p-2 transition-colors duration-150 szie-5 {itemClass(
+		class="group flex w-full items-center justify-start gap-2 rounded-2xl border-0 p-2 transition-colors duration-300 szie-5 {itemClass(
 			menu
-		)} {menu.class ?? ''}"
+		)} {menu.klass ?? ''}"
 	>
 		{@render menuIcon(menu)}
 		{menu.label}

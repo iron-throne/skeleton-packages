@@ -11,7 +11,8 @@
 		align = EMenuAlign.RIGHT,
 		placement = 'bottom',
 		trigger,
-		menuClass
+		menuClass,
+		selected = $bindable()
 	}: {
 		menus: IMenu[];
 		align?: EMenuAlign;
@@ -27,7 +28,9 @@
 		placement?: 'bottom' | 'top' | 'side';
 		menuClass?: string;
 		/** The element that opens/closes the menu */
-		trigger: Snippet<[{ open: boolean; toggle: () => void }]>;
+		trigger?: Snippet<[{ open: boolean; toggle: () => void }]>;
+		/** id of the last-clicked leaf item; bind to it to read/seed the current selection. */
+		selected?: string;
 	} = $props();
 
 	let open = $state(false);
@@ -99,24 +102,37 @@
 	});
 </script>
 
-<div bind:this={wrapperEl} role="presentation" class="relative inline-block w-full text-sm" use:clickOutside={close}>
-	<!-- Trigger slot -->
-	{@render trigger({ open, toggle })}
+{#if trigger}
+	<div
+		bind:this={wrapperEl}
+		role="presentation"
+		class="relative inline-block w-full text-sm"
+		use:clickOutside={close}
+	>
+		<!-- Trigger slot -->
+		{@render trigger({ open, toggle })}
 
-	<!-- Menu panel: portaled to <body> and positioned with fixed coordinates. -->
-	{#if open}
-		<div
-			use:portal
-			data-dropdown-menu
-			style={panelStyle}
-			transition:scale={{ duration: 160, start: 0.94, opacity: 0, easing: cubicOut }}
-			class="bg-surface-primary! border-border-primary fixed z-50 min-w-48 max-h-96 overflow-y-auto
+		<!-- Menu panel: portaled to <body> and positioned with fixed coordinates. -->
+		{#if open}
+			<div
+				use:portal
+				data-dropdown-menu
+				style={panelStyle}
+				transition:scale={{ duration: 160, start: 0.94, opacity: 0, easing: cubicOut }}
+				class="bg-surface-primary! border-border-primary fixed z-50 min-w-48 max-h-96 overflow-y-auto
 				rounded-xl border p-2 shadow-xl {menuClass}"
-			role="menu"
-		>
-			{#each menus as menu, ind (menu.id ?? ind)}
-				<DropdownMenuItem {menu} {align} onNavigate={close} />
-			{/each}
-		</div>
-	{/if}
-</div>
+				role="menu"
+			>
+				{#each menus as menu, ind (menu.id ?? ind)}
+					<DropdownMenuItem {menu} {align} onNavigate={close} bind:selected />
+				{/each}
+			</div>
+		{/if}
+	</div>
+{:else}
+	<div class="flex flex-col gap-2 {menuClass}">
+		{#each menus as menu, ind (menu.id ?? ind)}
+			<DropdownMenuItem {menu} {align} onNavigate={close} bind:selected />
+		{/each}
+	</div>
+{/if}

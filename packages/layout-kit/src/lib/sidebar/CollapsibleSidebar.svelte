@@ -91,8 +91,12 @@
 				: menu.selected
 					? 'bg-accent/75 text-on-accent hover:text-on-accent!'
 					: 'text-primary/65 hover:bg-accent/10 hover:text-accent',
-			menu.class ?? ''
+			menu.klass ?? ''
 		].join(' ');
+	}
+
+	function iconKlass(menu: IMenu) {
+		return (menu.selected ? menu.selectedIconKlass || menu.iconClass : menu.iconClass) ?? '';
 	}
 
 	// Flyouts should open away from the screen edge the sidebar is docked to.
@@ -100,12 +104,13 @@
 
 {#snippet ItemIcon(menu: IMenu)}
 	<Icon
-		icon={menu.selected && menu.selectedIcon ? menu.selectedIcon : menu.icon}
+		icon={menu.selected && menu.selectedIcon ? menu.selectedIcon || menu.icon : menu.icon}
 		klass="size-5
     shrink-0
     transition-transform
     duration-200
-    group-hover:scale-110"
+    group-hover:scale-110
+    {iconKlass(menu)}"
 	/>
 {/snippet}
 

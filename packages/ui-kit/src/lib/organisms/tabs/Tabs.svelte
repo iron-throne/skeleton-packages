@@ -14,7 +14,8 @@
 		variant = 'surface',
 		radius = 'full',
 		parentKlass,
-		tabKlass
+		tabKlass,
+		activeKlass
 	}: {
 		tabs: ITab[];
 		active: string;
@@ -24,6 +25,7 @@
 		radius?: TabsRadius;
 		parentKlass?: string;
 		tabKlass?: string;
+		activeKlass?:string;
 		children?: Snippet;
 	} = $props();
 
@@ -79,6 +81,7 @@
 		]} {parentKlass} {disabled ? 'opacity-50 grayscale-[0.3] pointer-events-none' : ''}"
 	>
 		{#each tabs as tab (tab.id)}
+		{@const isActive = tab.id === active}
 			<button
 				role="tab"
 				aria-selected={active === tab.id}
@@ -88,16 +91,16 @@
 				}}
 				class="inline-flex items-center font-medium transition-colors duration-300 ease-in-out {radiusClass[
 					radius
-				]} {sizeClass[size]} {tabKlass} {tab.id === active
+				]} {sizeClass[size]} {tabKlass} {isActive
 					? activeVariantClass[variant]
-					: inactiveClass}"
+					: inactiveClass} {activeKlass}"
 			>
-				<Icon icon={tab.icon} klass="{iconSizeClass[size]} shrink-0" />
+				<Icon icon={isActive ? tab.selectedIcon || tab.icon : tab.icon} klass="{iconSizeClass[size]} shrink-0" />
 				{tab.label}
 				{#if tab.badge != null}
 					<span
 						class="rounded-full px-1.5 py-0.5 text-[10px] leading-none font-semibold
-                        {tab.id === active ? activeVariantClass[variant] : inactiveClass}"
+                        {isActive ? activeVariantClass[variant] : inactiveClass}"
 					>
 						{tab.badge}
 					</span>

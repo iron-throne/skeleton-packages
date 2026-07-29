@@ -25,6 +25,7 @@ export interface TopbarProps {
 	theme?: ETheme;
 	onThemeChange?: (theme?: ETheme) => void;
 	themeStorageKey?:string;
+	showThemeToggle?:boolean
 
 	avatarSrc?: string;
 	userName?: string;

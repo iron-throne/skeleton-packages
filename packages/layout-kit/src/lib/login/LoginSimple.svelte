@@ -53,7 +53,7 @@
 		cardClass,
 		titleClass,
 		subtitleClass,
-		formClass,
+		formClass
 	}: LoginBaseProps & {
 		showAmbientBackground?: boolean;
 		cardClass?: string;
@@ -67,8 +67,8 @@
 			label: emailLabel,
 			placeholder: emailPlaceholder,
 			required: true,
-			attributes: { name: 'email', autocomplete: 'email' },
-		})),
+			attributes: { name: 'email', autocomplete: 'email' }
+		}))
 	);
 
 	let passwordField = $state<IFormField>(
@@ -80,8 +80,8 @@
 			placeholder: passwordPlaceholder,
 			required: true,
 			hideLabel: true,
-			attributes: { name: 'password', autocomplete: 'current-password' },
-		})),
+			attributes: { name: 'password', autocomplete: 'current-password' }
+		}))
 	);
 
 	let rememberMeField = $state<IFormField>(
@@ -92,8 +92,8 @@
 			label: rememberMeLabel,
 			placeholder: rememberMeLabel,
 			hideLabel: true,
-			attributes: { name: 'rememberMe' },
-		})),
+			attributes: { name: 'rememberMe' }
+		}))
 	);
 
 	$effect(() => {
@@ -115,7 +115,7 @@
 			const credentials: LoginCredentials = {
 				email: String(formData.get('email') ?? ''),
 				password: String(formData.get('password') ?? ''),
-				rememberMe: formData.get('rememberMe') === 'on',
+				rememberMe: formData.get('rememberMe') === 'on'
 			};
 			loading = true;
 			Promise.resolve(onSubmit(credentials)).finally(() => (loading = false));
@@ -131,9 +131,7 @@
 	};
 </script>
 
-<div
-	class="bg-surface-tertiary flex min-h-screen items-center justify-center px-4 py-12 {klass}"
->
+<div class="bg-surface-tertiary flex min-h-screen items-center justify-center px-4 py-12 {klass}">
 	{#if showAmbientBackground}
 		<div class="pointer-events-none fixed inset-0 -z-10 overflow-hidden" aria-hidden="true">
 			<div class="bg-accent/5 absolute -top-32 -left-32 size-96 rounded-full blur-3xl"></div>
@@ -155,7 +153,7 @@
 			</a>
 		{/if}
 
-		<Card variant="elevated" padding="lg" class={cardClass ?? ''}>
+		<div class="card p-7 {cardClass}">
 			{#if headerSlot}
 				{@render headerSlot()}
 			{:else}
@@ -210,8 +208,7 @@
 						class="btn btn-primary mt-1 w-full py-3 text-base font-semibold disabled:opacity-60"
 					>
 						{#if loading}
-							<span
-								class="size-4 animate-spin rounded-full border-2 border-white/30 border-t-white"
+							<span class="size-4 animate-spin rounded-full border-2 border-white/30 border-t-white"
 							></span>
 						{/if}
 						{submitText}
@@ -238,6 +235,6 @@
 					</a>
 				</p>
 			{/if}
-		</Card>
+		</div>
 	</div>
 </div>
