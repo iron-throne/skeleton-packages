@@ -2,6 +2,7 @@
 	import Badge from '$lib/atoms/badge/Badge.svelte';
 	import DocumentTable from '$lib/atoms/document-table/DocumentTable.svelte';
 	import AdvancedTable from '$lib/organisms/advanced-table/AdvancedTable.svelte';
+	import { ESize } from '@aryagg/types';
 	import type { AdvancedTableColumn, AdvancedTableRow } from '$lib/organisms/advanced-table/types';
 	import {
 		ADVANCED_TABLE_COLUMNS,
@@ -31,7 +32,7 @@
 <main class="min-h-screen overflow-auto bg-surface-tertiary px-4 py-6 text-primary sm:px-6 lg:px-8">
 	<div class="mx-auto max-w-7xl space-y-6">
 		<header class="space-y-2">
-			<p class="section-label">Organism</p>
+			<p class="text-xs font-semibold uppercase tracking-wider text-secondary">Organism</p>
 			<h1>Advanced table</h1>
 			<p class="max-w-2xl text-sm leading-6 text-secondary">
 				The V3 document experience as a reusable component: grouped filters, active filter chips,
@@ -56,11 +57,11 @@
 				<Badge
 					label={statusLabel[String(row.status)] ?? String(row.status)}
 					variant={statusVariant(row.status)}
-					size="xs"
+					size={ESize.XS}
 					radius="sm"
 				/>
 			{:else if column.key === 'suit'}
-				<Badge label={String(row.suit)} variant="blue" size="xs" radius="sm" />
+				<Badge label={String(row.suit)} variant="blue" size={ESize.XS} radius="sm" />
 			{:else if column.key === 'fileType'}
 				<span class="font-mono text-[11px] font-bold text-secondary">{String(row.fileType)}</span>
 			{:else if column.key === 'rev' || column.key === 'modified' || column.key === 'ref'}
@@ -83,7 +84,7 @@
 
 		<section class="space-y-3 pt-8">
 			<div>
-				<p class="section-label">Atom</p>
+				<p class="text-xs font-semibold uppercase tracking-wider text-secondary">Atom</p>
 				<h2>Simple document table</h2>
 			</div>
 			<DocumentTable rows={DOCUMENT_ROWS} total={18420} />

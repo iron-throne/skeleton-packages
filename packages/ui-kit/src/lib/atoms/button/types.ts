@@ -1,5 +1,6 @@
 import type { Snippet } from 'svelte';
 import type { HTMLButtonAttributes } from 'svelte/elements';
+import type { ESize } from '@aryagg/types';
 
 export type ButtonVariant =
 	| 'primary'
@@ -13,7 +14,8 @@ export type ButtonVariant =
 	| 'danger'
 	| 'info';
 
-export type ButtonSize = 'md' | 'sm' | 'lg' | 'icon';
+/** @deprecated Import ESize from @aryagg/types instead. */
+export type ButtonSize = ESize;
 
 export type ButtonRadius = 'none' | 'sm' | 'md' | 'lg' | 'full';
 
@@ -32,7 +34,7 @@ export type ButtonProps = Omit<
 	/** @deprecated Use class instead. */
 	classes?: string;
 	variant?: ButtonVariant;
-	size?: ButtonSize;
+	size?: ESize;
 	radius?: ButtonRadius;
 	type?: 'button' | 'submit' | 'reset';
 	loading?: boolean;

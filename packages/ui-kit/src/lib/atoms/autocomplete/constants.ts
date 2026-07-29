@@ -1,9 +1,10 @@
-import type { AutocompleteDensity, AutocompleteState } from './types';
+import { ESize } from '@aryagg/types';
+import type { AutocompleteState } from './types';
 
-export const AUTOCOMPLETE_SIZE_CLASS: Record<AutocompleteDensity, string> = {
-	sm: 'min-h-8 px-2.5 py-1 text-xs',
-	md: 'min-h-10 px-3 py-1.5 text-sm',
-	lg: 'min-h-12 px-3.5 py-2 text-sm'
+export const AUTOCOMPLETE_SIZE_CLASS: Partial<Record<ESize, string>> = {
+	[ESize.SM]: 'min-h-8 px-2.5 py-1 text-xs',
+	[ESize.MD]: 'min-h-10 px-3 py-1.5 text-sm',
+	[ESize.LG]: 'min-h-12 px-3.5 py-2 text-sm'
 };
 
 export const AUTOCOMPLETE_STATE_CLASS: Record<AutocompleteState, string> = {

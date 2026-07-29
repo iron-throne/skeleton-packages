@@ -1,4 +1,5 @@
-import type { ButtonSize, ButtonVariant } from './types';
+import { ESize } from '@aryagg/types';
+import type { ButtonVariant } from './types';
 
 export const BUTTON_VARIANT_CLASS: Record<ButtonVariant, string> = {
 	primary: 'btn-primary',
@@ -13,9 +14,8 @@ export const BUTTON_VARIANT_CLASS: Record<ButtonVariant, string> = {
 	info: 'btn-info'
 };
 
-export const BUTTON_SIZE_CLASS: Record<ButtonSize, string> = {
-	md: '',
-	sm: 'btn-sm',
-	lg: 'btn-lg',
-	icon: 'btn-icon'
+export const BUTTON_SIZE_CLASS: Partial<Record<ESize, string>> = {
+	[ESize.SM]: 'btn-sm',
+	[ESize.MD]: '',
+	[ESize.LG]: 'btn-lg'
 };

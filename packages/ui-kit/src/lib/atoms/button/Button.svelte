@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { BUTTON_SIZE_CLASS, BUTTON_VARIANT_CLASS } from './constants';
+	import { ESize } from '@aryagg/types';
 	import type { ButtonProps } from './types';
 
 	let {
@@ -9,7 +10,7 @@
 		klass = '',
 		classes = '',
 		variant = 'primary',
-		size = 'md',
+		size = ESize.MD,
 		radius = 'md',
 		type = 'button',
 		loading = false,
@@ -30,7 +31,7 @@
 		[
 			'btn',
 			BUTTON_VARIANT_CLASS[variant],
-			BUTTON_SIZE_CLASS[size],
+			BUTTON_SIZE_CLASS[size] ?? BUTTON_SIZE_CLASS[ESize.MD],
 			fullWidth && 'btn-full',
 			iconOnly && 'btn-icon-only',
 			className,

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { Check, ChevronDown, Search, XLg } from 'svelte-bootstrap-icons';
+	import { ESize } from '@aryagg/types';
 	import Icon from '../icon/Icon.svelte';
 	import {
 		AUTOCOMPLETE_EMPTY_TEXT,
@@ -18,7 +19,7 @@
 		placeholder = 'Search...',
 		helperText = '',
 		state: validationState = 'default',
-		density = 'md',
+		density = ESize.MD,
 		multiple = false,
 		chips = false,
 		clearable = false,
@@ -64,7 +65,7 @@
 	const wrapperClass = $derived(
 		[
 			'relative flex w-full items-center gap-2 rounded-xl border bg-surface-secondary transition focus-within:bg-surface-primary focus-within:ring-2',
-			AUTOCOMPLETE_SIZE_CLASS[density],
+			AUTOCOMPLETE_SIZE_CLASS[density] ?? AUTOCOMPLETE_SIZE_CLASS[ESize.MD],
 			AUTOCOMPLETE_STATE_CLASS[validationState],
 			disabled ? 'cursor-not-allowed opacity-60' : '',
 			klass

@@ -149,8 +149,8 @@
 		<div
 			role="treeitem"
 			tabindex={node.disabled ? undefined : 0}
-			class="folder-hierarchy__row {v3Style
-				? 'folder-hierarchy__row--v3'
+			class="{v3Style
+				? 'min-h-[30px] rounded-[5px]! border-0! bg-transparent! py-[5px] pr-1 text-[13px] text-secondary shadow-none! hover:bg-surface-secondary! hover:text-primary aria-disabled:cursor-not-allowed aria-disabled:opacity-50'
 				: ''} group flex w-full items-center gap-2 text-left transition {documentStyle
 				? 'border-0! bg-transparent! shadow-none! ring-0! rounded-md! hover:bg-transparent! active:scale-100!'
 				: 'rounded-lg hover:border-border-primary hover:bg-surface-secondary'} {FOLDER_HIERARCHY_DENSITY_CLASS[
@@ -181,9 +181,9 @@
 		>
 			<button
 				type="button"
-				class="folder-hierarchy__toggle grid size-4 shrink-0 place-items-center {documentStyle
-					? 'text-primary'
-					: 'text-tertiary'}"
+				class="grid size-4 shrink-0 place-items-center border-0 bg-transparent p-0 transition-transform disabled:pointer-events-none {v3Style
+					? 'w-3 text-tertiary'
+					: ''} {documentStyle ? 'text-primary' : 'text-tertiary'}"
 				onclick={(event) => {
 					event.stopPropagation();
 					toggle(node);
@@ -209,6 +209,7 @@
 
 			{#if checkboxes}
 				<input
+					class="size-3.5 shrink-0 cursor-pointer accent-accent"
 					type="checkbox"
 					checked={checkedIds.includes(node.id)}
 					disabled={node.disabled}
@@ -281,44 +282,3 @@
 		{/if}
 	</div>
 {/snippet}
-
-<style>
-	.folder-hierarchy__row--v3 {
-		min-height: 30px;
-		padding-top: 5px;
-		padding-right: 4px;
-		padding-bottom: 5px;
-		border: 0 !important;
-		border-radius: 5px !important;
-		background: transparent !important;
-		box-shadow: none !important;
-		color: var(--text-secondary);
-		font-size: 13px;
-	}
-	.folder-hierarchy__row--v3:hover {
-		background: var(--surface-secondary) !important;
-		color: var(--text-primary);
-	}
-	.folder-hierarchy__row--v3[aria-disabled='true'] {
-		cursor: not-allowed;
-		opacity: 0.5;
-	}
-	.folder-hierarchy__row--v3 input[type='checkbox'] {
-		width: 14px;
-		height: 14px;
-		flex-shrink: 0;
-		accent-color: var(--color-primary);
-		cursor: pointer;
-	}
-	.folder-hierarchy__row--v3 .folder-hierarchy__toggle {
-		width: 12px;
-		padding: 0;
-		border: 0;
-		background: transparent;
-		color: var(--text-tertiary);
-		transition: transform 0.15s;
-	}
-	.folder-hierarchy__toggle:disabled {
-		pointer-events: none;
-	}
-</style>

@@ -43,7 +43,7 @@
 <main class="min-h-screen overflow-auto bg-surface-tertiary px-4 py-6 text-primary sm:px-6 lg:px-8">
 	<div class="mx-auto max-w-5xl space-y-8">
 		<header class="space-y-2">
-			<p class="section-label">Atom</p>
+			<p class="text-xs font-semibold uppercase tracking-wider text-secondary">Atom</p>
 			<h1>Dropdown</h1>
 			<p class="max-w-2xl text-sm leading-6 text-secondary">
 				V3-style dropdown menus with dynamic placement, width, selected items, icons, badges, nested
@@ -51,9 +51,11 @@
 			</p>
 		</header>
 
-		<section class="card min-h-80 space-y-5">
+		<section
+			class="min-h-80 space-y-5 rounded-xl border border-border-primary bg-surface-primary p-5 shadow-sm"
+		>
 			<div>
-				<p class="section-label">V3 example</p>
+				<p class="text-xs font-semibold uppercase tracking-wider text-secondary">V3 example</p>
 				<h2 class="mt-1 text-lg">User menu</h2>
 			</div>
 
@@ -89,9 +91,13 @@
 			<p class="text-xs text-tertiary">Selected item: {selected}</p>
 		</section>
 
-		<section class="card min-h-64 space-y-5">
+		<section
+			class="min-h-64 space-y-5 rounded-xl border border-border-primary bg-surface-primary p-5 shadow-sm"
+		>
 			<div>
-				<p class="section-label">Placement and trigger</p>
+				<p class="text-xs font-semibold uppercase tracking-wider text-secondary">
+					Placement and trigger
+				</p>
 				<h2 class="mt-1 text-lg">Action menu</h2>
 			</div>
 

@@ -28,8 +28,6 @@
 </script>
 
 {#if snackStore.current}
-	{@const duration = snackStore.current.timeOut ?? 3000}
-
 	<div
 		role="alert"
 		transition:fly={{ y: 16, duration: 280, easing: cubicOut }}
@@ -42,7 +40,7 @@
 			<div class="flex items-center gap-3">
 				<i> {alertIcon[snackStore.current.type]}</i>
 
-				<p class="flex-1 min-w-0 text-[13px] font-medium leading-5" >
+				<p class="flex-1 min-w-0 text-[13px] font-medium leading-5">
 					{snackStore.current.message}
 				</p>
 
@@ -56,24 +54,7 @@
 				</button>
 			</div>
 
-			<div
-				class="absolute bottom-0 left-0 h-0.5 bg-current opacity-25"
-				style="
-					width:100%;
-					animation:snack-shrink {duration}ms linear forwards;
-				"
-			></div>
+			<div class="absolute bottom-0 left-0 h-0.5 w-full animate-pulse bg-current opacity-25"></div>
 		</div>
 	</div>
 {/if}
-
-<style>
-	@keyframes snack-shrink {
-		from {
-			width: 100%;
-		}
-		to {
-			width: 0%;
-		}
-	}
-</style>

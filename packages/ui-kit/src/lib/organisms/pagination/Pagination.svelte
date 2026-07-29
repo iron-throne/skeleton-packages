@@ -21,6 +21,12 @@
 	let goToValue = $state(String(currentPage));
 	const from = $derived(totalItems ? (currentPage - 1) * pageSize + 1 : 0);
 	const to = $derived(totalItems ? Math.min(currentPage * pageSize, totalItems) : 0);
+	const controlSize = $derived(
+		variant === 'compact' ? 'h-[26px] min-w-[26px] text-[11px]' : 'h-[30px] min-w-[30px] text-xs'
+	);
+	const controlClass = $derived(
+		`grid place-items-center rounded-[5px] border border-border-primary bg-surface-primary px-1.5 font-semibold text-primary transition-all duration-150 hover:border-accent hover:text-accent disabled:cursor-not-allowed disabled:opacity-40 ${controlSize}`
+	);
 	const pages = $derived.by(() => {
 		if (totalPages <= siblingCount * 2 + 5) {
 			return Array.from({ length: totalPages }, (_, index) => index + 1);
@@ -64,29 +70,37 @@
 	}
 </script>
 
-<nav class="ui-pagination ui-pagination--{variant} {className}" aria-label="Pagination">
+<nav
+	class="flex w-full flex-wrap items-center justify-between gap-3 font-sans text-secondary {className}"
+	aria-label="Pagination"
+>
 	{#if showInfo}
-		<p class="ui-pagination__info">
+		<p class="order-2 m-0 text-xs text-tertiary sm:order-none">
 			{#if totalItems !== undefined}
-				Showing <strong>{from}–{to}</strong> of {totalItems.toLocaleString()}
+				Showing <strong class="font-semibold text-secondary">{from}–{to}</strong> of {totalItems.toLocaleString()}
 			{:else}
-				Page <strong>{currentPage}</strong> of {totalPages}
+				Page <strong class="font-semibold text-secondary">{currentPage}</strong> of {totalPages}
 			{/if}
 		</p>
 	{/if}
 
-	<div class="ui-pagination__right">
+	<div class="flex w-full flex-wrap items-center gap-3.5 sm:w-auto">
 		{#if showPageSize}
-			<label class="ui-pagination__size">
+			<label class="flex items-center gap-1.5 text-[11px] text-tertiary">
 				<span>Rows</span>
-				<select value={pageSize} onchange={changeSize}>
+				<select
+					class="h-[30px] rounded-[5px] border border-border-primary bg-surface-primary px-2 text-[11px] text-primary"
+					value={pageSize}
+					onchange={changeSize}
+				>
 					{#each pageSizeOptions as size (size)}<option value={size}>{size}</option>{/each}
 				</select>
 			</label>
 		{/if}
 
-		<div class="ui-pagination__controls">
+		<div class="flex items-center gap-1">
 			<button
+				class={controlClass}
 				type="button"
 				disabled={currentPage <= 1}
 				aria-label="Previous page"
@@ -94,20 +108,25 @@
 			>
 				<ChevronLeft width={13} height={13} />
 			</button>
+
 			{#each pages as page, index (`${page}-${index}`)}
 				{#if page === 'ellipsis'}
-					<span class="ui-pagination__ellipsis">…</span>
+					<span class="px-0.5 text-xs text-tertiary">…</span>
 				{:else}
 					<button
+						class="{controlClass} {page === currentPage
+							? 'border-accent bg-accent text-white hover:text-white'
+							: ''}"
 						type="button"
-						class:ui-pagination__page--active={page === currentPage}
 						aria-current={page === currentPage ? 'page' : undefined}
 						aria-label={`Page ${page}`}
 						onclick={() => go(page)}>{page}</button
 					>
 				{/if}
 			{/each}
+
 			<button
+				class={controlClass}
 				type="button"
 				disabled={currentPage >= totalPages}
 				aria-label="Next page"
@@ -118,9 +137,10 @@
 		</div>
 
 		{#if showGoTo}
-			<label class="ui-pagination__goto">
+			<label class="flex items-center gap-1.5 text-[11px] text-tertiary">
 				<span>Go to</span>
 				<input
+					class="h-[30px] w-12 rounded-[5px] border border-border-primary bg-surface-primary px-1 text-center text-[11px] text-primary"
 					type="number"
 					min="1"
 					max={totalPages}
@@ -132,108 +152,3 @@
 		{/if}
 	</div>
 </nav>
-
-<style>
-	.ui-pagination {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		gap: 12px;
-		width: 100%;
-		flex-wrap: wrap;
-		color: var(--text-secondary);
-		font-family: var(--font-body);
-	}
-	.ui-pagination__info {
-		margin: 0;
-		color: var(--text-tertiary);
-		font-size: 12px;
-	}
-	.ui-pagination__info strong {
-		color: var(--text-secondary);
-		font-weight: 600;
-	}
-	.ui-pagination__right,
-	.ui-pagination__controls,
-	.ui-pagination__size,
-	.ui-pagination__goto {
-		display: flex;
-		align-items: center;
-		gap: 6px;
-	}
-	.ui-pagination__right {
-		gap: 14px;
-	}
-	.ui-pagination__size,
-	.ui-pagination__goto {
-		color: var(--text-tertiary);
-		font-size: 11px;
-	}
-	.ui-pagination select,
-	.ui-pagination input {
-		height: 30px;
-		border: 1px solid var(--border-primary);
-		border-radius: 5px;
-		background: var(--surface-primary);
-		color: var(--text-primary);
-		font-size: 11px;
-	}
-	.ui-pagination select {
-		padding: 0 7px;
-	}
-	.ui-pagination input {
-		width: 48px;
-		padding: 0 5px;
-		text-align: center;
-	}
-	.ui-pagination__controls {
-		gap: 4px;
-	}
-	.ui-pagination__controls button {
-		display: grid;
-		min-width: 30px;
-		height: 30px;
-		place-items: center;
-		padding: 0 6px;
-		border: 1px solid var(--border-primary);
-		border-radius: 5px;
-		background: var(--surface-primary);
-		color: var(--text-primary);
-		font-family: inherit;
-		font-size: 12.5px;
-		font-weight: 600;
-		transition: all 0.12s;
-	}
-	.ui-pagination__controls button:hover:not(:disabled) {
-		border-color: var(--semantic-accent, #0891b2);
-		color: var(--semantic-accent, #0891b2);
-	}
-	.ui-pagination__controls .ui-pagination__page--active {
-		border-color: var(--semantic-accent, #0891b2);
-		background: var(--semantic-accent, #0891b2);
-		color: var(--on-accent, #fff);
-	}
-	.ui-pagination__controls button:disabled {
-		cursor: not-allowed;
-		opacity: 0.4;
-	}
-	.ui-pagination__ellipsis {
-		padding: 0 2px;
-		color: var(--text-tertiary);
-		font-size: 12px;
-	}
-	.ui-pagination--compact .ui-pagination__controls button {
-		min-width: 26px;
-		height: 26px;
-		font-size: 11px;
-	}
-	@media (max-width: 640px) {
-		.ui-pagination__right {
-			width: 100%;
-			flex-wrap: wrap;
-		}
-		.ui-pagination__info {
-			order: 2;
-		}
-	}
-</style>

@@ -6,10 +6,12 @@
 <main class="min-h-screen overflow-auto bg-surface-tertiary p-6 text-primary">
 	<div class="mx-auto max-w-3xl space-y-6">
 		<header>
-			<p class="section-label">Atom</p>
+			<p class="text-xs font-semibold uppercase tracking-wider text-secondary">Atom</p>
 			<h1>Tooltip</h1>
 		</header>
-		<section class="card flex min-h-64 flex-wrap items-center justify-center gap-8">
+		<section
+			class="flex min-h-64 flex-wrap items-center justify-center gap-8 rounded-xl border border-border-primary bg-surface-primary p-5 shadow-sm"
+		>
 			<Tooltip text="Appears above" position="top"><Button label="Top" variant="outline" /></Tooltip
 			>
 			<Tooltip text="Appears below" position="bottom"

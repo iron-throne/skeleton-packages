@@ -1,11 +1,14 @@
 <script lang="ts">
-	import type { BadgeProps } from './types';
+	import { ESize } from "@aryagg/types";
+	import type { BadgeProps } from "..";
+
+
 
 	let {
 		label = '',
 		variant = 'default',
 		appearance = 'soft',
-		size = 'md',
+		size = ESize.MD,
 		radius = 'full',
 		dot = false,
 		dotOnly = false,

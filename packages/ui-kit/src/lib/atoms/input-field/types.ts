@@ -21,7 +21,8 @@ export type InputFieldType =
 
 export type InputFieldState = 'default' | 'success' | 'warning' | 'error';
 
-export type InputFieldSize = 'sm' | 'md' | 'lg';
+/** @deprecated Import ESize from @aryagg/types instead. */
+export type InputFieldSize = ESize;
 
 export type InputFieldIconPosition = 'left' | 'right';
 
@@ -32,3 +33,4 @@ export type InputFieldOption = {
 };
 
 export type InputFieldValue = string | number | boolean | File | File[] | null;
+import type { ESize } from '@aryagg/types';

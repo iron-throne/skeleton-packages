@@ -85,17 +85,25 @@
 	function iconKlass(m: DropdownItem) {
 		return (isSelected(m) ? m.selectedIconClass || m.iconClass : m.iconClass) ?? '';
 	}
+
+	function itemClass(m: DropdownItem) {
+		return `flex min-h-9 w-full items-center gap-[9px] border-0 bg-transparent px-3.5 py-2 text-left text-[13px] text-secondary no-underline transition-colors hover:bg-surface-secondary hover:text-primary disabled:cursor-not-allowed disabled:opacity-50 ${
+			variant === 'rounded' ? 'rounded-lg' : ''
+		} ${isSelected(m) ? 'bg-accent/10 font-semibold text-accent' : ''} ${
+			m.danger ? 'text-error' : ''
+		} ${m.class ?? ''}`;
+	}
 </script>
 
 {#snippet menuIcon(m: DropdownItem)}
 	<Icon
 		icon={isSelected(m) && m.selectedIcon ? m.selectedIcon || m.icon : m.icon}
-		klass="ui-dropdown-item__icon {iconKlass(m)}"
+		klass="size-4 shrink-0 opacity-70 {iconKlass(m)}"
 	/>
 {/snippet}
 
 {#if menu.divider}
-	<div class="ui-dropdown-item__divider"></div>
+	<div class="my-1 h-px bg-border-primary"></div>
 {/if}
 
 {#if menu.children?.length}
@@ -107,9 +115,7 @@
 			disabled={menu.disabled}
 			aria-haspopup="true"
 			aria-expanded={isOpen}
-			class="ui-dropdown-item ui-dropdown-item--{variant} {isSelected(menu)
-				? 'ui-dropdown-item--selected'
-				: ''} {menu.danger ? 'ui-dropdown-item--danger' : ''} {menu.class ?? ''}"
+			class={itemClass(menu)}
 		>
 			{@render menuIcon(menu)}
 			<span class="flex-1 text-left">{menu.label}</span>
@@ -123,7 +129,10 @@
 				data-dropdown-menu
 				style={submenuStyle}
 				transition:scale={{ duration: 140, start: 0.94, opacity: 0, easing: cubicOut }}
-				class="ui-dropdown-submenu ui-dropdown-submenu--{variant}"
+				class="fixed z-[61] max-h-96 min-w-45 overflow-y-auto border border-border-primary bg-surface-primary shadow-lg {variant ===
+				'rounded'
+					? 'rounded-xl p-2'
+					: 'rounded-lg py-1'}"
 				role="menu"
 				tabindex="-1"
 				onmouseenter={cancelCloseSubmenu}
@@ -143,16 +152,19 @@
 		onclick={() => {
 			onNavigate(menu);
 		}}
-		class="ui-dropdown-item ui-dropdown-item--{variant} {isSelected(menu)
-			? 'ui-dropdown-item--selected'
-			: ''} {menu.danger ? 'ui-dropdown-item--danger' : ''} {menu.class ?? ''}"
+		class={itemClass(menu)}
 	>
 		{@render menuIcon(menu)}
-		<span class="ui-dropdown-item__content"
-			><span>{menu.label}</span>{#if menu.description}<small>{menu.description}</small>{/if}</span
+		<span class="flex min-w-0 flex-1 flex-col"
+			><span>{menu.label}</span>{#if menu.description}<small
+					class="mt-px text-[10.5px] font-normal text-tertiary">{menu.description}</small
+				>{/if}</span
 		>
-		{#if menu.badge !== undefined}<span class="ui-dropdown-item__badge">{menu.badge}</span>{/if}
-		{#if menu.shortcut}<kbd>{menu.shortcut}</kbd>{/if}
+		{#if menu.badge !== undefined}<span
+				class="rounded-full bg-surface-tertiary px-[5px] py-px text-[10px] font-bold text-tertiary"
+				>{menu.badge}</span
+			>{/if}
+		{#if menu.shortcut}<kbd class="font-mono text-[9px] text-tertiary">{menu.shortcut}</kbd>{/if}
 	</a>
 {:else}
 	<button
@@ -162,109 +174,18 @@
 		onclick={() => {
 			onNavigate(menu);
 		}}
-		class="ui-dropdown-item ui-dropdown-item--{variant} {isSelected(menu)
-			? 'ui-dropdown-item--selected'
-			: ''} {menu.danger ? 'ui-dropdown-item--danger' : ''} {menu.class ?? ''}"
+		class={itemClass(menu)}
 	>
 		{@render menuIcon(menu)}
-		<span class="ui-dropdown-item__content"
-			><span>{menu.label}</span>{#if menu.description}<small>{menu.description}</small>{/if}</span
+		<span class="flex min-w-0 flex-1 flex-col"
+			><span>{menu.label}</span>{#if menu.description}<small
+					class="mt-px text-[10.5px] font-normal text-tertiary">{menu.description}</small
+				>{/if}</span
 		>
-		{#if menu.badge !== undefined}<span class="ui-dropdown-item__badge">{menu.badge}</span>{/if}
-		{#if menu.shortcut}<kbd>{menu.shortcut}</kbd>{/if}
+		{#if menu.badge !== undefined}<span
+				class="rounded-full bg-surface-tertiary px-[5px] py-px text-[10px] font-bold text-tertiary"
+				>{menu.badge}</span
+			>{/if}
+		{#if menu.shortcut}<kbd class="font-mono text-[9px] text-tertiary">{menu.shortcut}</kbd>{/if}
 	</button>
 {/if}
-
-<style>
-	.ui-dropdown-item {
-		display: flex;
-		align-items: center;
-		gap: 9px;
-		width: 100%;
-		min-height: 36px;
-		padding: 8px 14px;
-		border: 0;
-		background: transparent;
-		color: var(--text-secondary);
-		font: inherit;
-		font-size: 13px;
-		text-align: left;
-		text-decoration: none;
-		transition:
-			background 0.1s,
-			color 0.1s;
-	}
-	.ui-dropdown-item--rounded {
-		border-radius: 8px;
-	}
-	.ui-dropdown-item:hover {
-		background: var(--surface-secondary);
-		color: var(--text-primary);
-	}
-	.ui-dropdown-item--selected {
-		background: var(--color-primary-soft);
-		color: var(--color-primary);
-		font-weight: 600;
-	}
-	.ui-dropdown-item--danger {
-		color: var(--color-error);
-	}
-	.ui-dropdown-item:disabled {
-		cursor: not-allowed;
-		opacity: 0.5;
-	}
-	:global(.ui-dropdown-item__icon) {
-		width: 16px;
-		height: 16px;
-		flex-shrink: 0;
-		opacity: 0.7;
-	}
-	.ui-dropdown-item__content {
-		display: flex;
-		min-width: 0;
-		flex: 1;
-		flex-direction: column;
-	}
-	.ui-dropdown-item__content small {
-		margin-top: 1px;
-		color: var(--text-tertiary);
-		font-size: 10.5px;
-		font-weight: 400;
-	}
-	.ui-dropdown-item__badge {
-		padding: 1px 5px;
-		border-radius: 99px;
-		background: var(--surface-tertiary);
-		color: var(--text-tertiary);
-		font-size: 10px;
-		font-weight: 700;
-	}
-	kbd {
-		color: var(--text-tertiary);
-		font-family: var(--font-mono);
-		font-size: 9px;
-	}
-	.ui-dropdown-item__divider {
-		height: 1px;
-		margin: 4px 0;
-		background: var(--border-primary);
-	}
-	.ui-dropdown-submenu {
-		position: fixed;
-		z-index: 61;
-		min-width: 180px;
-		max-height: 24rem;
-		overflow-y: auto;
-		border: 1px solid var(--border-primary);
-		background: var(--surface-primary);
-		box-shadow: var(--shadow-lg);
-	}
-	.ui-dropdown-submenu--v3 {
-		padding: 4px 0;
-		border-radius: 8px;
-	}
-	.ui-dropdown-submenu--rounded {
-		padding: 8px;
-		border-radius: 12px;
-	}
-</style>

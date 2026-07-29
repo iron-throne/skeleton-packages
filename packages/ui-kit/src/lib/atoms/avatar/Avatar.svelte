@@ -68,7 +68,7 @@
 	<span
 		class="bg-accent/20 text-accent flex items-center justify-center
                overflow-hidden rounded-full font-semibold select-none
-               {sizeClass[size]} {avatarKlass}"
+               {sizeClass[size] ?? sizeClass[ESize.MD]} {avatarKlass}"
 	>
 		{#if showImage}
 			<img
@@ -85,7 +85,7 @@
 	{#if status}
 		<span
 			class="ring-surface-primary absolute right-0 bottom-0 rounded-full
-                   {dotSize[size]} {statusClass[status]} {dotKlass}"
+                   {dotSize[size] ?? dotSize[ESize.MD]} {statusClass[status]} {dotKlass}"
 		></span>
 	{/if}
 </span>

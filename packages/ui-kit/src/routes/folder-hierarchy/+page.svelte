@@ -38,7 +38,7 @@
 	<div class="mx-auto grid max-w-6xl gap-6 lg:grid-cols-[380px_1fr]">
 		<section class="space-y-4">
 			<header class="space-y-2">
-				<p class="section-label">Atom</p>
+				<p class="text-xs font-semibold uppercase tracking-wider text-secondary">Atom</p>
 				<h1>Folder hierarchy</h1>
 				<p class="text-sm leading-6 text-secondary">
 					A navigable tree for CDE folders, documents, metadata, counts, and status states.

@@ -5,7 +5,7 @@
 <main class="min-h-screen overflow-auto bg-surface-tertiary p-6 text-primary">
 	<div class="mx-auto max-w-3xl space-y-6">
 		<header>
-			<p class="section-label">Atom</p>
+			<p class="text-xs font-semibold uppercase tracking-wider text-secondary">Atom</p>
 			<h1>Alert</h1>
 		</header>
 		<section class="grid gap-3">

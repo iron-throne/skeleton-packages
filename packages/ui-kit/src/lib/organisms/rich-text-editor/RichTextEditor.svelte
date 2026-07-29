@@ -1,13 +1,20 @@
 <script lang="ts">
 	import { DEBOUNCE_DELAY } from '@aryagg/types';
-	import { type ITextFormat, type IRichTextIcon, type TextFormatKeys, FORMAT_OPTIONS, RICHTEXT_ICONS } from './types';
+	import {
+		type ITextFormat,
+		type IRichTextIcon,
+		type TextFormatKeys,
+		FORMAT_OPTIONS,
+		RICHTEXT_ICONS
+	} from './types';
 	import { onMount } from 'svelte';
 
 	let {
 		uniqRef,
 		errorMsg = '',
 		onChangeInput,
-		value	} = $props<{
+		value
+	} = $props<{
 		uniqRef: string;
 		required?: boolean;
 		errorMsg?: string;
@@ -15,8 +22,6 @@
 		onChangeInput: (item: any) => void;
 		isRegister?: boolean;
 	}>();
-
-
 
 	let selTick = $state(0);
 	let fontPx = $state(16);
@@ -63,7 +68,6 @@
 			contentEditable?.removeEventListener('mouseup', saveRangeIfInEditor);
 		};
 	});
-
 
 	function getFormatValue(cmd: TextFormatKeys): string {
 		return textFormat[cmd] ?? '';
@@ -141,11 +145,11 @@
 	}
 	function mergeAdjSpansAll(root: HTMLElement) {
 		const spans = root.querySelectorAll('span');
-		spans.forEach(s => mergeAdjSpans(s as HTMLElement));
+		spans.forEach((s) => mergeAdjSpans(s as HTMLElement));
 	}
 
 	function removeEmptySpans(root: HTMLElement) {
-		root.querySelectorAll('span').forEach(s => {
+		root.querySelectorAll('span').forEach((s) => {
 			const txt = s.textContent ?? '';
 			const onlyZWSP = txt.replace(/\u200B/g, '') === '';
 			if (onlyZWSP && s.children.length === 0) s.remove();
@@ -266,7 +270,7 @@
 
 	function unwrapList(listEl: HTMLElement) {
 		const frag = document.createDocumentFragment();
-		Array.from(listEl.children).forEach(li => {
+		Array.from(listEl.children).forEach((li) => {
 			const div = document.createElement('div');
 			while (li.firstChild) div.appendChild(li.firstChild);
 			frag.appendChild(div);
@@ -293,9 +297,9 @@
 		if (!blocks.length) return null;
 		const list = document.createElement(tag);
 		const first = blocks[0];
-		if(first) first.parentNode?.insertBefore(list, first);
+		if (first) first.parentNode?.insertBefore(list, first);
 
-		blocks.forEach(b => {
+		blocks.forEach((b) => {
 			const li = document.createElement('li');
 			while (b.firstChild) li.appendChild(b.firstChild);
 			b.remove();
@@ -307,14 +311,14 @@
 	}
 
 	function allInSameList(blocks: HTMLElement[]) {
-		const parents = blocks.map(b => {
+		const parents = blocks.map((b) => {
 			let p: HTMLElement | null = b;
 			while (p && p.tagName !== 'UL' && p.tagName !== 'OL') p = p.parentElement;
 			return p;
 		});
 		const first = parents[0];
 		if (!first) return { same: false, list: null as HTMLElement | null };
-		const same = parents.every(p => p === first);
+		const same = parents.every((p) => p === first);
 		return { same, list: first };
 	}
 
@@ -376,7 +380,7 @@
 		classes
 			.split(' ')
 			.filter(Boolean)
-			.forEach(c => span.classList.add(c));
+			.forEach((c) => span.classList.add(c));
 		const zwsp = document.createTextNode('\u200B');
 		span.appendChild(zwsp);
 
@@ -648,13 +652,13 @@
 			case 'fontSize': {
 				const span = applyInlineStyle(range, {});
 				if (span) {
-					Array.from(span.classList).forEach(cls => {
+					Array.from(span.classList).forEach((cls) => {
 						if (cls.startsWith('text-')) span.classList.remove(cls);
 					});
 					(value || '')
 						.split(' ')
 						.filter(Boolean)
-						.forEach(cls => span.classList.add(cls));
+						.forEach((cls) => span.classList.add(cls));
 				}
 				break;
 			}
@@ -754,11 +758,9 @@
 		}
 	}
 
-
 	export function getContent() {
 		return contentEditable?.innerHTML ?? '';
 	}
-
 </script>
 
 <div class="my-2 flex w-full flex-col rounded-md bg-primary text-base shadow-sm">
@@ -774,7 +776,7 @@
 					class="rounded border border-gray-300 px-2 py-1 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
 					title={formatOption.title}
 					value={getFormatValue(formatOption.command as TextFormatKeys)}
-					onchange={e =>
+					onchange={(e) =>
 						setFormatValue(
 							formatOption.command as TextFormatKeys,
 							(e.target as HTMLSelectElement).value
@@ -796,7 +798,7 @@
 						class="h-6 w-8 cursor-pointer rounded border-0"
 						title={formatOption.title}
 						value={getFormatValue(formatOption.command as TextFormatKeys)}
-						onchange={e =>
+						onchange={(e) =>
 							setFormatValue(
 								formatOption.command as TextFormatKeys,
 								(e.target as HTMLInputElement).value
@@ -883,22 +885,3 @@
 		</div>
 	{/if} -->
 </div>
-
-<style>
-	.upload-container {
-		text-align: center;
-		padding: 10px;
-	}
-
-	.uploaded-image {
-		cursor: pointer;
-		max-width: 100%;
-		max-height: 300px;
-		margin-top: 10px;
-	}
-
-	.resize-controls {
-		margin-top: 10px;
-		text-align: center;
-	}
-</style>

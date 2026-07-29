@@ -23,7 +23,7 @@
 <main class="min-h-screen overflow-auto bg-surface-tertiary px-4 py-6 text-primary sm:px-6 lg:px-8">
 	<div class="mx-auto max-w-6xl space-y-6">
 		<header class="space-y-2">
-			<p class="section-label">Atom</p>
+			<p class="text-xs font-semibold uppercase tracking-wider text-secondary">Atom</p>
 			<h1>Inputs</h1>
 			<p class="max-w-2xl text-sm leading-6 text-secondary">
 				Common form inputs for text, number, file uploads, selects, checks, radio groups, ranges,
