@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Avatar, DropdownMenu, Input } from '@aryagg/ui-kit';
-	import { EMenuAlign, EStorageKey, ETheme, type IMenu } from '@aryagg/types';
+	import { EMenuAlign, ESize, EStorageKey, ETheme, type IMenu } from '@aryagg/types';
 	import { CaretDownFill, Globe2, Moon, Search, Sun } from 'svelte-bootstrap-icons';
 	import type { TopbarProps } from './types';
 	import HeaderNavList from './components/HeaderNavList.svelte';
@@ -110,7 +110,7 @@
 						? 'text-accent'
 						: 'text-secondary'}"
 				>
-					<Avatar src={avatarSrc} name={userName} size="xs" />
+					<Avatar src={avatarSrc} name={userName} size={ESize.XS} />
 					{#if isDropdown}
 						<span class="hidden items-center gap-1 px-4 pt-1 sm:flex">
 							{profileLabel}

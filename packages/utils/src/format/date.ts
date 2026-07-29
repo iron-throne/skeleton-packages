@@ -5,14 +5,16 @@ export const isValidDateString = (dateString: string): boolean => {
 
 export const formatDate = (
     date: Date | string,
-    locale = 'en-US',
-    options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'short', day: 'numeric' }
+    options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'short', day: 'numeric' },
+    locale = 'en-US'
 ): string => {
+    if(!date) return '';
     const d = typeof date === 'string' ? new Date(date) : date;
     return d.toLocaleDateString(locale, options);
 };
 
-export const formatRelativeTime = (date: Date | string): string => {
+export const formatRelativeTime = (date: Date | string, options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'short', day: 'numeric' }): string => {
+    if(!date) return '';
     const d = typeof date === 'string' ? new Date(date) : date;
     const diff = Date.now() - d.getTime();
     const seconds = Math.floor(diff / 1000);
@@ -24,7 +26,7 @@ export const formatRelativeTime = (date: Date | string): string => {
     if (minutes < 60) return `${minutes}m ago`;
     if (hours < 24) return `${hours}h ago`;
     if (days < 7) return `${days}d ago`;
-    return formatDate(d);
+    return formatDate(d, options);
 };
 
 export const addDays = (date: Date, days: number): Date => {
