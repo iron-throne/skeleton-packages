@@ -118,65 +118,35 @@
 				style:width={panelWidth}
 				style:max-height={maxHeight}
 				transition:scale={{ duration: 160, start: 0.94, opacity: 0, easing: cubicOut }}
-				class="ui-dropdown ui-dropdown--{variant} {menuClass ?? ''}"
+				class="fixed z-60 min-w-40 overflow-auto border border-border-primary bg-surface-primary shadow-lg {variant ===
+				'rounded'
+					? 'rounded-xl'
+					: 'rounded-lg'} {menuClass ?? ''}"
 				role="menu"
 			>
 				{#if header}
-					<div class="ui-dropdown__header">{@render header({ close })}</div>
+					<div class="border-b border-border-primary px-3.5 py-3">{@render header({ close })}</div>
 				{/if}
-				<div class="ui-dropdown__items">
+				<div class={variant === 'rounded' ? 'p-2' : 'py-1'}>
 					{#each menus as menu, ind (menu.id ?? ind)}
 						<DropdownMenuItem {menu} {align} {variant} onNavigate={selectItem} bind:selected />
 					{/each}
 				</div>
 				{#if footer}
-					<div class="ui-dropdown__footer">{@render footer({ close })}</div>
+					<div class="border-t border-border-primary px-3.5 py-3">{@render footer({ close })}</div>
 				{/if}
 			</div>
 		{/if}
 	</div>
 {:else}
-	<div class="ui-dropdown ui-dropdown--{variant} ui-dropdown--inline {menuClass ?? ''}">
+	<div
+		class="w-full overflow-auto border border-border-primary bg-surface-primary shadow-lg {variant ===
+		'rounded'
+			? 'rounded-xl'
+			: 'rounded-lg'} {menuClass ?? ''}"
+	>
 		{#each menus as menu, ind (menu.id ?? ind)}
 			<DropdownMenuItem {menu} {align} {variant} onNavigate={selectItem} bind:selected />
 		{/each}
 	</div>
 {/if}
-
-<style>
-	.ui-dropdown {
-		position: fixed;
-		z-index: 60;
-		min-width: 160px;
-		overflow: auto;
-		border: 1px solid var(--border-primary);
-		background: var(--surface-primary);
-		box-shadow: var(--shadow-lg);
-	}
-	.ui-dropdown--v3 {
-		border-radius: 8px;
-	}
-	.ui-dropdown--rounded {
-		border-radius: 12px;
-	}
-	.ui-dropdown--inline {
-		position: static;
-		width: 100%;
-	}
-	.ui-dropdown__items {
-		padding: 4px 0;
-	}
-	.ui-dropdown--rounded .ui-dropdown__items {
-		padding: 8px;
-	}
-	.ui-dropdown__header,
-	.ui-dropdown__footer {
-		padding: 12px 14px;
-	}
-	.ui-dropdown__header {
-		border-bottom: 1px solid var(--border-primary);
-	}
-	.ui-dropdown__footer {
-		border-top: 1px solid var(--border-primary);
-	}
-</style>

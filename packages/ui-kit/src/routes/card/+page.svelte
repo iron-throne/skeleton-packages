@@ -10,7 +10,7 @@
 <main class="min-h-screen overflow-auto bg-surface-tertiary px-4 py-6 text-primary sm:px-6 lg:px-8">
 	<div class="mx-auto max-w-6xl space-y-6">
 		<header class="space-y-2">
-			<p class="section-label">Atom</p>
+			<p class="text-xs font-semibold uppercase tracking-wider text-secondary">Atom</p>
 			<h1>Card</h1>
 			<p class="max-w-2xl text-sm leading-6 text-secondary">
 				Reusable card styles for metrics, project summaries, panels, insights, and feature callouts.
@@ -20,13 +20,7 @@
 		<section class="grid grid-cols-1 gap-4 lg:grid-cols-2">
 			<Card variant="content" title="Discipline breakdown">
 				{#snippet actions()}
-					<Button
-						label="More actions"
-						icon={ThreeDotsVertical}
-						iconOnly
-						size="icon"
-						variant="ghost"
-					/>
+					<Button label="More actions" icon={ThreeDotsVertical} iconOnly variant="ghost" />
 				{/snippet}
 
 				<div class="space-y-3 text-xs">

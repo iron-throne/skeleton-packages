@@ -72,7 +72,7 @@
 					class="h-8 rounded-md border-border-primary bg-surface-secondary py-1.5 pl-9 pr-3 text-xs"
 				/>
 			</div>
-
+<!-- 
 			<button
 				type="button"
 				class="h-8! rounded-md! border-border-primary! bg-surface-primary! px-3! py-1.5! text-xs! font-medium! text-primary! hover:bg-surface-secondary!"
@@ -87,7 +87,7 @@
 			>
 				<Columns width={13} height={13} />
 				Columns
-			</button>
+			</button> -->
 
 			<div class="ml-auto font-mono text-[10px] text-secondary">
 				{filteredRows.length} of {formatTotal(total)}

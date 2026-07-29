@@ -1,3 +1,4 @@
+import type { ESize } from '@aryagg/types';
 import type { Snippet } from 'svelte';
 import type { HTMLAttributes } from 'svelte/elements';
 
@@ -16,7 +17,8 @@ export type BadgeVariant =
 
 export type BadgeAppearance = 'soft' | 'solid' | 'outline';
 
-export type BadgeSize = 'xs' | 'sm' | 'md' | 'lg';
+/** @deprecated Import ESize from @aryagg/types instead. */
+export type BadgeSize = ESize;
 
 export type BadgeRadius = 'none' | 'sm' | 'md' | 'full';
 
@@ -24,7 +26,7 @@ export type BadgeProps = Omit<HTMLAttributes<HTMLSpanElement>, 'children' | 'cla
 	label?: string;
 	variant?: BadgeVariant;
 	appearance?: BadgeAppearance;
-	size?: BadgeSize;
+	size?: ESize;
 	radius?: BadgeRadius;
 	dot?: boolean;
 	dotOnly?: boolean;

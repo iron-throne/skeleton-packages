@@ -1,9 +1,10 @@
-import type { InputFieldSize, InputFieldState } from './types';
+import { ESize } from '@aryagg/types';
+import type { InputFieldState } from './types';
 
-export const INPUT_FIELD_SIZE_CLASS: Record<InputFieldSize, string> = {
-	sm: 'h-8 px-2.5 text-xs',
-	md: 'h-10 px-3 text-sm',
-	lg: 'h-12 px-3.5 text-sm'
+export const INPUT_FIELD_SIZE_CLASS: Partial<Record<ESize, string>> = {
+	[ESize.SM]: 'h-8 px-2.5 text-xs',
+	[ESize.MD]: 'h-10 px-3 text-sm',
+	[ESize.LG]: 'h-12 px-3.5 text-sm'
 };
 
 export const INPUT_FIELD_STATE_CLASS: Record<InputFieldState, string> = {

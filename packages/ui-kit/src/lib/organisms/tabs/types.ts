@@ -1,7 +1,8 @@
 import type { Snippet } from 'svelte';
-import type { IconType } from '@aryagg/types';
+import type { ESize, IconType } from '@aryagg/types';
 
-export type TabsSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+/** @deprecated Import ESize from @aryagg/types instead. */
+export type TabsSize = ESize;
 export type TabsVariant = 'underline' | 'segmented' | 'surface' | 'classic';
 export type TabsRadius = 'none' | 'small' | 'medium' | 'large' | 'full';
 export type TabsIconPosition = 'left' | 'right';
@@ -19,7 +20,7 @@ export type TabsProps = {
 	tabs: TabItem[];
 	active?: string;
 	disabled?: boolean;
-	size?: TabsSize;
+	size?: ESize;
 	variant?: TabsVariant;
 	radius?: TabsRadius;
 	borderRadius?: string;

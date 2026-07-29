@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { Eye, EyeSlash } from 'svelte-bootstrap-icons';
+	import { ESize } from '@aryagg/types';
 	import {
 		INPUT_FIELD_BASE_CLASS,
 		INPUT_FIELD_HELPER_CLASS,
@@ -10,7 +11,6 @@
 	import type {
 		InputFieldOption,
 		InputFieldIconPosition,
-		InputFieldSize,
 		InputFieldState,
 		InputFieldType,
 		InputFieldValue
@@ -24,7 +24,7 @@
 		placeholder = '',
 		helperText = '',
 		state: validationState = 'default',
-		size = 'md',
+		size = ESize.MD,
 		options = [],
 		name = '',
 		required = false,
@@ -48,7 +48,7 @@
 		placeholder?: string;
 		helperText?: string;
 		state?: InputFieldState;
-		size?: InputFieldSize;
+		size?: ESize;
 		options?: InputFieldOption[];
 		name?: string;
 		required?: boolean;
@@ -72,7 +72,9 @@
 	const controlClass = $derived(
 		[
 			INPUT_FIELD_BASE_CLASS,
-			type === 'textarea' ? 'min-h-24 py-2.5 leading-6' : INPUT_FIELD_SIZE_CLASS[size],
+			type === 'textarea'
+				? 'min-h-24 py-2.5 leading-6'
+				: (INPUT_FIELD_SIZE_CLASS[size] ?? INPUT_FIELD_SIZE_CLASS[ESize.MD]),
 			INPUT_FIELD_STATE_CLASS[validationState],
 			icon && iconPosition === 'left' ? 'pl-10' : '',
 			(icon && iconPosition === 'right') || type === 'password' ? 'pr-10' : '',

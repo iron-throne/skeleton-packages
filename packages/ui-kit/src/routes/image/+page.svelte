@@ -2,6 +2,7 @@
 	import Badge from '$lib/atoms/badge/Badge.svelte';
 	import Button from '$lib/atoms/button/Button.svelte';
 	import Image from '$lib/atoms/image/Image.svelte';
+	import { ESize } from '@aryagg/types';
 	import { ArrowsFullscreen, Download, StarFill } from 'svelte-bootstrap-icons';
 	import { IMAGE_EXAMPLES } from './constants';
 </script>
@@ -9,7 +10,7 @@
 <main class="min-h-screen overflow-auto bg-surface-tertiary px-4 py-6 text-primary sm:px-6 lg:px-8">
 	<div class="mx-auto max-w-6xl space-y-6">
 		<header class="space-y-2">
-			<p class="section-label">Atom</p>
+			<p class="text-xs font-semibold uppercase tracking-wider text-secondary">Atom</p>
 			<h1>Image</h1>
 			<p class="max-w-2xl text-sm leading-6 text-secondary">
 				Responsive image surfaces with aspect ratios, fit modes, captions, overlays, loading state,
@@ -18,9 +19,10 @@
 		</header>
 
 		<section class="max-w-sm space-y-3">
-			<p class="section-label">V3 project preview</p>
+			<p class="text-xs font-semibold uppercase tracking-wider text-secondary">
+				V3 project preview
+			</p>
 			<Image
-	
 				alt="Architectural project preview"
 				aspect="project"
 				radius="none"
@@ -35,7 +37,6 @@
 						label="Pin project"
 						icon={StarFill}
 						iconOnly
-						size="icon"
 						radius="full"
 						variant="ghost-light"
 						style="--button-height:26px"
@@ -43,7 +44,7 @@
 				{/snippet}
 
 				{#snippet topRight()}
-					<Badge variant="success" appearance="solid" size="sm" uppercase>Active</Badge>
+					<Badge variant="success" appearance="solid" size={ESize.SM} uppercase>Active</Badge>
 				{/snippet}
 			</Image>
 		</section>

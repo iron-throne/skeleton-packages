@@ -27,7 +27,7 @@
 <main class="min-h-screen overflow-auto bg-surface-tertiary px-4 py-6 text-primary sm:px-6 lg:px-8">
 	<div class="mx-auto max-w-5xl space-y-8">
 		<header class="space-y-2">
-			<p class="section-label">Organisms</p>
+			<p class="text-xs font-semibold uppercase tracking-wider text-secondary">Organisms</p>
 			<h1>Tabs and pagination</h1>
 			<p class="max-w-2xl text-sm leading-6 text-secondary">
 				V3 underline and segmented tabs, plus responsive bordered pagination controls.
@@ -47,7 +47,7 @@
 				variant="segmented"
 				borderRadius="20px"
 				containerBorderRadius="20px"
-				showIcons 
+				showIcons
 				iconPosition="left"
 			>
 				<p class="text-sm text-secondary">Active document view: <strong>{documentTab}</strong></p>
