@@ -68,9 +68,9 @@ let {
 	);
 </script>
 
-<div class="flex flex-wrap">
+<div class="flex flex-wrap h-full">
 	<!-- LEFT SIDE -->
-	<div class="w-full sm:w-7/12 mb-10 {leftSectionClass}">
+	<div class="w-full sm:w-7/12 mb-10 h-full {leftSectionClass}">
 		<div class="container mx-auto h-full sm:p-10">
 			<!-- NAV -->
 			<nav class="flex px-4 justify-between items-center">
@@ -129,7 +129,7 @@ let {
 		<img
 			src={image}
 			alt={imageAlt}
-			class="w-full h-48 object-cover sm:h-screen sm:w-5/12 {imageClass}"
+			class="w-full object-cover h-full sm:w-5/12 {imageClass}"
 		/>
 	{/if}
 </div>

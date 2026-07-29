@@ -162,7 +162,7 @@
 		</div>
 	</header>
 
-	<main class="px-4 py-8 sm:px-8">
+	<main class="px-4 py-8 sm:px-8 h-[90vh]">
 		<!-- TOPBAR -->
 		<section class="space-y-4" class:hidden={activeComponent !== 'topbar'}>
 			<div>
@@ -286,9 +286,9 @@
 				</div>
 			</div>
 
-			<div class="overflow-hidden rounded-lg border border-slate-200">
+			<div class="overflow-hidden rounded-lg border border-slate-200 ">
 				{#if activeLandingVariant === 'hero'}
-					<div class="h-112">
+					<div class="h-[80vh] bg-white">
 						<LandingPageHero
 							title="Acme"
 							heading="Build something great"
@@ -297,11 +297,10 @@
 							ctaText="Get Started"
 							hideDivider={hideHeroDivider}
 							logo={showHeroLogo ? demoLogo : ''}
-							imageClass="h-112!"
 						/>
 					</div>
 				{:else}
-					<div class="h-96">
+					<div class="h-[80vh]">
 						<LandingPageSearch
 							title="Discover Your New Home"
 							placeholder="City, address, or ZIP"
