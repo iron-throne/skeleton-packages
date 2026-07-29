@@ -20,7 +20,7 @@
 		<section class="max-w-sm space-y-3">
 			<p class="section-label">V3 project preview</p>
 			<Image
-				src={IMAGE_EXAMPLES.projectPreview}
+	
 				alt="Architectural project preview"
 				aspect="project"
 				radius="none"

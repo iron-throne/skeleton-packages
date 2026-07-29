@@ -6,6 +6,7 @@
 	let project = $state<string | string[] | null>('crossrail-tcr');
 	let discipline = $state<string | string[] | null>(['arc', 'mep']);
 	let clearableProject = $state<string | string[] | null>(null);
+	let simpleProject = $state<string | string[] | null>('dubai-opera-t2');
 	let disabledProject = $state<string | string[] | null>('berlin-data-campus');
 </script>
 
@@ -21,7 +22,7 @@
 		</header>
 
 		<section class="grid grid-cols-1 gap-4 lg:grid-cols-2">
-			<Card variant="panel" title="Single select">
+			<Card variant="panel" title="Searchable select with icons">
 				<Autocomplete
 					label="Project"
 					bind:value={project}
@@ -32,7 +33,7 @@
 				/>
 			</Card>
 
-			<Card variant="panel" title="Multiple with chips">
+			<Card variant="panel" title="Searchable select without icons">
 				<Autocomplete
 					label="Disciplines"
 					bind:value={discipline}
@@ -40,6 +41,8 @@
 					placeholder="Search disciplines..."
 					multiple
 					chips
+					showSearchIcon={false}
+					showOptionIcons={false}
 					clearable
 					helperText="Select one or more disciplines."
 				/>
@@ -47,6 +50,18 @@
 		</section>
 
 		<section class="grid grid-cols-1 gap-4 lg:grid-cols-2">
+			<Card variant="panel" title="Standard select with icon">
+				<Autocomplete
+					label="Active project"
+					bind:value={simpleProject}
+					options={PROJECT_OPTIONS}
+					placeholder="Choose a project"
+					searchable={false}
+					showSearchIcon={false}
+					helperText="Uses the same component without text filtering."
+				/>
+			</Card>
+
 			<Card variant="panel" title="Clearable empty value">
 				<Autocomplete
 					label="Project package"

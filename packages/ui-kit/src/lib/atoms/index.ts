@@ -7,6 +7,15 @@ export { default as Icon } from './icon/Icon.svelte';
 export { default as MetricCard } from './card/Card.svelte';
 export { default as DocumentTable } from './document-table/DocumentTable.svelte';
 export { default as DropdownMenu } from './dropdown/DropdownMenu.svelte';
+export type {
+	DropdownHeaderContext,
+	DropdownItem,
+	DropdownMenuProps,
+	DropdownPlacement,
+	DropdownTriggerContext,
+	DropdownVariant,
+	DropdownWidth
+} from './dropdown/types';
 export { default as FolderHierarchy } from './folder-hierarchy/FolderHierarchy.svelte';
 export { default as Image } from './image/Image.svelte';
 export { default as Input } from './input/Input.svelte';
@@ -25,6 +34,7 @@ export type {
 export type {
 	AutocompleteDensity,
 	AutocompleteOption,
+	AutocompleteProps,
 	AutocompleteState,
 	AutocompleteValue
 } from './autocomplete/types';
@@ -54,6 +64,7 @@ export type {
 	FolderHierarchyDensity,
 	FolderHierarchyNode,
 	FolderHierarchyNodeType,
+	FolderHierarchyProps,
 	FolderHierarchyStatus,
 	FolderHierarchyVariant
 } from './folder-hierarchy/types';

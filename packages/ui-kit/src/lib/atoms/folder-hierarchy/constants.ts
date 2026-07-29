@@ -8,14 +8,16 @@ export const FOLDER_HIERARCHY_VARIANT_CLASS: Record<FolderHierarchyVariant, stri
 	default: 'rounded-xl border border-border-primary bg-surface-primary shadow-sm',
 	rail: 'rounded-xl border border-border-primary bg-surface-primary shadow-sm overflow-hidden',
 	boxed: 'rounded-2xl border border-border-primary bg-surface-secondary p-2',
-	document: 'rounded-2xl border border-border-primary bg-surface-primary shadow-sm overflow-hidden'
+	document: 'rounded-2xl border border-border-primary bg-surface-primary shadow-sm overflow-hidden',
+	v3: 'rounded-lg border border-border-primary bg-surface-primary shadow-sm overflow-hidden'
 };
 
 export const FOLDER_HIERARCHY_BORDERLESS_CLASS: Record<FolderHierarchyVariant, string> = {
 	default: 'border-transparent shadow-none',
 	rail: 'border-transparent shadow-none',
 	boxed: 'border-transparent',
-	document: 'border-transparent shadow-none'
+	document: 'border-transparent shadow-none',
+	v3: 'border-transparent shadow-none'
 };
 
 export const FOLDER_HIERARCHY_DENSITY_CLASS: Record<FolderHierarchyDensity, string> = {
