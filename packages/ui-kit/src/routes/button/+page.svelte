@@ -1,6 +1,14 @@
 <script lang="ts">
 	import Button from '$lib/atoms/button/Button.svelte';
-	import { ArrowRight, Download, Floppy, Plus, Search, Trash } from 'svelte-bootstrap-icons';
+	import {
+		ArrowRight,
+		Download,
+		Floppy,
+		Plus,
+		Search,
+		Trash,
+		ThreeDotsVertical
+	} from 'svelte-bootstrap-icons';
 </script>
 
 <main class="min-h-screen overflow-auto bg-surface-tertiary px-4 py-6 text-primary sm:px-6 lg:px-8">
@@ -18,9 +26,12 @@
 				<p class="section-label">Variants</p>
 				<h2 class="mt-2 text-lg">Action styles</h2>
 			</div>
-
 			<div class="flex flex-wrap gap-3">
-				<Button label="Primary" icon={Plus} />
+				here is like V3
+				<Button label="Actions" variant="actions" radius="full" icon={ThreeDotsVertical} />
+			</div>
+			<div class="flex flex-wrap gap-3">
+				<Button label="Primary" />
 				<Button label="Secondary" variant="secondary" />
 				<Button label="Muted" variant="muted" />
 				<Button label="Outline" variant="outline" />
@@ -28,6 +39,24 @@
 				<Button label="Success" variant="success" icon={Floppy} />
 				<Button label="Danger" variant="danger" icon={Trash} />
 				<Button label="Info" variant="info" />
+			</div>
+		</section>
+
+		<section class="card space-y-4">
+			<div>
+				<p class="section-label">Border radius</p>
+				<h2 class="mt-2 text-lg">Built-in and parent-controlled radius</h2>
+			</div>
+
+			<div class="flex flex-wrap items-center gap-3">
+				<Button label="None" radius="none" />
+				<Button label="Small" radius="sm" />
+				<Button label="V3 default" radius="md" />
+				<Button label="Large" radius="lg" />
+				<Button label="Pill" radius="full" />
+				<div style="--button-radius: 14px">
+					<Button label="Parent: 14px" variant="secondary" />
+				</div>
 			</div>
 		</section>
 

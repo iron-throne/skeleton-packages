@@ -6,6 +6,8 @@ export const BUTTON_VARIANT_CLASS: Record<ButtonVariant, string> = {
 	muted: 'btn-muted',
 	outline: 'btn-outline',
 	ghost: 'btn-ghost',
+	'ghost-light': 'btn-ghost-light',
+	actions: 'btn-actions',
 	success: 'btn-success',
 	danger: 'btn-danger',
 	info: 'btn-info'

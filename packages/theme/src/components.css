@@ -1,335 +1,458 @@
 @layer base {
+  /* ══════════════ TYPOGRAPHY ══════════════ */
 
-    /* ══════════════ TYPOGRAPHY ══════════════ */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply m-0 leading-tight text-primary;
+  }
 
-    h1,
-    h2,
-    h3,
-    h4,
-    h5,
-    h6 {
-        @apply m-0 leading-tight text-primary;
-    }
+  h1 {
+    @apply text-3xl font-bold;
+  }
 
-    h1 {
-        @apply text-3xl font-bold;
-    }
+  h2 {
+    @apply text-2xl font-bold;
+  }
 
-    h2 {
-        @apply text-2xl font-bold;
-    }
+  h3 {
+    @apply text-xl font-semibold;
+  }
 
-    h3 {
-        @apply text-xl font-semibold;
-    }
+  h4 {
+    @apply text-lg font-semibold;
+  }
 
-    h4 {
-        @apply text-lg font-semibold;
-    }
+  h5 {
+    @apply text-base font-semibold;
+  }
 
-    h5 {
-        @apply text-base font-semibold;
-    }
+  h6 {
+    @apply text-sm font-semibold;
+  }
 
-    h6 {
-        @apply text-sm font-semibold;
-    }
+  small {
+    @apply text-xs text-tertiary;
+  }
 
-    small {
-        @apply text-xs text-tertiary;
-    }
+  label {
+    @apply mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.07em] text-tertiary;
+  }
 
-    label {
-        @apply mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.07em] text-tertiary;
-    }
+  a {
+    @apply text-accent underline underline-offset-[3px] transition-opacity duration-150;
+  }
 
-    a {
-        @apply text-accent underline underline-offset-[3px] transition-opacity duration-150;
-    }
+  a:hover {
+    @apply opacity-80;
+  }
 
-    a:hover {
-        @apply opacity-80;
-    }
+  hr {
+    @apply m-0 h-px border-0 bg-border-primary opacity-60;
+  }
 
-    hr {
-        @apply m-0 h-px border-0 bg-border-primary opacity-60;
-    }
+  /* ══════════════ BUTTON ══════════════ */
 
+  button,
+  .btn {
+    --button-height: 34px;
+    --button-padding-inline: 14px;
+    --button-radius-preset: 6px;
+    --button-gap: 6px;
+    --button-font-size: 13px;
+    --button-font-weight: 600;
+    --button-bg: var(--surface-primary);
+    --button-color: var(--text-primary);
+    --button-border-color: var(--border-primary);
+    --button-shadow: none;
+    --button-hover-bg: var(--surface-secondary);
+    --button-hover-color: var(--button-color);
+    --button-hover-border-color: var(--button-border-color);
+    --button-hover-shadow: var(--button-shadow);
 
-    /* ══════════════ BUTTON ══════════════ */
+    @apply inline-flex items-center justify-center border whitespace-nowrap select-none outline-none transition-all duration-150;
+    min-height: var(--button-height);
+    padding-inline: var(--button-padding-inline);
+    gap: var(--button-gap);
+    border-radius: var(--button-radius, var(--button-radius-preset));
+    border-color: var(--button-border-color);
+    background: var(--button-bg);
+    color: var(--button-color);
+    box-shadow: var(--button-shadow);
+    font-size: var(--button-font-size);
+    font-weight: var(--button-font-weight);
+    line-height: 1;
+  }
 
-    button,
-    .btn {
-        @apply inline-flex items-center justify-center gap-1.5 rounded-xl border border-border-primary bg-surface-primary px-4 py-2 text-sm font-medium leading-5 text-primary whitespace-nowrap select-none outline-none transition-all duration-150;
-    }
+  button:hover:not(:disabled),
+  .btn:hover:not(:disabled) {
+    border-color: var(--button-hover-border-color);
+    background: var(--button-hover-bg);
+    color: var(--button-hover-color);
+    box-shadow: var(--button-hover-shadow);
+  }
 
-    button:hover:not(:disabled),
-    .btn:hover:not(:disabled) {
-        @apply bg-surface-secondary;
-    }
+  button:active:not(:disabled),
+  .btn:active:not(:disabled) {
+    @apply scale-[0.97];
+  }
 
-    button:active:not(:disabled),
-    .btn:active:not(:disabled) {
-        @apply scale-[0.97];
-    }
+  button:focus-visible,
+  .btn:focus-visible {
+    @apply ring-2 ring-accent ring-offset-2;
+  }
 
-    button:focus-visible,
-    .btn:focus-visible {
-        @apply ring-2 ring-accent ring-offset-2;
-    }
+  button:disabled,
+  .btn:disabled,
+  a:disabled {
+    @apply cursor-not-allowed opacity-50 pointer-events-none;
+  }
 
-    button:disabled,
-    .btn:disabled, a:disabled {
-        @apply cursor-not-allowed opacity-50 pointer-events-none;
-    }
-
-
-    /* ══════════════ BUTTON VARIANTS ══════════════ */
+  /* ══════════════ BUTTON VARIANTS ══════════════ */
 
     .btn-primary {
-        @apply border-accent bg-accent text-on-accent shadow-sm;
-    }
-
-    .btn-primary:hover:not(:disabled) {
-        @apply shadow-md text-accent bg-transparent;
-    }
+        --button-bg: var(--semantic-accent);
+        --button-color: var(--on-accent);
+        --button-border-color: var(--semantic-accent);
+        --button-hover-bg: var(
+            --semantic-accent-hover,
+            color-mix(in srgb, var(--semantic-accent) 86%, black)
+        );
+    --button-hover-color: var(--on-accent);
+    --button-hover-border-color: var(--button-hover-bg);
+    --button-shadow: 0 1px 3px
+      color-mix(in srgb, var(--semantic-accent) 24%, transparent);
+  }
 
     .btn-secondary {
-        @apply border-border-primary bg-surface-primary text-primary;
+        --button-bg: var(--surface-primary);
+        --button-color: var(--text-primary);
+        --button-border-color: var(--border-primary);
+        --button-hover-bg: var(--surface-secondary);
+  }
+
+  .btn-muted {
+    --button-bg: var(--surface-secondary);
+    --button-color: var(--text-primary);
+    --button-border-color: transparent;
+    --button-hover-bg: var(--surface-tertiary);
+  }
+
+  .btn-outline {
+    --button-bg: transparent;
+    --button-color: var(--semantic-accent);
+    --button-border-color: var(--semantic-accent);
+    --button-hover-bg: color-mix(
+      in srgb,
+      var(--semantic-accent) 10%,
+      transparent
+    );
+  }
+
+  .btn-ghost {
+    --button-bg: transparent;
+    --button-color: var(--text-secondary);
+    --button-border-color: transparent;
+    --button-hover-bg: var(--surface-secondary);
+    --button-hover-color: var(--text-primary);
+  }
+
+  .btn-ghost-light {
+    --button-bg: rgb(255 255 255 / 14%);
+    --button-color: rgb(255 255 255 / 88%);
+    --button-border-color: rgb(255 255 255 / 22%);
+    --button-hover-bg: rgb(255 255 255 / 24%);
+    --button-hover-color: #ffffff;
+  }
+
+  .btn-actions {
+    --button-height: 36px;
+    --button-padding-inline: 15px;
+    --button-radius-preset: 999px;
+    --button-bg: var(--semantic-info);
+    --button-color: var(--on-info);
+    --button-border-color: transparent;
+    --button-hover-bg: color-mix(in srgb, var(--semantic-info) 86%, black);
+    --button-hover-color: var(--on-info);
+    --button-shadow: 0 2px 8px
+      color-mix(in srgb, var(--semantic-info) 30%, transparent);
+    --button-hover-shadow: 0 3px 10px
+      color-mix(in srgb, var(--semantic-info) 40%, transparent);
+    --button-font-weight: 700;
+  }
+
+  .btn-success {
+    --button-bg: var(--semantic-success);
+    --button-color: var(--on-success);
+    --button-border-color: var(--semantic-success);
+    --button-hover-bg: color-mix(in srgb, var(--semantic-success) 86%, black);
+  }
+
+  .btn-danger {
+    --button-bg: var(--semantic-error);
+    --button-color: var(--on-error);
+    --button-border-color: var(--semantic-error);
+    --button-hover-bg: color-mix(in srgb, var(--semantic-error) 86%, black);
+  }
+
+  .btn-info {
+    --button-bg: var(--semantic-info);
+    --button-color: var(--on-info);
+    --button-border-color: var(--semantic-info);
+    --button-hover-bg: color-mix(in srgb, var(--semantic-info) 86%, black);
+  }
+
+  /* ══════════════ BUTTON SIZES ══════════════ */
+
+  .btn-sm {
+    --button-height: 30px;
+    --button-padding-inline: 12px;
+    --button-radius-preset: 6px;
+    --button-font-size: 12px;
+  }
+
+  .btn-lg {
+    --button-height: 42px;
+    --button-padding-inline: 20px;
+    --button-radius-preset: 10px;
+    --button-font-size: 15px;
+  }
+
+  .btn-icon {
+    --button-padding-inline: 0;
+    aspect-ratio: 1;
+  }
+
+  .btn-full {
+    width: 100%;
+  }
+
+    .btn-icon-only {
+        --button-padding-inline: 0;
+        aspect-ratio: 1;
     }
 
-    .btn-secondary:hover:not(:disabled) {
-        @apply bg-accent text-on-accent;
+    .btn[data-radius="none"] {
+        --button-radius-preset: 0;
     }
 
-    .btn-muted {
-        @apply border-transparent bg-surface-secondary text-primary;
+    .btn[data-radius="sm"] {
+        --button-radius-preset: 4px;
     }
 
-    .btn-muted:hover:not(:disabled) {
-        @apply bg-surface-tertiary;
+    .btn[data-radius="md"] {
+        --button-radius-preset: 6px;
     }
 
-    .btn-outline {
-        @apply border-accent bg-transparent text-accent;
+    .btn[data-radius="lg"] {
+        --button-radius-preset: 10px;
     }
 
-    .btn-outline:hover:not(:disabled) {
-        @apply bg-accent/10;
+    .btn[data-radius="full"] {
+        --button-radius-preset: 999px;
     }
 
-    .btn-ghost {
-        @apply border-transparent bg-transparent text-secondary;
+  .btn > svg {
+    flex: none;
+  }
+
+  .btn-spinner {
+    width: 14px;
+    height: 14px;
+    flex: none;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 999px;
+    animation: button-spin 0.7s linear infinite;
+  }
+
+  @keyframes button-spin {
+    to {
+      transform: rotate(360deg);
     }
+  }
 
-    .btn-ghost:hover:not(:disabled) {
-        @apply bg-surface-secondary text-primary;
-    }
+  /* ══════════════ INPUTS ══════════════ */
 
-    .btn-success {
-        @apply border-success bg-success text-on-success hover:text-success hover:bg-on-success;
-    }
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not(
+      [type="file"]
+    ),
+  textarea,
+  select {
+    @apply w-full rounded-xl border border-border-primary bg-surface-secondary px-3 py-2.5 text-sm leading-5 text-primary outline-none transition-all duration-150;
+  }
 
-    .btn-danger {
-        @apply border-error bg-error text-on-error hover:text-error;
-    }
+  input::placeholder,
+  textarea::placeholder {
+    @apply text-tertiary;
+  }
 
-    .btn-info {
-        @apply border-info bg-info text-on-info hover:text-info;
-    }
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not(
+      [type="file"]
+    ):hover:not(:disabled),
+  textarea:hover:not(:disabled),
+  select:hover:not(:disabled) {
+    @apply border-secondary;
+  }
 
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not(
+      [type="file"]
+    ):focus,
+  textarea:focus,
+  select:focus {
+    @apply bg-surface-primary ring-2 ring-accent/50;
+  }
 
-    /* ══════════════ BUTTON SIZES ══════════════ */
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not(
+      [type="file"]
+    ):disabled,
+  textarea:disabled,
+  select:disabled,
+  a:disabled {
+    @apply cursor-not-allowed bg-surface-tertiary opacity-50;
+  }
 
-    .btn-sm {
-        @apply rounded-lg px-3 py-1.5 text-[13px];
-    }
+  textarea {
+    @apply min-h-24 resize-y leading-relaxed;
+  }
 
-    .btn-lg {
-        @apply rounded-2xl px-5 py-2.5 text-[15px];
-    }
+  select {
+    @apply cursor-pointer appearance-none pr-9;
+  }
 
-    .btn-icon {
-        @apply aspect-square p-2;
-    }
+  /* ══════════════ INPUT STATES ══════════════ */
 
+  input[data-state="success"],
+  textarea[data-state="success"],
+  select[data-state="success"] {
+    @apply border-success bg-success/5!;
+  }
 
-    /* ══════════════ INPUTS ══════════════ */
+  input[data-state="success"]:focus,
+  textarea[data-state="success"]:focus,
+  select[data-state="success"]:focus {
+    @apply ring-success/20!;
+  }
 
-    input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]),
-    textarea,
-    select {
-        @apply w-full rounded-xl border border-border-primary bg-surface-secondary px-3 py-2.5 text-sm leading-5 text-primary outline-none transition-all duration-150;
-    }
+  input[data-state="error"],
+  textarea[data-state="error"],
+  select[data-state="error"] {
+    @apply border-error! bg-error/5!;
+  }
 
-    input::placeholder,
-    textarea::placeholder {
-        @apply text-tertiary;
-    }
+  input[data-state="error"]:focus,
+  textarea[data-state="error"]:focus,
+  select[data-state="error"]:focus {
+    @apply ring-error/20;
+  }
 
-    input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):hover:not(:disabled),
-    textarea:hover:not(:disabled),
-    select:hover:not(:disabled) {
-        @apply border-secondary;
-    }
+  /* ══════════════ CHECKBOX + RADIO ══════════════ */
 
-    input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):focus,
-    textarea:focus,
-    select:focus {
-        @apply bg-surface-primary ring-2 ring-accent/50 ;
-    }
+  input[type="checkbox"],
+  input[type="radio"] {
+    @apply size-4 cursor-pointer accent-accent;
+  }
 
-    input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):disabled,
-    textarea:disabled,
-    select:disabled, a:disabled {
-        @apply cursor-not-allowed bg-surface-tertiary opacity-50;
-    }
+  /* ══════════════ RANGE ══════════════ */
 
-    textarea {
-        @apply min-h-24 resize-y leading-relaxed;
-    }
+  input[type="range"] {
+    @apply w-full cursor-pointer accent-accent;
+  }
 
-    select {
-        @apply cursor-pointer appearance-none pr-9;
-    }
+  /* ══════════════ FILE INPUT ══════════════ */
 
+  input[type="file"] {
+    @apply w-full cursor-pointer text-sm text-secondary;
+  }
 
-    /* ══════════════ INPUT STATES ══════════════ */
+  input[type="file"]::file-selector-button {
+    @apply mr-3 rounded-lg border border-border-primary bg-surface-secondary px-3.5 py-1.5 text-xs font-medium text-primary transition-all duration-150;
+  }
 
-    input[data-state="success"],
-    textarea[data-state="success"],
-    select[data-state="success"] {
-        @apply border-success bg-success/5!;
-    }
+  input[type="file"]::file-selector-button:hover {
+    @apply border-accent bg-surface-tertiary;
+  }
 
-    input[data-state="success"]:focus,
-    textarea[data-state="success"]:focus,
-    select[data-state="success"]:focus {
-        @apply ring-success/20!;
-    }
+  /* ══════════════ BADGES ══════════════ */
 
-    input[data-state="error"],
-    textarea[data-state="error"],
-    select[data-state="error"] {
-        @apply border-error! bg-error/5!;
-    }
+  [data-badge] {
+    @apply inline-flex items-center gap-1 rounded-full border border-border-primary bg-surface-tertiary px-2.5 py-1 text-[11px] font-semibold text-secondary;
+  }
 
-    input[data-state="error"]:focus,
-    textarea[data-state="error"]:focus,
-    select[data-state="error"]:focus {
-        @apply ring-error/20;
-    }
+  [data-badge="success"] {
+    @apply border-success/20 bg-success/10 text-success;
+  }
 
+  [data-badge="warning"] {
+    @apply border-warning/20 bg-warning/10 text-warning;
+  }
 
-    /* ══════════════ CHECKBOX + RADIO ══════════════ */
+  [data-badge="error"] {
+    @apply border-error/20 bg-error/10 text-error;
+  }
 
-    input[type="checkbox"],
-    input[type="radio"] {
-        @apply size-4 cursor-pointer accent-accent;
-    }
+  [data-badge="info"] {
+    @apply border-info/20 bg-info/10 text-info;
+  }
 
+  [data-badge="accent"] {
+    @apply border-accent/20 bg-accent/10 text-accent;
+  }
 
-    /* ══════════════ RANGE ══════════════ */
+  [data-badge="outline"] {
+    @apply border-border-primary bg-transparent text-secondary;
+  }
 
-    input[type="range"] {
-        @apply w-full cursor-pointer accent-accent;
-    }
+  [data-badge="primary"] {
+    @apply border-border-primary bg-surface-primary text-secondary;
+  }
 
-    /* ══════════════ FILE INPUT ══════════════ */
+  /* ══════════════ ALERTS ══════════════ */
 
-    input[type="file"] {
-        @apply w-full cursor-pointer text-sm text-secondary;
-    }
+  [data-alert] {
+    @apply flex items-start gap-2 rounded-xl border border-border-primary bg-surface-secondary px-3.5 py-2.5 text-[13px] font-medium leading-6 text-primary;
+  }
 
-    input[type="file"]::file-selector-button {
-        @apply mr-3 rounded-lg border border-border-primary bg-surface-secondary px-3.5 py-1.5 text-xs font-medium text-primary transition-all duration-150;
-    }
+  [data-alert="success"] {
+    @apply border-success/20 bg-success/10 text-success;
+  }
 
-    input[type="file"]::file-selector-button:hover {
-        @apply border-accent bg-surface-tertiary;
-    }
+  [data-alert="warning"] {
+    @apply border-warning/20 bg-warning/10 text-warning;
+  }
 
+  [data-alert="error"] {
+    @apply border-error/20 bg-error/10 text-error;
+  }
 
-    /* ══════════════ BADGES ══════════════ */
+  [data-alert="info"] {
+    @apply border-info/20 bg-info/10 text-info;
+  }
 
-    [data-badge] {
-        @apply inline-flex items-center gap-1 rounded-full border border-border-primary bg-surface-tertiary px-2.5 py-1 text-[11px] font-semibold text-secondary;
-    }
+  /* ══════════════ CARD ══════════════ */
 
-    [data-badge="success"] {
-        @apply border-success/20 bg-success/10 text-success;
-    }
+  .section-label {
+    @apply text-[11px] font-semibold uppercase tracking-[0.07em] text-tertiary;
+  }
 
-    [data-badge="warning"] {
-        @apply border-warning/20 bg-warning/10 text-warning;
-    }
+  .card {
+    @apply rounded-2xl border border-border-primary bg-surface-primary p-5 shadow-sm transition-shadow duration-200;
+  }
 
-    [data-badge="error"] {
-        @apply border-error/20 bg-error/10 text-error;
-    }
+  .card:hover {
+    @apply shadow-md;
+  }
 
-    [data-badge="info"] {
-        @apply border-info/20 bg-info/10 text-info;
-    }
+  .form-group {
+    @apply flex flex-col gap-1;
+  }
 
-    [data-badge="accent"] {
-        @apply border-accent/20 bg-accent/10 text-accent;
-    }
+  /* ══════════════ SELECTION ══════════════ */
 
-    [data-badge="outline"] {
-        @apply border-border-primary bg-transparent text-secondary;
-    }
-
-     [data-badge="primary"] {
-        @apply border-border-primary bg-surface-primary text-secondary;
-    }
-
-
-
-    /* ══════════════ ALERTS ══════════════ */
-
-    [data-alert] {
-        @apply flex items-start gap-2 rounded-xl border border-border-primary bg-surface-secondary px-3.5 py-2.5 text-[13px] font-medium leading-6 text-primary;
-    }
-
-    [data-alert="success"] {
-        @apply border-success/20 bg-success/10 text-success;
-    }
-
-    [data-alert="warning"] {
-        @apply border-warning/20 bg-warning/10 text-warning;
-    }
-
-    [data-alert="error"] {
-        @apply border-error/20 bg-error/10 text-error;
-    }
-
-    [data-alert="info"] {
-        @apply border-info/20 bg-info/10 text-info;
-    }
-
-
-    /* ══════════════ CARD ══════════════ */
-
-    .section-label {
-        @apply text-[11px] font-semibold uppercase tracking-[0.07em] text-tertiary;
-    }
-
-    .card {
-        @apply rounded-2xl border border-border-primary bg-surface-primary p-5 shadow-sm transition-shadow duration-200;
-    }
-
-    .card:hover {
-        @apply shadow-md;
-    }
-
-    .form-group {
-        @apply flex flex-col gap-1;
-    }
-
-    /* ══════════════ SELECTION ══════════════ */
-
-    ::selection {
-        @apply bg-accent/30 text-primary;
-    }
+  ::selection {
+    @apply bg-accent/30 text-primary;
+  }
 }

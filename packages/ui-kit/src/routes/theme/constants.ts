@@ -19,10 +19,10 @@ export type ThemeColorField = {
 	variable: ThemeColorVariable;
 };
 
-export const THEME_STORAGE_KEY = 'aryagg-ui-theme-colors';
+export const THEME_STORAGE_KEY = 'aryagg-ui-theme-colors-v2';
 
 export const DEFAULT_THEME_COLORS: Record<ThemeColorVariable, string> = {
-	'--semantic-accent': '#ca0613',
+	'--semantic-accent': '#0891b2',
 	'--semantic-secondary': '#5e5253',
 	'--semantic-success': '#107c10',
 	'--semantic-warning': '#f8d22a',

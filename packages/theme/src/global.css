@@ -4,22 +4,23 @@
     --font-heading: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
 
     --surface-primary: #ffffff;
-    --surface-secondary: #fafafa;
-    --surface-tertiary: #f8f8f8;
-    --on-surface-primary: #000000;
-    --on-surface-secondary: #5e5253;
-    --on-surface-tertiary: #606060;
+    --surface-secondary: #eef2f6;
+    --surface-tertiary: #f1f5f9;
+    --on-surface-primary: #0f172a;
+    --on-surface-secondary: #334155;
+    --on-surface-tertiary: #64748b;
 
-    --text-primary: #000000;
-    --text-secondary: #657487;
-    --text-tertiary: #606060;
-    --border-primary: #e1dfdd;
+    --text-primary: #0f172a;
+    --text-secondary: #334155;
+    --text-tertiary: #64748b;
+    --border-primary: #dce3ea;
 
     --semantic-success: #107c10;
     --semantic-warning: #f8d22a;
     --semantic-error: #d13438;
     --semantic-info: #6264a7;
-    --semantic-accent: #ca0613;
+    --semantic-accent: #0891b2;
+    --semantic-accent-hover: #0e7490;
     --semantic-secondary: #5e5253;
 
     --on-accent: #ffffff;

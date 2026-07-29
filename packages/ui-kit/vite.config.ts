@@ -2,8 +2,14 @@ import adapter from '@sveltejs/adapter-auto';
 import { sveltekit } from '@sveltejs/kit/vite';
 import tailwindcss from '@tailwindcss/vite';
 import { defineConfig } from 'vite';
+import { fileURLToPath, URL } from 'node:url';
 
 export default defineConfig({
+	resolve: {
+		alias: {
+			'@aryagg/theme': fileURLToPath(new URL('../theme/index.css', import.meta.url))
+		}
+	},
 	plugins: [
 		tailwindcss(),
 		sveltekit({

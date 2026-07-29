@@ -1,15 +1,16 @@
 <script lang="ts">
-	import { ArrowClockwise } from 'svelte-bootstrap-icons';
 	import { BUTTON_SIZE_CLASS, BUTTON_VARIANT_CLASS } from './constants';
-	import type { ButtonIconPosition, ButtonSize, ButtonVariant } from './types';
-	
+	import type { ButtonProps } from './types';
 
 	let {
 		label,
+		children,
+		class: className = '',
 		klass = '',
 		classes = '',
 		variant = 'primary',
 		size = 'md',
+		radius = 'md',
 		type = 'button',
 		loading = false,
 		disabled = false,
@@ -17,81 +18,79 @@
 		iconOnly = false,
 		iconPosition = 'left',
 		icon,
+		onclick,
 		onClick,
+		onkeydown,
 		onKeydown,
 		onEnterKeydown,
-	}: {
-		label: string;
-		klass?: string;
-		classes?: string;
-		variant?: ButtonVariant;
-		size?: ButtonSize;
-		type?: 'button' | 'submit' | 'reset';
-		loading?: boolean;
-		disabled?: boolean;
-		fullWidth?: boolean;
-		iconOnly?: boolean;
-		iconPosition?: ButtonIconPosition;
-		icon?: any;
-		onClick?: (e?: MouseEvent) => void | Promise<void>;
-		onKeydown?: (e: KeyboardEvent) => void;
-		onEnterKeydown?: () => void;
-	} = $props();
+		...restProps
+	}: ButtonProps = $props();
 
 	const buttonClass = $derived(
 		[
 			'btn',
 			BUTTON_VARIANT_CLASS[variant],
 			BUTTON_SIZE_CLASS[size],
-			fullWidth ? 'w-full' : '',
-			iconOnly ? 'aspect-square px-0' : '',
+			fullWidth && 'btn-full',
+			iconOnly && 'btn-icon-only',
+			className,
+			klass,
 			classes
 		]
 			.filter(Boolean)
 			.join(' ')
 	);
 
-	function handleClick(e: MouseEvent) {
+	const accessibleLabel = $derived(restProps['aria-label'] ?? (iconOnly ? label : undefined));
+
+	function handleClick(event: MouseEvent) {
 		if (loading || disabled) return;
-		onClick?.(e);
+		onclick?.(event);
+		onClick?.(event);
 	}
 
+	function handleKeydown(event: KeyboardEvent) {
+		onkeydown?.(event);
+		onKeydown?.(event);
 
-	function handleKeydown(e: KeyboardEvent) {
-		if (e.key === 'Enter') {
-			e.preventDefault();
+		if (event.key === 'Enter') {
 			onEnterKeydown?.();
-		} else {
-			onKeydown?.(e);
 		}
 	}
-
-
 </script>
 
-
 <button
+	{...restProps}
 	{type}
-	class="btn btn-primary {buttonClass} {klass}"
+	class={buttonClass}
 	disabled={disabled || loading}
 	aria-disabled={disabled || loading}
-	aria-busy={loading}
-	aria-label={iconOnly ? label : undefined}
+	aria-busy={loading || undefined}
+	aria-label={accessibleLabel}
+	data-variant={variant}
+	data-size={size}
+	data-radius={radius}
+	data-loading={loading || undefined}
 	onclick={handleClick}
 	onkeydown={handleKeydown}
 >
 	{#if loading}
-		<ArrowClockwise class="animate-spin" width="16" height="16" />
+		<span class="btn-spinner" aria-hidden="true"></span>
 	{:else if icon && iconPosition === 'left'}
 		{@const Icon = icon}
-		<Icon width="16" height="16" />
+		<Icon width="16" height="16" aria-hidden="true" />
 	{/if}
 
 	{#if !iconOnly}
-		{label}
+		{#if children}
+			{@render children()}
+		{:else}
+			{label}
+		{/if}
 	{/if}
+
 	{#if icon && iconPosition === 'right' && !loading}
 		{@const Icon = icon}
-		<Icon width="16" height="16" />
+		<Icon width="16" height="16" aria-hidden="true" />
 	{/if}
 </button>

@@ -15,7 +15,13 @@ export { default as NoData } from './no-data/NoData.svelte';
 export { default as SkeletonLoader } from './skeleton-loader/SkeletonLoader.svelte';
 export { default as Tooltip } from './tooltip/Tooltip.svelte';
 
-export type { ButtonIconPosition, ButtonSize, ButtonVariant } from './button/types';
+export type {
+	ButtonIconPosition,
+	ButtonProps,
+	ButtonRadius,
+	ButtonSize,
+	ButtonVariant
+} from './button/types';
 export type {
 	AutocompleteDensity,
 	AutocompleteOption,
