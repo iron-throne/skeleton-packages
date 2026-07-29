@@ -1,6 +1,7 @@
 export { default as Alert } from './alert/Alert.svelte';
 export { default as Autocomplete } from './autocomplete/Autocomplete.svelte';
 export { default as Avatar } from './avatar/Avatar.svelte';
+export type { AvatarProps, AvatarSize, AvatarStatus } from './avatar/types';
 export { default as Badge } from './badge/Badge.svelte';
 export { default as Button } from './button/Button.svelte';
 export { default as Icon } from './icon/Icon.svelte';

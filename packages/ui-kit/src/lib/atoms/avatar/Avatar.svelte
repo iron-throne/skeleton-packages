@@ -1,23 +1,10 @@
 <script lang="ts">
 	import { initials } from '@aryagg/utils';
-	import type { Size } from './types';
+	import type { AvatarProps, AvatarSize } from './types';
 
-	let {
-		src = '',
-		name = '',
-		size = 'md',
-		status,
-		class: klass = ''
-	}: {
-		src?: string;
-		name?: string;
-		size?: Size;
-		/** Optional presence indicator */
-		status?: 'online' | 'offline' | 'away';
-		class?: string;
-	} = $props();
+	let { src = '', name = '', size = 'md', status, class: klass = '' }: AvatarProps = $props();
 
-	const sizeClass: Record<Size, string> = {
+	const sizeClass: Record<AvatarSize, string> = {
 		xs: 'w-6  h-6  text-[9px]',
 		sm: 'w-8  h-8  text-xs',
 		md: 'w-10 h-10 text-sm',
@@ -31,7 +18,7 @@
 		away: 'bg-warning'
 	};
 
-	const dotSize: Record<Size, string> = {
+	const dotSize: Record<AvatarSize, string> = {
 		xs: 'w-1.5 h-1.5 ring-1',
 		sm: 'w-2   h-2   ring-1',
 		md: 'w-2.5 h-2.5 ring-2',
@@ -57,7 +44,7 @@
 				onerror={() => (imgError = true)}
 			/>
 		{:else}
-			{initials(name) || '?'} 
+			{initials(name) || '?'}
 		{/if}
 	</span>
 

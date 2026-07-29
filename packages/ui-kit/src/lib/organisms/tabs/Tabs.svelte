@@ -1,118 +1,200 @@
 <script lang="ts">
-	import { Icon } from '$lib/atoms';
-	import { ESize } from '@aryagg/types';
-	import type { ITab } from '@aryagg/types';
-	import type { Snippet } from 'svelte';
-	import type { TabsSize, TabsVariant, TabsRadius } from './types';
+	import Icon from '$lib/atoms/icon/Icon.svelte';
+	import type { TabItem, TabsProps } from './types';
 
 	let {
 		tabs,
-		active = $bindable(),
+		active = $bindable(''),
 		children,
 		disabled = false,
-		size = ESize.MD,
-		variant = 'surface',
-		radius = 'full',
-		parentKlass,
-		tabKlass,
-		activeKlass
-	}: {
-		tabs: ITab[];
-		active: string;
-		disabled?: boolean;
-		size?: TabsSize;
-		variant?: TabsVariant;
-		radius?: TabsRadius;
-		parentKlass?: string;
-		tabKlass?: string;
-		activeKlass?:string;
-		children?: Snippet;
-	} = $props();
+		size = 'md',
+		variant = 'underline',
+		radius = 'small',
+		borderRadius = '',
+		containerBorderRadius = '',
+		showIcons = true,
+		iconPosition = 'left',
+		class: className = '',
+		tabClass = '',
+		panelClass = '',
+		onChange
+	}: TabsProps = $props();
 
-	// Initialise to first enabled tab if not set
 	$effect.pre(() => {
-		if (!active) active = tabs.find((t) => !t.disabled)?.id ?? '';
+		if (!active) active = tabs.find((tab) => !tab.disabled)?.id ?? '';
 	});
 
-	const sizeClass: Record<TabsSize, string> = {
-		[ESize.XS]: 'px-2.5 py-1 text-[10px] gap-1',
-		[ESize.SM]: 'px-3 py-1 text-[11px] gap-1',
-		[ESize.MD]: 'px-4 py-1.5 text-xs gap-1.5',
-		[ESize.LG]: 'px-5 py-2 text-sm gap-1.5',
-		[ESize.XL]: 'px-6 py-2.5 text-base gap-2'
-	};
-
-	const iconSizeClass: Record<TabsSize, string> = {
-		[ESize.XS]: 'size-3',
-		[ESize.SM]: 'size-3.5',
-		[ESize.MD]: 'size-4',
-		[ESize.LG]: 'size-4.5',
-		[ESize.XL]: 'size-5'
-	};
-
-	const radiusClass: Record<TabsRadius, string> = {
-		none: 'rounded-none',
-		small: 'rounded-md',
-		medium: 'rounded-lg',
-		large: 'rounded-xl',
-		full: 'rounded-full'
-	};
-
-	const containerVariantClass: Record<TabsVariant, string> = {
-		surface: 'bg-surface-primary shadow',
-		classic: 'bg-transparent border border-border-primary'
-	};
-
-	const activeVariantClass: Record<TabsVariant, string> = {
-		surface: 'bg-primary text-surface-primary shadow-sm',
-		classic: 'bg-accent text-surface-primary shadow-sm'
-	};
-
-	const inactiveClass = 'text-secondary hover:text-primary border-0 bg-transparent';
+	function selectTab(tab: TabItem) {
+		if (disabled || tab.disabled || tab.id === active) return;
+		active = tab.id;
+		onChange?.(tab);
+	}
 </script>
 
-<div>
-	<!-- ITab bar -->
-	<div
-		role="tablist"
-		aria-disabled={disabled || undefined}
-		class="flex w-fit p-1 {radiusClass[radius]} {containerVariantClass[
-			variant
-		]} {parentKlass} {disabled ? 'opacity-50 grayscale-[0.3] pointer-events-none' : ''}"
-	>
+<div
+	class="ui-tabs ui-tabs--{variant} ui-tabs--{size} ui-tabs-radius--{radius} {className}"
+	style:--tabs-radius={borderRadius || undefined}
+	style:--tabs-container-radius={containerBorderRadius || undefined}
+>
+	<div role="tablist" aria-disabled={disabled || undefined} class="ui-tabs__list">
 		{#each tabs as tab (tab.id)}
-		{@const isActive = tab.id === active}
+			{@const selected = tab.id === active}
 			<button
+				type="button"
 				role="tab"
-				aria-selected={active === tab.id}
+				aria-selected={selected}
 				aria-disabled={disabled || tab.disabled}
-				onclick={() => {
-					if (!disabled && !tab.disabled) active = tab.id;
-				}}
-				class="inline-flex items-center font-medium transition-colors duration-300 ease-in-out {radiusClass[
-					radius
-				]} {sizeClass[size]} {tabKlass} {isActive
-					? activeVariantClass[variant]
-					: inactiveClass} {activeKlass}"
+				disabled={disabled || tab.disabled}
+				class:ui-tabs__tab--active={selected}
+				class="ui-tabs__tab {tabClass}"
+				onclick={() => selectTab(tab)}
 			>
-				<Icon icon={isActive ? tab.selectedIcon || tab.icon : tab.icon} klass="{iconSizeClass[size]} shrink-0" />
-				{tab.label}
-				{#if tab.badge != null}
-					<span
-						class="rounded-full px-1.5 py-0.5 text-[10px] leading-none font-semibold
-                        {isActive ? activeVariantClass[variant] : inactiveClass}"
-					>
-						{tab.badge}
-					</span>
+				{#if showIcons && iconPosition === 'left' && (tab.icon || tab.selectedIcon)}
+					<Icon icon={selected ? (tab.selectedIcon ?? tab.icon) : tab.icon} klass="ui-tabs__icon" />
+				{/if}
+				<span>{tab.label}</span>
+				{#if tab.badge !== undefined}<small class="ui-tabs__badge">{tab.badge}</small>{/if}
+				{#if showIcons && iconPosition === 'right' && (tab.icon || tab.selectedIcon)}
+					<Icon icon={selected ? (tab.selectedIcon ?? tab.icon) : tab.icon} klass="ui-tabs__icon" />
 				{/if}
 			</button>
 		{/each}
 	</div>
-
-	<!-- ITab panel -->
 	{#if children}
-		<div role="tabpanel" class="mt-4">
-			{@render children()}
-		</div>
+		<div role="tabpanel" class="ui-tabs__panel {panelClass}">{@render children()}</div>
 	{/if}
 </div>
+
+<style>
+	.ui-tabs {
+		width: 100%;
+		color: var(--text-primary);
+		font-family: var(--font-body);
+	}
+	.ui-tabs__list {
+		display: flex;
+		align-items: center;
+		width: fit-content;
+		max-width: 100%;
+		overflow-x: auto;
+	}
+	.ui-tabs__tab {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		gap: 6px;
+		border: 0;
+		background: transparent;
+		color: var(--text-tertiary);
+		font-family: inherit;
+		font-weight: 500;
+		white-space: nowrap;
+		transition: all 0.12s;
+		border-radius: var(--tabs-radius);
+	}
+	.ui-tabs__tab:hover:not(:disabled) {
+		color: var(--text-primary);
+	}
+	.ui-tabs__tab:disabled {
+		cursor: not-allowed;
+		opacity: 0.45;
+	}
+	.ui-tabs--xs .ui-tabs__tab {
+		height: 28px;
+		padding: 0 9px;
+		font-size: 10px;
+	}
+	.ui-tabs--sm .ui-tabs__tab {
+		height: 32px;
+		padding: 0 12px;
+		font-size: 11px;
+	}
+	.ui-tabs--md .ui-tabs__tab {
+		height: 38px;
+		padding: 0 16px;
+		font-size: 13px;
+	}
+	.ui-tabs--lg .ui-tabs__tab {
+		height: 42px;
+		padding: 0 18px;
+		font-size: 14px;
+	}
+	.ui-tabs--xl .ui-tabs__tab {
+		height: 46px;
+		padding: 0 20px;
+		font-size: 15px;
+	}
+	.ui-tabs--underline .ui-tabs__list,
+	.ui-tabs--classic .ui-tabs__list {
+		width: 100%;
+		border-bottom: 1px solid var(--border-primary);
+	}
+	.ui-tabs--underline .ui-tabs__tab,
+	.ui-tabs--classic .ui-tabs__tab {
+		margin-bottom: -1px;
+		border-bottom: 2px solid transparent;
+	}
+	.ui-tabs--underline .ui-tabs__tab--active,
+	.ui-tabs--classic .ui-tabs__tab--active {
+		border-bottom-color: var(--semantic-accent, #0891b2);
+		color: var(--semantic-accent, #0891b2);
+		font-weight: 700;
+	}
+	.ui-tabs--segmented .ui-tabs__list,
+	.ui-tabs--surface .ui-tabs__list {
+		gap: 1px;
+		padding: 3px;
+		border: 1px solid var(--border-primary);
+		border-radius: var(--tabs-container-radius, 6px);
+		background: var(--surface-secondary);
+	}
+	.ui-tabs--segmented .ui-tabs__tab,
+	.ui-tabs--surface .ui-tabs__tab {
+		height: 30px;
+		padding: 0 14px;
+		border-radius: var(--tabs-radius, 5px);
+		font-size: 12px;
+	}
+	.ui-tabs--segmented .ui-tabs__tab--active,
+	.ui-tabs--surface .ui-tabs__tab--active {
+		background: var(--surface-primary);
+		color: var(--semantic-accent, #0891b2);
+		font-weight: 700;
+		box-shadow: var(--shadow-sm);
+	}
+	.ui-tabs-radius--none {
+		--tabs-radius: 0;
+	}
+	.ui-tabs-radius--small {
+		--tabs-radius: 5px;
+	}
+	.ui-tabs-radius--medium {
+		--tabs-radius: 8px;
+	}
+	.ui-tabs-radius--large {
+		--tabs-radius: 12px;
+	}
+	.ui-tabs-radius--full {
+		--tabs-radius: 999px;
+	}
+	:global(.ui-tabs__icon) {
+		width: 14px;
+		height: 14px;
+	}
+	.ui-tabs__badge {
+		min-width: 18px;
+		padding: 1px 5px;
+		border-radius: 99px;
+		background: var(--surface-tertiary);
+		color: var(--text-tertiary);
+		font-size: 10px;
+		font-weight: 700;
+	}
+	.ui-tabs__tab--active .ui-tabs__badge {
+		background: color-mix(in srgb, var(--semantic-accent, #0891b2) 14%, transparent);
+		color: var(--semantic-accent, #0891b2);
+	}
+	.ui-tabs__panel {
+		padding-top: 16px;
+	}
+</style>

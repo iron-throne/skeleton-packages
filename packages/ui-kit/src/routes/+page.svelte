@@ -94,11 +94,16 @@
 			<a class="btn btn-muted w-fit" href="/folder-hierarchy">Open folder hierarchy</a>
 			<a class="btn btn-muted w-fit" href="/table">Open table </a>
 			<a class="btn btn-muted w-fit" href="/dropdown">Open dropdown </a>
+			<a class="btn btn-muted w-fit" href="/tabs-pagination">Open tabs & pagination </a>
+			<a class="btn btn-muted w-fit" href="/alert">Open alert</a>
+			<a class="btn btn-muted w-fit" href="/avatar">Open avatar</a>
+			<a class="btn btn-muted w-fit" href="/icon">Open icon</a>
+			<a class="btn btn-muted w-fit" href="/no-data">Open no data</a>
+			<a class="btn btn-muted w-fit" href="/loader">Open loader</a>
+			<a class="btn btn-muted w-fit" href="/tooltip">Open tooltip</a>
 			<a class="btn btn-outline w-fit" href="/theme">Open theme colors</a>
 		</div>
 	</section>
-
-
 </main>
 
 {#snippet SectionTitle(text: string)}

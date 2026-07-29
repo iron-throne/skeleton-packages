@@ -22,5 +22,14 @@ export { default as DataTable } from './data-table/DataTable.svelte';
 export { default as ConfirmDialog } from './modals/ConfirmDialog.svelte';
 export { default as Modal } from './modals/Modal.svelte';
 export { default as Pagination } from './pagination/Pagination.svelte';
+export type { PaginationProps, PaginationVariant } from './pagination/types';
 export { default as RichTextEditor } from './rich-text-editor/RichTextEditor.svelte';
 export { default as Tabs } from './tabs/Tabs.svelte';
+export type {
+	TabItem,
+	TabsIconPosition,
+	TabsProps,
+	TabsRadius,
+	TabsSize,
+	TabsVariant
+} from './tabs/types';
