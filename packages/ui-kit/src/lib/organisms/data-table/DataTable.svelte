@@ -1,3 +1,4 @@
+
 <!-- eslint-disable @typescript-eslint/no-unused-vars  -->
 <script lang="ts">
 	import type { Snippet } from 'svelte';
@@ -17,6 +18,7 @@
 		pageSizeOptions = [10, 25, 50],
 		emptyText = 'No data found.',
 		hidePagination = false,
+		paginationKlass = "",
 		actions,
 		CustomHeader,
 		CustomCell
@@ -29,6 +31,7 @@
 		pageSize?: number;
 		pageSizeOptions?: number[];
 		emptyText?: string;
+		paginationKlass?: string;
 		hidePagination?: boolean;
 		actions?: Snippet<[any]>;
 		CustomHeader?: Snippet<[TableColumn, number]>;
@@ -94,10 +97,10 @@
 </script>
 
 <div class="flex flex-col gap-3">
-	<div class="flex justify-between gap-2">
+	<div class="flex justify-between gap-2 items-baseline">
 		<!-- Search bar -->
 		{#if searchable}
-			<div class="relative w-full max-w-xs">
+			<div class="relative w-full max-w-xs h-fit">
 				<span class="text-tertiary pointer-events-none absolute top-1/2 left-3 -translate-y-1/2">
 					<Search width={14} height={14} />
 				</span>
@@ -114,7 +117,7 @@
 
 		<!-- Pagination -->
 		{#if !hidePagination}
-			<div class="px-2 pt-4">
+			<div class="px-2 {paginationKlass}">
 				<Pagination
 					bind:currentPage
 					bind:pageSize
