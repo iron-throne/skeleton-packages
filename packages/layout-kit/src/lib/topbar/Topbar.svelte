@@ -202,13 +202,13 @@
 				<div class="flex items-center gap-2">{@render leftSlot()}</div>
 			{/if}
 			{@render BrandMark()}
-			<div class="ml-auto flex items-center gap-3">
+			<div class="ml-auto flex items-center gap-3 pt-2">
 				{@render searchBar()}
 				{@render actionBar()}
 			</div>
 		</div>
 		<div class="border-t border-border-primary">
-			<div class="container mx-auto flex h-10 items-center justify-center px-2">
+			<div class="container mx-auto flex h-14 items-center justify-center p-2">
 				{@render navList()}
 			</div>
 		</div>
@@ -221,7 +221,7 @@
 				{@render BrandMark()}
 				{@render searchBar()}
 			</div>
-			<div class="flex items-center justify-center gap-4">
+			<div class="flex items-center justify-center gap-4 p-2">
 				{@render navList()}
 				{#if midSlot}{@render midSlot()}{/if}
 			</div>
@@ -260,7 +260,7 @@
 			{#if midSlot}
 				<div class="flex items-center gap-2">{@render midSlot()}</div>
 			{/if}
-			<div class="ml-auto flex items-center gap-3">
+			<div class="ml-auto flex items-center gap-3 pt-2">
 				{@render actionBar()}
 			</div>
 		</div>

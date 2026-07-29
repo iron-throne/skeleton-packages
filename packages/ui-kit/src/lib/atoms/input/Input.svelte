@@ -137,7 +137,7 @@
 			<button
 				type="button"
 				onclick={() => (showPassword = !showPassword)}
-				class="text-secondary hover:text-content-primary hover:text-accent absolute top-1/2 right-0 -translate-y-1/2 border-0 transition"
+				class="text-secondary hover:text-content-primary hover:text-accent absolute top-1/2 right-0 -translate-y-1/2 border-0 transition bg-transparent!"
 				aria-label="Toggle password visibility"
 			>
 				{#if showPassword}

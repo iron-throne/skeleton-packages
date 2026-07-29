@@ -2,11 +2,10 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
 	import { SortAlphaDown, SortAlphaUp, ArrowDownUp, Search } from 'svelte-bootstrap-icons';
-	import Pagination from '../pagination/Pagination.svelte';
-	import NoData from '../../atoms/no-data/NoData.svelte';
-	import SkeletonLoader from '../../atoms/skeleton-loader/SkeletonLoader.svelte';
 	import type { TableColumn } from '@aryagg/types';
 	import { parseInputValue } from '@aryagg/utils';
+	import { SkeletonLoader, NoData } from '$lib/atoms';
+	import { Pagination } from '..';
 
 	let {
 		columns,

@@ -234,12 +234,11 @@
 		{/if}
 
 		<div
-			class="
-    transition-all
-    duration-200
-
-    {collapsed ? 'max-w-0 opacity-0' : 'max-w-xs opacity-100'}
-    "
+			class="overflow-hidden transition-all duration-300 ease-[cubic-bezier(.22,1,.36,1)] {collapsed
+				? 'hidden'
+				: 'max-w-xs delay-100'}"
+			aria-hidden={collapsed}
+			inert={collapsed}
 		>
 			{#if headerSlot}
 				{@render headerSlot()}
@@ -277,7 +276,7 @@
 		{/each}
 	</nav>
 
-	<div class="shrink-0 border-t border-border-primary p-2">
+	<div class="shrink-0 border-t border-border-primary px-3 pt-2 pb-0">
 		{#if footerSlot}
 			{@render footerSlot()}
 		{:else}
@@ -298,8 +297,9 @@
 
 <aside
 	class="relative flex h-full shrink-0 flex-col
-		bg-surface-primary shadow
+		bg-surface-primary shadow pb-2
 		transition-all duration-300 ease-[cubic-bezier(.22,1,.36,1)]
+		{position === 'right' ? 'order-last border-l' : 'order-first border-r'} border-border-primary
 		{isHidden ? 'w-0 border-0 shadow-none opacity-0 pointer-events-none' : collapsed ? 'w-16' : 'w-60'}
 		{mainClass}"
 	aria-hidden={isHidden}
