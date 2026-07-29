@@ -1,4 +1,5 @@
 import { IFormField, EInputType, EDataType } from "@aryagg/types";
+import { formatDate } from "./date";
 
 export const isRequiredFilled = (field: IFormField): boolean => {
     if (!field.required) return true;
@@ -35,7 +36,7 @@ export const parseInputValue = (value: unknown, type?: EDataType): unknown => {
         case EDataType.BOOLEAN:
             return value === true || value === 'true' || value === 1 || value === '1';
         case EDataType.DATE:
-            return value instanceof Date ? value : new Date(value as string);
+            return value instanceof Date ? value : formatDate(value as string, { year: 'numeric', month: 'short', day: 'numeric', hour:'numeric', minute:"numeric",second:"numeric", hour12: true   });
         case EDataType.ARRAY:
             return Array.isArray(value) ? value : String(value).split(',');
     }

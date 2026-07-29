@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { SIZE_CLASS } from '$lib/constants';
+	import { ESize } from '@aryagg/types';
 	import { initials } from '@aryagg/utils';
 	import type { AvatarProps, AvatarSize } from './types';
 
@@ -34,16 +36,17 @@
 	<span
 		class="bg-accent/20 text-accent flex items-center justify-center
                overflow-hidden rounded-full font-semibold select-none
-               {sizeClass[size]}"
+               {sizeClass[size]} {avatarKlass}"
 	>
 		{#if showImage}
 			<img
 				{src}
 				alt={name || 'Avatar'}
-				class="h-full w-full object-cover"
+				class="h-full w-full object-cover {imgKlass}"
 				onerror={() => (imgError = true)}
 			/>
 		{:else}
+			{initials(name) || '?'}
 			{initials(name) || '?'}
 		{/if}
 	</span>
@@ -51,7 +54,7 @@
 	{#if status}
 		<span
 			class="ring-surface-primary absolute right-0 bottom-0 rounded-full
-                   {dotSize[size]} {statusClass[status]}"
+                   {dotSize[size]} {statusClass[status]} {dotKlass}"
 		></span>
 	{/if}
 </span>

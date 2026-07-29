@@ -3,6 +3,7 @@
 	import Badge from '$lib/atoms/badge/Badge.svelte';
 	import Button from '$lib/atoms/button/Button.svelte';
 	import Card from '$lib/atoms/card/Card.svelte';
+	import { ESize } from '@aryagg/types';
 	import { Building, Clock, Folder2Open, Stars, ThreeDotsVertical } from 'svelte-bootstrap-icons';
 </script>
 
@@ -126,7 +127,7 @@
 			<Card variant="panel" title="Quick access" badge="2 pinned" icon={Folder2Open}>
 				<ul class="divide-y divide-border-primary text-sm">
 					<li class="flex items-center gap-3 py-2.5">
-						<Avatar name="Sarah Chen" size="xs" />
+						<Avatar name="Sarah Chen" size={ESize.XS} />
 						<div class="min-w-0 flex-1">
 							<div class="truncate font-medium">Dubai Opera District - Tower 2</div>
 							<div class="text-[10px] text-tertiary">DXB-OPR-02 - Stage 5</div>
@@ -134,7 +135,7 @@
 						<span class="text-xs font-semibold">78%</span>
 					</li>
 					<li class="flex items-center gap-3 py-2.5">
-						<Avatar name="Marcus Weber" size="xs" />
+						<Avatar name="Marcus Weber" size={ESize.XS} />
 						<div class="min-w-0 flex-1">
 							<div class="truncate font-medium">Berlin Data Campus</div>
 							<div class="text-[10px] text-tertiary">BER-DC-04 - Handover</div>
