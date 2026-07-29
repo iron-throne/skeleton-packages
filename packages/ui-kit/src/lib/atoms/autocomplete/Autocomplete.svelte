@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { Check, ChevronDown, Search, XLg } from 'svelte-bootstrap-icons';
+	import Icon from '../icon/Icon.svelte';
 	import {
 		AUTOCOMPLETE_EMPTY_TEXT,
 		AUTOCOMPLETE_HELPER_CLASS,
@@ -7,12 +8,7 @@
 		AUTOCOMPLETE_SIZE_CLASS,
 		AUTOCOMPLETE_STATE_CLASS
 	} from './constants';
-	import type {
-		AutocompleteDensity,
-		AutocompleteOption,
-		AutocompleteState,
-		AutocompleteValue
-	} from './types';
+	import type { AutocompleteOption, AutocompleteProps, AutocompleteValue } from './types';
 
 	let {
 		id = crypto.randomUUID(),
@@ -28,40 +24,20 @@
 		clearable = false,
 		disabled = false,
 		loading = false,
+		searchable = true,
+		showSearchIcon = true,
+		showOptionIcons = true,
 		noDataText = AUTOCOMPLETE_EMPTY_TEXT,
 		class: klass = '',
 		onChange
-	}: {
-		id?: string;
-		label?: string;
-		value?: AutocompleteValue;
-		options?: AutocompleteOption[];
-		placeholder?: string;
-		helperText?: string;
-		state?: AutocompleteState;
-		density?: AutocompleteDensity;
-		multiple?: boolean;
-		chips?: boolean;
-		clearable?: boolean;
-		disabled?: boolean;
-		loading?: boolean;
-		noDataText?: string;
-		class?: string;
-		onChange?: (value: AutocompleteValue) => void;
-	} = $props();
+	}: AutocompleteProps = $props();
 
 	let query = $state('');
 	let open = $state(false);
 	let activeIndex = $state(0);
 
 	const selectedValues = $derived(
-		multiple
-			? Array.isArray(value)
-				? value
-				: []
-			: typeof value === 'string'
-				? [value]
-				: []
+		multiple ? (Array.isArray(value) ? value : []) : typeof value === 'string' ? [value] : []
 	);
 
 	const selectedOptions = $derived(
@@ -72,7 +48,7 @@
 
 	const filteredOptions = $derived.by(() => {
 		const search = query.trim().toLowerCase();
-		if (!search) return options;
+		if (!search || !searchable) return options;
 		return options.filter((option) =>
 			[option.label, option.value, option.description ?? '']
 				.join(' ')
@@ -81,7 +57,9 @@
 		);
 	});
 
-	const inputValue = $derived(multiple || open ? query : (selectedOptions[0]?.label ?? query));
+	const inputValue = $derived(
+		multiple || (open && searchable) ? query : (selectedOptions[0]?.label ?? query)
+	);
 	const describedBy = $derived(helperText ? `${id}-helper` : undefined);
 	const wrapperClass = $derived(
 		[
@@ -116,6 +94,12 @@
 		update(option.value);
 		query = option.label;
 		open = false;
+	}
+
+	function openSelect() {
+		if (disabled) return;
+		open = true;
+		if (searchable) query = '';
 	}
 
 	function removeValue(selectedValue: string) {
@@ -171,12 +155,24 @@
 
 	<div class="relative" onfocusout={handleFocusout}>
 		<div class={wrapperClass}>
-			<Search width={14} height={14} class="shrink-0 text-tertiary" />
+			{#if showOptionIcons && !multiple && !open && selectedOptions[0]?.icon}
+				<Icon
+					icon={selectedOptions[0].icon}
+					klass="size-4 text-tertiary {selectedOptions[0].iconClass ?? ''}"
+				/>
+			{:else if showSearchIcon && searchable}
+				<Search width={14} height={14} class="shrink-0 text-tertiary" />
+			{/if}
 
 			{#if multiple && chips && selectedOptions.length}
 				<div class="flex max-w-full flex-wrap gap-1">
 					{#each selectedOptions as option}
-						<span class="inline-flex items-center gap-1 rounded-full bg-accent/10 px-2 py-0.5 text-[10px] font-semibold text-accent">
+						<span
+							class="inline-flex items-center gap-1 rounded-full bg-accent/10 px-2 py-0.5 text-[10px] font-semibold text-accent"
+						>
+							{#if showOptionIcons && option.icon}
+								<Icon icon={option.icon} klass="size-3 {option.iconClass ?? ''}" />
+							{/if}
 							{option.label}
 							<button
 								type="button"
@@ -200,10 +196,12 @@
 				aria-describedby={describedBy}
 				{disabled}
 				{placeholder}
+				readonly={!searchable}
 				value={inputValue}
 				class="min-w-24 flex-1 border-0 bg-transparent p-0 text-sm outline-none placeholder:text-tertiary focus:ring-0"
-				onfocus={() => !disabled && (open = true)}
+				onfocus={openSelect}
 				oninput={(event) => {
+					if (!searchable) return;
 					query = (event.target as HTMLInputElement).value;
 					open = true;
 					activeIndex = 0;
@@ -253,15 +251,23 @@
 							onmouseenter={() => (activeIndex = index)}
 							onclick={() => selectOption(option)}
 						>
-							<span class="grid size-4 shrink-0 place-items-center text-accent">
-								{#if selected}
-									<Check width={14} height={14} />
-								{/if}
-							</span>
+							{#if showOptionIcons && option.icon}
+								<span
+									class="grid size-6 shrink-0 place-items-center rounded bg-surface-tertiary text-tertiary"
+								>
+									<Icon icon={option.icon} klass="size-3.5 {option.iconClass ?? ''}" />
+								</span>
+							{/if}
 							<span class="min-w-0 flex-1">
 								<span class="block truncate font-medium">{option.label}</span>
 								{#if option.description}
-									<span class="block truncate text-[10px] text-secondary">{option.description}</span>
+									<span class="block truncate text-[10px] text-secondary">{option.description}</span
+									>
+								{/if}
+							</span>
+							<span class="grid size-4 shrink-0 place-items-center text-accent">
+								{#if selected}
+									<Check width={14} height={14} />
 								{/if}
 							</span>
 						</button>
@@ -272,6 +278,8 @@
 	</div>
 
 	{#if helperText}
-		<p id={`${id}-helper`} class="text-xs {AUTOCOMPLETE_HELPER_CLASS[validationState]}">{helperText}</p>
+		<p id={`${id}-helper`} class="text-xs {AUTOCOMPLETE_HELPER_CLASS[validationState]}">
+			{helperText}
+		</p>
 	{/if}
 </div>

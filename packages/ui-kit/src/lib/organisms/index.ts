@@ -1,4 +1,22 @@
 export { default as Breadcrumb } from './bread-crumb/Breadcrumb.svelte';
+export { default as AdvancedTable } from './advanced-table/AdvancedTable.svelte';
+export { default as AdvancedFolderHierarchy } from './advanced-folder-hierarchy/AdvancedFolderHierarchy.svelte';
+export type {
+	AdvancedFolderHierarchyFilter,
+	AdvancedFolderHierarchyGroupField,
+	AdvancedFolderHierarchyNode,
+	AdvancedFolderHierarchyProps,
+	AdvancedFolderHierarchyRecord,
+	AdvancedFolderHierarchySpaceConfig
+} from './advanced-folder-hierarchy/types';
+export type {
+	AdvancedTableColumn,
+	AdvancedTableFilterGroup,
+	AdvancedTableFilterOption,
+	AdvancedTableProps,
+	AdvancedTableRow,
+	AdvancedTableView
+} from './advanced-table/types';
 export { default as Chart } from './chart/Chart.svelte';
 export { default as DataTable } from './data-table/DataTable.svelte';
 export { default as ConfirmDialog } from './modals/ConfirmDialog.svelte';

@@ -1,34 +1,48 @@
 import type { AutocompleteOption } from '$lib/atoms/autocomplete/types';
+import {
+	Building,
+	Buildings,
+	Hospital,
+	House,
+	TrainFront,
+	TrainLightrailFront
+} from 'svelte-bootstrap-icons';
 
 export const PROJECT_OPTIONS: AutocompleteOption[] = [
 	{
 		label: 'Crossrail 2 - Tottenham Court Station',
 		value: 'crossrail-tcr',
+		icon: TrainFront,
 		description: 'London, UK - Stage 4 Technical Design'
 	},
 	{
 		label: 'Dubai Opera District - Tower 2',
 		value: 'dubai-opera-t2',
+		icon: Building,
 		description: 'Dubai, UAE - Stage 5 Construction'
 	},
 	{
 		label: 'Berlin Data Campus',
 		value: 'berlin-data-campus',
+		icon: Buildings,
 		description: 'Berlin, DE - Handover'
 	},
 	{
 		label: 'Manchester Hospital Redevelopment',
 		value: 'manchester-hospital',
+		icon: Hospital,
 		description: 'Manchester, UK - Coordination'
 	},
 	{
 		label: 'Sydney Residences',
 		value: 'sydney-residences',
+		icon: House,
 		description: 'Sydney, AU - Asset handover'
 	},
 	{
 		label: 'Tokyo Rail Interchange',
 		value: 'tokyo-rail',
+		icon: TrainLightrailFront,
 		description: 'Tokyo, JP - Clash review'
 	}
 ];

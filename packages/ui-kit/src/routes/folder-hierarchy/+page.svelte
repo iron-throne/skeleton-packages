@@ -2,8 +2,36 @@
 	import Button from '$lib/atoms/button/Button.svelte';
 	import Card from '$lib/atoms/card/Card.svelte';
 	import FolderHierarchy from '$lib/atoms/folder-hierarchy/FolderHierarchy.svelte';
+	import AdvancedFolderHierarchy from '$lib/organisms/advanced-folder-hierarchy/AdvancedFolderHierarchy.svelte';
 	import { FolderPlus, Search } from 'svelte-bootstrap-icons';
-	import { DOCUMENT_TREE } from './constants';
+	import {
+		CLASSIFICATION_TREE,
+		DOCUMENT_TREE,
+		SPACE_FILTERS,
+		SPACE_GROUP_FIELDS,
+		SPACE_RECORDS,
+		SPACE_TREE
+	} from './constants';
+
+	let checkedDisciplines = $state<string[]>(['architectural', 'concept', 'detailed-design']);
+	let spaceFilters = $state([...SPACE_FILTERS]);
+	let activeSpaceFilter = $state('file-type');
+	let expandedSpaces = $state<string[]>(['rvt']);
+
+	function addSavedSpace(config: { name: string; groupBy: string[]; levels: number }) {
+		const id = `saved-${Date.now()}`;
+		spaceFilters = [
+			...spaceFilters,
+			{
+				id,
+				label: config.name,
+				display: true,
+				groupBy: config.groupBy,
+				levels: config.levels
+			}
+		];
+		activeSpaceFilter = id;
+	}
 </script>
 
 <main class="min-h-screen overflow-auto bg-surface-tertiary px-4 py-6 text-primary sm:px-6 lg:px-8">
@@ -24,6 +52,28 @@
 		</section>
 
 		<section class="grid gap-4">
+			<div class="max-w-[312px]">
+				<AdvancedFolderHierarchy
+					items={SPACE_TREE}
+					records={SPACE_RECORDS}
+					filters={spaceFilters}
+					groupFields={SPACE_GROUP_FIELDS}
+					bind:activeFilter={activeSpaceFilter}
+					bind:expandedIds={expandedSpaces}
+					footerCount="47 total"
+					onCreateSpace={addSavedSpace}
+				/>
+			</div>
+
+			<FolderHierarchy
+				title="Discipline"
+				items={CLASSIFICATION_TREE}
+				variant="v3"
+				checkboxes
+				showIcons={false}
+				bind:checkedIds={checkedDisciplines}
+			/>
+
 			<FolderHierarchy
 				title="Folder hierarchy"
 				items={DOCUMENT_TREE}
@@ -62,9 +112,15 @@
 					badge="status"
 				>
 					<ul class="space-y-2 text-xs leading-5 text-secondary">
-						<li><span class="font-semibold text-success">active</span> marks live working folders.</li>
-						<li><span class="font-semibold text-info">review</span> marks coordination or approval steps.</li>
-						<li><span class="font-semibold text-error">locked</span> marks controlled published areas.</li>
+						<li>
+							<span class="font-semibold text-success">active</span> marks live working folders.
+						</li>
+						<li>
+							<span class="font-semibold text-info">review</span> marks coordination or approval steps.
+						</li>
+						<li>
+							<span class="font-semibold text-error">locked</span> marks controlled published areas.
+						</li>
 						<li><span class="font-semibold text-primary">draft</span> marks unissued documents.</li>
 					</ul>
 				</Card>

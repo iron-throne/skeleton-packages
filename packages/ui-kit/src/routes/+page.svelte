@@ -93,25 +93,12 @@
 			<a class="btn btn-muted w-fit" href="/input">Open input </a>
 			<a class="btn btn-muted w-fit" href="/folder-hierarchy">Open folder hierarchy</a>
 			<a class="btn btn-muted w-fit" href="/table">Open table </a>
+			<a class="btn btn-muted w-fit" href="/dropdown">Open dropdown </a>
 			<a class="btn btn-outline w-fit" href="/theme">Open theme colors</a>
 		</div>
 	</section>
 
-	<section class="card mt-6 max-w-xl space-y-4">
-		<div>
-			<p class="section-label">Badge</p>
-			<h2 class="mt-2 text-lg">V3 project statuses</h2>
-		</div>
 
-		<div class="flex flex-wrap items-center gap-2">
-			<Badge variant="success" appearance="solid" size="sm" uppercase>Active</Badge>
-			<Badge variant="blue">Stage 4</Badge>
-			<Badge variant="red">142 issues</Badge>
-			<Badge variant="green">94% ISO</Badge>
-		</div>
-
-		<a class="text-sm font-medium text-accent" href="/badge">View all Badge options →</a>
-	</section>
 </main>
 
 {#snippet SectionTitle(text: string)}

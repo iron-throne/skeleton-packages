@@ -85,7 +85,7 @@
 			<div class="ui-image-loading" aria-hidden="true"></div>
 		{/if}
 
-		{#if showFallback}
+		{#if showFallback && !showBlueprint}
 			<div class="ui-image-fallback">
 				<CardImage width={26} height={26} aria-hidden="true" />
 				<span>{fallbackText}</span>

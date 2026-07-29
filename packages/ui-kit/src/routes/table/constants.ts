@@ -1,4 +1,10 @@
 import type { DocumentTableRow } from '$lib/atoms/document-table/types';
+import type {
+	AdvancedTableColumn,
+	AdvancedTableFilterGroup,
+	AdvancedTableRow,
+	AdvancedTableView
+} from '$lib/organisms/advanced-table/types';
 
 export const DOCUMENT_ROWS: DocumentTableRow[] = [
 	{
@@ -120,5 +126,128 @@ export const DOCUMENT_ROWS: DocumentTableRow[] = [
 		owner: 'Marcus Weber',
 		size: '3.1 MB',
 		modified: '2024-12-16 12:35'
+	}
+];
+
+export const ADVANCED_TABLE_ROWS: AdvancedTableRow[] = DOCUMENT_ROWS.map((row) => ({
+	...row,
+	name: row.document,
+	ref: row.code,
+	author: row.owner
+}));
+
+export const ADVANCED_TABLE_COLUMNS: AdvancedTableColumn[] = [
+	{ key: 'name', label: 'Document', sortable: true, width: '320px' },
+	{ key: 'ref', label: 'Reference', sortable: true },
+	{ key: 'fileType', label: 'File type', sortable: true, align: 'center' },
+	{ key: 'suit', label: 'Suitability', sortable: true, align: 'center' },
+	{ key: 'rev', label: 'Revision', sortable: true, align: 'center' },
+	{ key: 'status', label: 'Status', sortable: true },
+	{ key: 'modified', label: 'Modified', sortable: true },
+	{ key: 'discipline', label: 'Discipline', sortable: true, align: 'center' },
+	{ key: 'author', label: 'Author', sortable: true }
+];
+
+const count = (key: keyof DocumentTableRow, value: string) =>
+	DOCUMENT_ROWS.filter((row) => String(row[key]) === value).length;
+
+export const ADVANCED_TABLE_FILTERS: AdvancedTableFilterGroup[] = [
+	{
+		key: 'fileType',
+		label: 'File type',
+		options: ['RVT', 'IFC', 'DWG', 'PDF', 'XLS', 'NWD', 'DOC'].map((value) => ({
+			value,
+			label: value,
+			badge: value,
+			count: count('fileType', value)
+		}))
+	},
+	{
+		key: 'status',
+		label: 'Status',
+		options: [
+			{ value: 'draft', label: 'Draft', color: '#64748b', count: count('status', 'draft') },
+			{
+				value: 'in-review',
+				label: 'In review',
+				color: '#f59e0b',
+				count: count('status', 'in-review')
+			},
+			{
+				value: 'for-approval',
+				label: 'For approval',
+				color: '#8b5cf6',
+				count: count('status', 'for-approval')
+			},
+			{
+				value: 'approved',
+				label: 'Approved',
+				color: '#10b981',
+				count: count('status', 'approved')
+			},
+			{
+				value: 'published',
+				label: 'Published',
+				color: '#0891b2',
+				count: count('status', 'published')
+			}
+		]
+	},
+	{
+		key: 'discipline',
+		label: 'Discipline',
+		options: ['ARC', 'STR', 'MEP', 'CIV', 'QA', 'FM'].map((value) => ({
+			value,
+			label: value,
+			count: count('discipline', value)
+		}))
+	},
+	{
+		key: 'suit',
+		label: 'Suitability',
+		options: ['S1', 'S2', 'S3', 'S4', 'A1', 'A2'].map((value) => ({
+			value,
+			label: value,
+			count: count('suit', value)
+		}))
+	},
+	{
+		key: 'workspace',
+		label: 'Folder',
+		options: ['WIP', 'Shared', 'Published'].map((value) => ({
+			value,
+			label: value,
+			count: count('workspace', value)
+		}))
+	}
+];
+
+export const ADVANCED_TABLE_VIEWS: AdvancedTableView[] = [
+	{
+		id: 'default',
+		name: 'Default',
+		columns: ['name', 'fileType', 'suit', 'rev', 'status', 'modified'],
+		default: true
+	},
+	{
+		id: 'document-control',
+		name: 'Document Control',
+		columns: ['name', 'ref', 'status', 'rev', 'modified']
+	},
+	{
+		id: 'engineering',
+		name: 'Engineering',
+		columns: ['name', 'discipline', 'fileType', 'suit', 'rev']
+	},
+	{
+		id: 'approval',
+		name: 'Approval',
+		columns: ['name', 'status', 'suit', 'rev', 'author']
+	},
+	{
+		id: 'latest',
+		name: 'Latest Submissions',
+		columns: ['name', 'modified', 'status', 'author'],
+		personal: true
 	}
 ];
