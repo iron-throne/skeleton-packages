@@ -51,12 +51,3 @@ export type DropdownMenuProps = {
 	footer?: Snippet<[DropdownHeaderContext]>;
 	onSelect?: (item: DropdownItem) => void;
 };
-
-export type MenuListProps = {
-	menus: DropdownItem[];
-	align?: 'left' | 'right';
-	variant?: DropdownVariant;
-	menuClass?: string;
-	selected?: string;
-	onSelect?: (item: DropdownItem) => void;
-};

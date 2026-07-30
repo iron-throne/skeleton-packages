@@ -19,7 +19,9 @@
 	];
 
 	let requestTab = $state('rfi');
+	let classicTab = $state('rfp');
 	let documentTab = $state('structured');
+	let surfaceTab = $state('history');
 	let currentPage = $state(5);
 	let pageSize = $state(25);
 </script>
@@ -30,7 +32,8 @@
 			<p class="text-xs font-semibold uppercase tracking-wider text-secondary">Organisms</p>
 			<h1>Tabs and pagination</h1>
 			<p class="max-w-2xl text-sm leading-6 text-secondary">
-				V3 underline and segmented tabs, plus responsive bordered pagination controls.
+				Underline, classic, segmented and surface tabs, plus responsive bordered pagination
+				controls.
 			</p>
 		</header>
 
@@ -51,6 +54,24 @@
 				iconPosition="left"
 			>
 				<p class="text-sm text-secondary">Active document view: <strong>{documentTab}</strong></p>
+			</Tabs>
+		</Card>
+
+		<Card variant="panel" title="Classic tabs">
+			<Tabs
+				tabs={requestTabs}
+				bind:active={classicTab}
+				variant="classic"
+				showIcons={false}
+				borderRadius="6px 6px 0 0"
+			>
+				<p class="text-sm text-secondary">Active classic view: <strong>{classicTab}</strong></p>
+			</Tabs>
+		</Card>
+
+		<Card variant="panel" title="Surface tabs">
+			<Tabs tabs={documentTabs} bind:active={surfaceTab} variant="surface" showIcons>
+				<p class="text-sm text-secondary">Active surface view: <strong>{surfaceTab}</strong></p>
 			</Tabs>
 		</Card>
 

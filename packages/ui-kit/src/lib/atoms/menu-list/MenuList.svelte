@@ -1,6 +1,7 @@
 <script lang="ts">
-	import DropdownMenuItem from './DropdownMenuItem.svelte';
-	import type { DropdownItem, MenuListProps } from './types';
+	import DropdownMenuItem from '../dropdown/DropdownMenuItem.svelte';
+	import type { DropdownItem } from '../dropdown/types';
+	import type { MenuListProps } from './types';
 
 	let {
 		menus,

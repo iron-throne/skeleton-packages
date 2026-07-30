@@ -8,7 +8,6 @@ export { default as Icon } from './icon/Icon.svelte';
 export { default as MetricCard } from './card/Card.svelte';
 export { default as DocumentTable } from './document-table/DocumentTable.svelte';
 export { default as DropdownMenu } from './dropdown/DropdownMenu.svelte';
-export { default as MenuList } from './dropdown/MenuList.svelte';
 export type {
 	DropdownHeaderContext,
 	DropdownItem,
@@ -16,9 +15,10 @@ export type {
 	DropdownPlacement,
 	DropdownTriggerContext,
 	DropdownVariant,
-	DropdownWidth,
-	MenuListProps
+	DropdownWidth
 } from './dropdown/types';
+export { default as MenuList } from './menu-list/MenuList.svelte';
+export type { MenuListProps } from './menu-list/types';
 export { default as FolderHierarchy } from './folder-hierarchy/FolderHierarchy.svelte';
 export { default as Image } from './image/Image.svelte';
 export { default as Input } from './input/Input.svelte';
