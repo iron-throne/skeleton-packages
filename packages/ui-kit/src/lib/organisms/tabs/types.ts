@@ -29,6 +29,7 @@ export type TabsProps = {
 	iconPosition?: TabsIconPosition;
 	class?: string;
 	tabClass?: string;
+	tabStyle?: string | ((tab: TabItem, selected: boolean) => string);
 	panelClass?: string;
 	children?: Snippet;
 	onChange?: (tab: TabItem) => void;

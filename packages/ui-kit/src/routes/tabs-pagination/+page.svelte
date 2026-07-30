@@ -52,6 +52,7 @@
 				containerBorderRadius="20px"
 				showIcons
 				iconPosition="left"
+	
 			>
 				<p class="text-sm text-secondary">Active document view: <strong>{documentTab}</strong></p>
 			</Tabs>

@@ -17,6 +17,7 @@
 		iconPosition = 'left',
 		class: className = '',
 		tabClass = '',
+		tabStyle: customTabStyle = '',
 		panelClass = '',
 		onChange
 	}: TabsProps = $props();
@@ -56,15 +57,15 @@
 		if (variant === 'segmented') {
 			return `h-[30px] border border-transparent px-3.5 text-xs ${
 				selected
-					? 'border-accent! bg-accent! font-bold text-on-accent! shadow-sm'
-					: 'bg-transparent! text-secondary!'
+					? 'border-accent! font-bold shadow-sm'
+					: ''
 			}`;
 		}
 		if (variant === 'surface') {
 			return `h-[30px] px-3.5 text-xs ${
 				selected
-					? 'bg-surface-primary! font-bold text-accent! shadow-sm'
-					: 'bg-transparent! text-secondary!'
+					? 'font-bold shadow-sm'
+					: ''
 			}`;
 		}
 		if (variant === 'classic') {
@@ -79,26 +80,12 @@
 		}`;
 	}
 
-	function tabStyle(selected: boolean) {
-		const values = [
-			borderRadius && `border-radius:${borderRadius}`,
-			`--button-shadow:${selected && (variant === 'segmented' || variant === 'surface') ? 'var(--shadow-sm)' : 'none'}`
-		];
-		if (variant === 'segmented') {
-			values.push(
-				`--button-bg:${selected ? 'var(--semantic-accent)' : 'transparent'}`,
-				`--button-color:${selected ? 'var(--on-accent)' : 'var(--text-secondary)'}`,
-				`--button-hover-bg:${selected ? 'var(--semantic-accent)' : 'var(--surface-primary)'}`,
-				`--button-hover-color:${selected ? 'var(--on-accent)' : 'var(--text-primary)'}`
-			);
-		} else if (variant === 'surface') {
-			values.push(
-				`--button-bg:${selected ? 'var(--surface-primary)' : 'transparent'}`,
-				`--button-color:${selected ? 'var(--semantic-accent)' : 'var(--text-secondary)'}`
-			);
-		} else {
-			values.push('--button-bg:transparent');
-		}
+	function getTabStyle(tab: TabItem, selected: boolean) {
+		const values = [borderRadius && `border-radius:${borderRadius}`];
+		const parentStyle =
+			typeof customTabStyle === 'function' ? customTabStyle(tab, selected) : customTabStyle;
+		values.push(parentStyle);
+
 		return values.filter(Boolean).join(';');
 	}
 
@@ -131,9 +118,10 @@
 				aria-selected={selected}
 				aria-disabled={disabled || tab.disabled}
 				disabled={disabled || tab.disabled}
-				class="inline-flex items-center justify-center gap-1.5 whitespace-nowrap font-medium transition-all duration-150 disabled:cursor-not-allowed disabled:opacity-45
+				data-variant={variant}
+				class="tabs__tab inline-flex items-center justify-center gap-1.5 whitespace-nowrap font-medium transition-all duration-150 disabled:cursor-not-allowed disabled:opacity-45
 					{tabVariantClass(selected)} {radiusClass} {tabClass}"
-				style={tabStyle(selected)}
+				style={getTabStyle(tab, selected)}
 				onclick={() => selectTab(tab)}
 			>
 				{#if showIcons && iconPosition === 'left' && (tab.icon || tab.selectedIcon)}
@@ -162,3 +150,34 @@
 		<div role="tabpanel" class="pt-4 {panelClass}">{@render children()}</div>
 	{/if}
 </div>
+
+<style>
+	.tabs__tab {
+		--button-bg: transparent;
+		--button-shadow: none;
+	}
+
+	.tabs__tab[data-variant='segmented'] {
+		--button-color: var(--text-secondary);
+		--button-hover-bg: var(--surface-primary);
+		--button-hover-color: var(--text-primary);
+	}
+
+	.tabs__tab[data-variant='segmented'][aria-selected='true'] {
+		--button-bg: var(--semantic-accent);
+		--button-color: var(--on-accent);
+		--button-hover-bg: var(--semantic-accent);
+		--button-hover-color: var(--on-accent);
+		--button-shadow: var(--shadow-sm);
+	}
+
+	.tabs__tab[data-variant='surface'] {
+		--button-color: var(--text-secondary);
+	}
+
+	.tabs__tab[data-variant='surface'][aria-selected='true'] {
+		--button-bg: var(--surface-primary);
+		--button-color: var(--semantic-accent);
+		--button-shadow: var(--shadow-sm);
+	}
+</style>
