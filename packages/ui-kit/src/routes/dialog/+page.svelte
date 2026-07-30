@@ -9,15 +9,16 @@
 	let dangerOpen = $state(false);
 </script>
 
-<svelte:head><title>Dialog · UI Kit</title></svelte:head>
+<svelte:head><title>Dialog / Modal · UI Kit</title></svelte:head>
 
 <main class="min-h-screen overflow-auto bg-surface-tertiary px-4 py-6 text-primary sm:px-6 lg:px-8">
 	<div class="mx-auto max-w-5xl space-y-8">
 		<header class="space-y-2">
 			<p class="text-xs font-semibold uppercase tracking-wider text-secondary">Organism</p>
-			<h1>Dialog</h1>
+			<h1>Dialog / Modal</h1>
 			<p class="max-w-2xl text-sm leading-6 text-secondary">
-				Theme-aware dialogs with reusable headers, content, footers, sizes and semantic states.
+				One reusable component for dialogs and modal workflows, with configurable headers,
+				content, footers, sizes and semantic states.
 			</p>
 		</header>
 

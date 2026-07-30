@@ -118,17 +118,20 @@
 					href: '/confirm-dialog'
 				},
 				{
-					name: 'Dialog',
-					description: 'Accessible themed overlays and focused workflows.',
+					name: 'Dialog / Modal',
+					description: 'Accessible themed overlays, modals and focused workflows.',
 					href: '/dialog'
 				},
-				{ name: 'Modal', description: 'Legacy modal composition.', href: '/dialog' },
 				{
 					name: 'Pagination',
 					description: 'Responsive page and page-size navigation.',
 					href: '/tabs-pagination'
 				},
-				{ name: 'Rich Text Editor', description: 'Formatted content authoring.' },
+				{
+					name: 'Rich Text Editor',
+					description: 'Formatted content authoring.',
+					href: '/rich-text-editor'
+				},
 				{
 					name: 'Tabs',
 					description: 'Underline and segmented content navigation.',
