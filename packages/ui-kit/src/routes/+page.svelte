@@ -112,8 +112,17 @@
 					description: 'Sortable and searchable tabular data.',
 					href: '/table'
 				},
-				{ name: 'Confirm Dialog', description: 'Focused confirmation for important actions.' },
-				{ name: 'Modal', description: 'Accessible overlay content and workflows.' },
+				{
+					name: 'Confirm Dialog',
+					description: 'Focused confirmation for important actions.',
+					href: '/confirm-dialog'
+				},
+				{
+					name: 'Dialog',
+					description: 'Accessible themed overlays and focused workflows.',
+					href: '/dialog'
+				},
+				{ name: 'Modal', description: 'Legacy modal composition.', href: '/dialog' },
 				{
 					name: 'Pagination',
 					description: 'Responsive page and page-size navigation.',

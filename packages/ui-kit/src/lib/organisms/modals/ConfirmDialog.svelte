@@ -5,7 +5,7 @@
 	import { ExclamationTriangleFill } from 'svelte-bootstrap-icons';
 	import { ESize, type IconType } from '@aryagg/types';
 
-	type Variant = 'danger' | 'warning' | 'info';
+	type Variant = 'danger' | 'warning' | 'info' | 'success';
 
 	let {
 		open = $bindable(false),
@@ -15,6 +15,7 @@
 		cancelLabel = 'Cancel',
 		variant = 'warning',
 		loading = false,
+		showActions = true,
 		isAbsoluteIcon = false,
 		parentKlass,
 		msgKlass,
@@ -30,6 +31,8 @@
 		cancelLabel?: string;
 		variant?: Variant;
 		loading?: boolean;
+		/** Set to false to use the component as an actionless message popup. */
+		showActions?: boolean;
 		parentKlass?: string;
 		msgKlass?: string;
 		isAbsoluteIcon?: boolean;
@@ -43,7 +46,8 @@
 	const btnClass: Record<Variant, string> = {
 		danger: 'bg-error text-white hover:bg-error/90',
 		warning: 'bg-warning text-content-primary hover:bg-warning/90',
-		info: 'bg-accent text-white hover:bg-accent/90'
+		info: 'bg-accent text-white hover:bg-accent/90',
+		success: 'bg-success text-on-success hover:bg-success/90'
 	};
 
 	const handleConfirm = async () => {
@@ -62,7 +66,7 @@
 	size={ESize.SM}
 	closeOnBackdrop={!loading}
 	closeOnEsc={!loading}
-	footerKlass="border-t-0"
+	footerKlass="border-t-0 {showActions ? '' : 'hidden'}"
 >
 	<div class="flex flex-col gap-2 {parentKlass}">
 		{#if iconSlot}
@@ -74,7 +78,9 @@
 					? 'border-error bg-error'
 					: variant === 'warning'
 						? 'border-warning bg-warning'
-						: 'border-info bg-info'}"
+						: variant === 'success'
+							? 'border-success bg-success'
+							: 'border-info bg-info'}"
 			>
 				{@render ConfirmIcon()}
 			</div>
@@ -121,11 +127,13 @@
 	<div class="flex justify-center">
 		<span
 			class="size-22 rounded-full flex items-center justify-center
-					{variant === 'danger'
+			{variant === 'danger'
 				? 'bg-error text-on-error'
 				: variant === 'warning'
 					? 'bg-warning text-on-warning'
-					: 'bg-info text-on-info'}"
+					: variant === 'success'
+						? 'bg-success text-on-success'
+						: 'bg-info text-on-info'}"
 		>
 			<Icon {icon} klass="size-14" />
 		</span>
