@@ -99,54 +99,41 @@
 	});
 </script>
 
-{#if trigger}
-	<div
-		bind:this={wrapperEl}
-		role="presentation"
-		class="relative inline-block w-full text-sm"
-		use:clickOutside={close}
-	>
-		<!-- Trigger slot -->
-		{@render trigger({ open, toggle, close })}
+<div
+	bind:this={wrapperEl}
+	role="presentation"
+	class="relative inline-block w-full text-sm"
+	use:clickOutside={close}
+>
+	<!-- Trigger slot -->
+	{@render trigger({ open, toggle, close })}
 
-		<!-- Menu panel: portaled to <body> and positioned with fixed coordinates. -->
-		{#if open}
-			<div
-				use:portal
-				data-dropdown-menu
-				style={panelStyle}
-				style:width={panelWidth}
-				style:max-height={maxHeight}
-				transition:scale={{ duration: 160, start: 0.94, opacity: 0, easing: cubicOut }}
-				class="fixed z-60 min-w-40 overflow-auto border border-border-primary bg-surface-primary shadow-lg {variant ===
-				'rounded'
-					? 'rounded-xl'
-					: 'rounded-lg'} {menuClass ?? ''}"
-				role="menu"
-			>
-				{#if header}
-					<div class="border-b border-border-primary px-3.5 py-3">{@render header({ close })}</div>
-				{/if}
-				<div class={variant === 'rounded' ? 'p-2' : 'py-1'}>
-					{#each menus as menu, ind (menu.id ?? ind)}
-						<DropdownMenuItem {menu} {align} {variant} onNavigate={selectItem} bind:selected />
-					{/each}
-				</div>
-				{#if footer}
-					<div class="border-t border-border-primary px-3.5 py-3">{@render footer({ close })}</div>
-				{/if}
+	<!-- Menu panel: portaled to <body> and positioned with fixed coordinates. -->
+	{#if open}
+		<div
+			use:portal
+			data-dropdown-menu
+			style={panelStyle}
+			style:width={panelWidth}
+			style:max-height={maxHeight}
+			transition:scale={{ duration: 160, start: 0.94, opacity: 0, easing: cubicOut }}
+			class="fixed z-60 min-w-40 overflow-auto border border-border-primary bg-surface-primary shadow-lg {variant ===
+			'rounded'
+				? 'rounded-xl'
+				: 'rounded-lg'} {menuClass ?? ''}"
+			role="menu"
+		>
+			{#if header}
+				<div class="border-b border-border-primary px-3.5 py-3">{@render header({ close })}</div>
+			{/if}
+			<div class={variant === 'rounded' ? 'p-2' : 'py-1'}>
+				{#each menus as menu, ind (menu.id ?? ind)}
+					<DropdownMenuItem {menu} {align} {variant} onNavigate={selectItem} bind:selected />
+				{/each}
 			</div>
-		{/if}
-	</div>
-{:else}
-	<div
-		class="w-full overflow-auto border border-border-primary bg-surface-primary shadow-lg {variant ===
-		'rounded'
-			? 'rounded-xl'
-			: 'rounded-lg'} {menuClass ?? ''}"
-	>
-		{#each menus as menu, ind (menu.id ?? ind)}
-			<DropdownMenuItem {menu} {align} {variant} onNavigate={selectItem} bind:selected />
-		{/each}
-	</div>
-{/if}
+			{#if footer}
+				<div class="border-t border-border-primary px-3.5 py-3">{@render footer({ close })}</div>
+			{/if}
+		</div>
+	{/if}
+</div>

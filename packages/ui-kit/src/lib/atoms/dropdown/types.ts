@@ -46,8 +46,17 @@ export type DropdownMenuProps = {
 	menuClass?: string;
 	selected?: string;
 	closeOnSelect?: boolean;
-	trigger?: Snippet<[DropdownTriggerContext]>;
+	trigger: Snippet<[DropdownTriggerContext]>;
 	header?: Snippet<[DropdownHeaderContext]>;
 	footer?: Snippet<[DropdownHeaderContext]>;
+	onSelect?: (item: DropdownItem) => void;
+};
+
+export type MenuListProps = {
+	menus: DropdownItem[];
+	align?: 'left' | 'right';
+	variant?: DropdownVariant;
+	menuClass?: string;
+	selected?: string;
 	onSelect?: (item: DropdownItem) => void;
 };

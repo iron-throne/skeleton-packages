@@ -8,7 +8,11 @@
 		PeopleFill,
 		BarChartFill,
 		FolderFill,
-		FileEarmarkTextFill
+		FileEarmarkTextFill,
+		LayoutTextWindow,
+		LayoutSidebarInset,
+		Window,
+		BoxArrowInRight
 	} from 'svelte-bootstrap-icons';
 
 	// Shared placeholder logomark reused across every component preview below.
@@ -16,13 +20,34 @@
 		"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232563eb'/%3E%3Ctext x='16' y='22' font-family='sans-serif' font-size='16' font-weight='700' fill='white' text-anchor='middle'%3EA%3C/text%3E%3C/svg%3E";
 
 	const sections = [
-		{ id: 'topbar', label: 'Topbar' },
-		{ id: 'sidebar', label: 'Collapsible Sidebar' },
-		{ id: 'landing', label: 'Landing Pages' },
-		{ id: 'login', label: 'Login' }
+		{
+			id: 'topbar',
+			label: 'Topbar',
+			icon: LayoutTextWindow,
+			description: 'Responsive application header with brand, nav, search, language and profile menu.'
+		},
+		{
+			id: 'sidebar',
+			label: 'Collapsible Sidebar',
+			icon: LayoutSidebarInset,
+			description: 'Icon-rail navigation with grouped items, flyouts, dividers and disabled states.'
+		},
+		{
+			id: 'landing',
+			label: 'Landing Pages',
+			icon: Window,
+			description: 'High-impact public-facing hero and search-driven landing sections.'
+		},
+		{
+			id: 'login',
+			label: 'Login',
+			icon: BoxArrowInRight,
+			description: 'Simple, split and cover presentations sharing one base props API.'
+		}
 	] as const;
 
 	let activeComponent = $state<(typeof sections)[number]['id']>('topbar');
+	const activeSection = $derived(sections.find((s) => s.id === activeComponent)!);
 
 	// ── Topbar demo ─────────────────────────────────────────────
 	const topbarVariants = ['default', 'centered', 'stacked', 'minimal'] as const;
@@ -117,79 +142,96 @@
 
 <svelte:head>
 	<title>Layout Kit · Component Showcase</title>
-	<meta
-		name="description"
-		content="Live preview of every component in @aryagg/layout-kit."
-	/>
+	<meta name="description" content="Live preview of every component in @aryagg/layout-kit." />
 </svelte:head>
 
-{#snippet SegButtons(options: readonly string[], active: string, onPick: (v: any) => void)}
-	<div class="flex flex-wrap gap-1.5">
-		{#each options as opt (opt)}
-			<button
-				type="button"
-				class="rounded-md px-2.5 py-1.5 text-xs font-medium capitalize transition-colors {active === opt
-					? 'bg-blue-600 text-white'
-					: 'border border-slate-300 bg-white text-slate-600 hover:bg-slate-50'}"
-				onclick={() => onPick(opt)}
-			>
-				{opt}
-			</button>
-		{/each}
+{#snippet PickerField(label: string, options: readonly string[], active: string, onPick: (v: any) => void)}
+	<div>
+		<p class="mb-2 text-[11px] font-semibold uppercase tracking-wider text-tertiary">{label}</p>
+		<div class="flex flex-wrap gap-1.5">
+			{#each options as opt (opt)}
+				<button
+					type="button"
+					class="rounded-md px-2.5 py-1.5 text-xs font-medium capitalize transition-colors {active === opt
+						? 'bg-accent text-on-accent'
+						: 'border border-border-primary bg-surface-primary text-secondary hover:bg-surface-tertiary'}"
+					onclick={() => onPick(opt)}
+				>
+					{opt}
+				</button>
+			{/each}
+		</div>
 	</div>
 {/snippet}
 
-<div class="min-h-screen bg-white text-slate-900">
-	<header class="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur">
-		<div class="flex flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-8">
-			<div>
-				<h1 class="text-base font-bold tracking-tight">@aryagg/layout-kit</h1>
-				<p class="text-xs text-slate-500">Select a component to preview it live</p>
-			</div>
-			<nav class="flex flex-wrap gap-1" aria-label="Components">
-				{#each sections as section (section.id)}
-					<button
-						type="button"
-						onclick={() => (activeComponent = section.id)}
-						class="rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors {activeComponent === section.id
-							? 'bg-blue-600 text-white'
-							: 'text-slate-600 hover:bg-blue-50 hover:text-blue-700'}"
-					>
-						{section.label}
-					</button>
-				{/each}
-			</nav>
+{#snippet Toggle(label: string, checked: boolean, onToggle: () => void)}
+	<label class="flex cursor-pointer items-center gap-2 text-sm text-secondary">
+		<input type="checkbox" class="accent-accent" {checked} onchange={onToggle} />
+		{label}
+	</label>
+{/snippet}
+
+{#snippet PropsPanel(
+	title: string,
+	description: string,
+	pickers: import('svelte').Snippet,
+	toggles: import('svelte').Snippet
+)}
+	<div>
+		<h2 class="text-xl font-bold text-primary">{title}</h2>
+		<p class="mt-1 max-w-2xl text-sm text-secondary">{description}</p>
+	</div>
+	<div class="mt-4 rounded-xl border border-border-primary bg-surface-secondary p-4 sm:p-5">
+		<div class="flex flex-wrap gap-x-8 gap-y-4">
+			{@render pickers()}
 		</div>
-	</header>
+		<div class="mt-4 flex flex-wrap gap-x-5 gap-y-2 border-t border-border-primary pt-4">
+			{@render toggles()}
+		</div>
+	</div>
+{/snippet}
 
-	<main class="px-4 py-8 sm:px-8 h-[90vh]">
+<div class="min-h-screen bg-surface-tertiary text-primary lg:flex">
+	<aside
+		class="shrink-0 border-b border-border-primary bg-surface-primary lg:sticky lg:top-0 lg:h-screen lg:w-52 lg:border-r lg:border-b-0"
+	>
+		<div class="px-4 py-4">
+			<h1 class="text-sm font-bold tracking-tight text-primary">@aryagg/layout-kit</h1>
+			<p class="mt-0.5 text-[11px] text-tertiary">Component showcase</p>
+		</div>
+		<nav class="flex gap-1 overflow-x-auto px-2 pb-3 lg:flex-col lg:overflow-visible lg:px-3" aria-label="Components">
+			{#each sections as section (section.id)}
+				<button
+					type="button"
+					onclick={() => (activeComponent = section.id)}
+					class="flex shrink-0 items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold whitespace-nowrap transition-colors lg:w-full {activeComponent ===
+					section.id
+						? 'bg-accent text-on-accent'
+						: 'text-secondary hover:bg-surface-tertiary hover:text-accent'}"
+				>
+					<section.icon class="size-4 shrink-0" />
+					{section.label}
+				</button>
+			{/each}
+		</nav>
+	</aside>
+
+	<main class="min-w-0 flex-1 px-4 py-6 sm:px-8">
 		<!-- TOPBAR -->
-		<section class="space-y-4" class:hidden={activeComponent !== 'topbar'}>
-			<div>
-				<h2 class="text-xl font-bold">Topbar</h2>
-				<p class="mt-1 max-w-2xl text-sm text-slate-500">
-					Responsive application header — brand, nav, search, language switch, theme toggle and profile menu, in 4 layout variants.
-				</p>
-			</div>
+		<section class="flex flex-col gap-4" class:hidden={activeComponent !== 'topbar'}>
+			{#snippet topbarPickers()}
+				{@render PickerField('variant', topbarVariants, topbarVariant, (v) => (topbarVariant = v))}
+				{@render PickerField('menuLayout', topbarMenuLayouts, topbarMenuLayout, (v) => (topbarMenuLayout = v))}
+			{/snippet}
+			{#snippet topbarToggles()}
+				{@render Toggle('logoSrc', showTopbarLogo, () => (showTopbarLogo = !showTopbarLogo))}
+				{@render Toggle('searchField', showSearchField, () => (showSearchField = !showSearchField))}
+				{@render Toggle('languages', showLanguages, () => (showLanguages = !showLanguages))}
+				{@render Toggle('profileItems', showProfileMenu, () => (showProfileMenu = !showProfileMenu))}
+			{/snippet}
+			{@render PropsPanel(activeSection.label, activeSection.description, topbarPickers, topbarToggles)}
 
-			<div class="flex flex-wrap items-start gap-x-8 gap-y-4 rounded-lg border border-slate-200 bg-slate-50 p-4">
-				<div>
-					<p class="mb-2 text-[11px] font-semibold uppercase tracking-wider text-slate-500">variant</p>
-					{@render SegButtons(topbarVariants, topbarVariant, (v) => (topbarVariant = v))}
-				</div>
-				<div>
-					<p class="mb-2 text-[11px] font-semibold uppercase tracking-wider text-slate-500">menuLayout</p>
-					{@render SegButtons(topbarMenuLayouts, topbarMenuLayout, (v) => (topbarMenuLayout = v))}
-				</div>
-				<div class="flex flex-wrap gap-x-5 gap-y-2 self-center">
-					<label class="flex cursor-pointer items-center gap-2 text-sm text-slate-700"><input type="checkbox" class="accent-blue-600" bind:checked={showTopbarLogo} /> logoSrc</label>
-					<label class="flex cursor-pointer items-center gap-2 text-sm text-slate-700"><input type="checkbox" class="accent-blue-600" bind:checked={showSearchField} /> searchField</label>
-					<label class="flex cursor-pointer items-center gap-2 text-sm text-slate-700"><input type="checkbox" class="accent-blue-600" bind:checked={showLanguages} /> languages</label>
-					<label class="flex cursor-pointer items-center gap-2 text-sm text-slate-700"><input type="checkbox" class="accent-blue-600" bind:checked={showProfileMenu} /> profileItems</label>
-				</div>
-			</div>
-
-			<div class="overflow-hidden rounded-lg border border-slate-200">
+			<div class="overflow-hidden rounded-lg border border-border-primary">
 				<Topbar
 					variant={topbarVariant}
 					brand="Acme"
@@ -209,35 +251,30 @@
 					showThemeToggle
 					bind:theme={topbarTheme}
 				/>
-				<div class="flex h-24 items-center justify-center bg-slate-50 text-sm text-slate-400">Page content renders below the topbar</div>
+				<div class="flex h-24 items-center justify-center bg-surface-tertiary text-sm text-tertiary">
+					Page content renders below the topbar
+				</div>
 			</div>
 		</section>
 
 		<!-- SIDEBAR -->
-		<section class="space-y-4" class:hidden={activeComponent !== 'sidebar'}>
-			<div>
-				<h2 class="text-xl font-bold">Collapsible Sidebar</h2>
-				<p class="mt-1 max-w-2xl text-sm text-slate-500">
-					Icon-rail navigation sidebar with grouped items, flyouts, dividers, disabled states and left/right docking.
-				</p>
-			</div>
+		<section class="flex flex-col gap-4" class:hidden={activeComponent !== 'sidebar'}>
+			{#snippet sidebarPickers()}
+				{@render PickerField('position', sidebarPositions, sidebarPosition, (v) => (sidebarPosition = v))}
+				{@render PickerField(
+					'collapsedMode',
+					sidebarCollapsedModes,
+					sidebarCollapsedMode,
+					(v) => (sidebarCollapsedMode = v)
+				)}
+			{/snippet}
+			{#snippet sidebarToggles()}
+				{@render Toggle('collapsible', sidebarCollapsible, () => (sidebarCollapsible = !sidebarCollapsible))}
+				{@render Toggle('collapsed', sidebarCollapsed, () => (sidebarCollapsed = !sidebarCollapsed))}
+			{/snippet}
+			{@render PropsPanel(activeSection.label, activeSection.description, sidebarPickers, sidebarToggles)}
 
-			<div class="flex flex-wrap items-start gap-x-8 gap-y-4 rounded-lg border border-slate-200 bg-slate-50 p-4">
-				<div>
-					<p class="mb-2 text-[11px] font-semibold uppercase tracking-wider text-slate-500">position</p>
-					{@render SegButtons(sidebarPositions, sidebarPosition, (v) => (sidebarPosition = v))}
-				</div>
-				<div>
-					<p class="mb-2 text-[11px] font-semibold uppercase tracking-wider text-slate-500">collapsedMode</p>
-					{@render SegButtons(sidebarCollapsedModes, sidebarCollapsedMode, (v) => (sidebarCollapsedMode = v))}
-				</div>
-				<div class="flex flex-wrap gap-x-5 gap-y-2 self-center">
-					<label class="flex cursor-pointer items-center gap-2 text-sm text-slate-700"><input type="checkbox" class="accent-blue-600" bind:checked={sidebarCollapsible} /> collapsible</label>
-					<label class="flex cursor-pointer items-center gap-2 text-sm text-slate-700"><input type="checkbox" class="accent-blue-600" bind:checked={sidebarCollapsed} /> collapsed</label>
-				</div>
-			</div>
-
-			<div class="overflow-hidden rounded-lg border border-slate-200">
+			<div class="overflow-hidden rounded-lg border border-border-primary">
 				<div class="relative flex h-128">
 					<CollapsibleSidebar
 						menus={sidebarMenus}
@@ -247,48 +284,42 @@
 						bind:collapsed={sidebarCollapsed}
 						logosrc={demoLogo}
 					>
-						{#snippet headerSlot()}<span class="text-sm font-bold text-slate-900">Acme</span>{/snippet}
+						{#snippet headerSlot()}<span class="text-sm font-bold text-primary">Acme</span>{/snippet}
 					</CollapsibleSidebar>
-					<div class="flex flex-1 flex-col gap-4 bg-slate-50 p-6">
+					<div class="flex flex-1 flex-col gap-4 bg-surface-tertiary p-6">
 						<div class="grid grid-cols-3 gap-3">
-							<div class="h-16 rounded-lg bg-white shadow-sm"></div>
-							<div class="h-16 rounded-lg bg-white shadow-sm"></div>
-							<div class="h-16 rounded-lg bg-white shadow-sm"></div>
+							<div class="h-16 rounded-lg bg-surface-primary shadow-sm"></div>
+							<div class="h-16 rounded-lg bg-surface-primary shadow-sm"></div>
+							<div class="h-16 rounded-lg bg-surface-primary shadow-sm"></div>
 						</div>
-						<div class="flex-1 rounded-lg bg-white shadow-sm"></div>
+						<div class="flex-1 rounded-lg bg-surface-primary shadow-sm"></div>
 					</div>
 				</div>
 			</div>
 		</section>
 
 		<!-- LANDING PAGES -->
-		<section class="space-y-4" class:hidden={activeComponent !== 'landing'}>
-			<div>
-				<h2 class="text-xl font-bold">Landing Pages</h2>
-				<p class="mt-1 max-w-2xl text-sm text-slate-500">
-					Two presentation variants — <code class="rounded bg-slate-100 px-1 py-0.5 font-mono text-[13px]">LandingPageHero</code>
-					and <code class="rounded bg-slate-100 px-1 py-0.5 font-mono text-[13px]">LandingPageSearch</code> — high-impact public-facing sections.
-				</p>
-			</div>
-
-			<div class="flex flex-wrap items-start gap-x-8 gap-y-4 rounded-lg border border-slate-200 bg-slate-50 p-4">
-				<div>
-					<p class="mb-2 text-[11px] font-semibold uppercase tracking-wider text-slate-500">variant</p>
-					{@render SegButtons(landingVariants, activeLandingVariant, (v) => (activeLandingVariant = v))}
-				</div>
-				<div class="flex flex-wrap gap-x-5 gap-y-2 self-center">
-					{#if activeLandingVariant === 'hero'}
-						<label class="flex cursor-pointer items-center gap-2 text-sm text-slate-700"><input type="checkbox" class="accent-blue-600" bind:checked={showHeroLogo} /> logo</label>
-						<label class="flex cursor-pointer items-center gap-2 text-sm text-slate-700"><input type="checkbox" class="accent-blue-600" bind:checked={hideHeroDivider} /> hideDivider</label>
-					{:else}
-						<label class="flex cursor-pointer items-center gap-2 text-sm text-slate-700"><input type="checkbox" class="accent-blue-600" bind:checked={showLandingSearchButton} /> showSearch</label>
-					{/if}
-				</div>
-			</div>
-
-			<div class="overflow-hidden rounded-lg border border-slate-200 ">
+		<section class="flex flex-col gap-4" class:hidden={activeComponent !== 'landing'}>
+			{#snippet landingPickers()}
+				{@render PickerField('variant', landingVariants, activeLandingVariant, (v) => (activeLandingVariant = v))}
+			{/snippet}
+			{#snippet landingToggles()}
 				{#if activeLandingVariant === 'hero'}
-					<div class="h-[80vh] bg-white">
+					{@render Toggle('logo', showHeroLogo, () => (showHeroLogo = !showHeroLogo))}
+					{@render Toggle('hideDivider', hideHeroDivider, () => (hideHeroDivider = !hideHeroDivider))}
+				{:else}
+					{@render Toggle(
+						'showSearch',
+						showLandingSearchButton,
+						() => (showLandingSearchButton = !showLandingSearchButton)
+					)}
+				{/if}
+			{/snippet}
+			{@render PropsPanel(activeSection.label, activeSection.description, landingPickers, landingToggles)}
+
+			<div class="overflow-hidden rounded-lg border border-border-primary">
+				{#if activeLandingVariant === 'hero'}
+					<div class="h-[520px] bg-surface-primary">
 						<LandingPageHero
 							title="Acme"
 							heading="Build something great"
@@ -314,35 +345,30 @@
 		</section>
 
 		<!-- LOGIN -->
-		<section class="space-y-4" class:hidden={activeComponent !== 'login'}>
-			<div>
-				<h2 class="text-xl font-bold">Login</h2>
-				<p class="mt-1 max-w-2xl text-sm text-slate-500">
-					Three presentation variants — <code class="rounded bg-slate-100 px-1 py-0.5 font-mono text-[13px]">LoginSimple</code>,
-					<code class="rounded bg-slate-100 px-1 py-0.5 font-mono text-[13px]">LoginSplit</code> and
-					<code class="rounded bg-slate-100 px-1 py-0.5 font-mono text-[13px]">LoginCover</code> — sharing one base props API.
-				</p>
-			</div>
-
-			<div class="flex flex-wrap items-start gap-x-8 gap-y-4 rounded-lg border border-slate-200 bg-slate-50 p-4">
-				<div>
-					<p class="mb-2 text-[11px] font-semibold uppercase tracking-wider text-slate-500">variant</p>
-					{@render SegButtons(loginVariants, activeLoginVariant, (v) => (activeLoginVariant = v))}
-				</div>
+		<section class="flex flex-col gap-4" class:hidden={activeComponent !== 'login'}>
+			{#snippet loginPickers()}
+				{@render PickerField('variant', loginVariants, activeLoginVariant, (v) => (activeLoginVariant = v))}
 				{#if activeLoginVariant === 'split'}
-					<div>
-						<p class="mb-2 text-[11px] font-semibold uppercase tracking-wider text-slate-500">imagePosition</p>
-						{@render SegButtons(loginImagePositions, loginImagePosition, (v) => (loginImagePosition = v))}
-					</div>
+					{@render PickerField(
+						'imagePosition',
+						loginImagePositions,
+						loginImagePosition,
+						(v) => (loginImagePosition = v)
+					)}
 				{/if}
-				<div class="flex flex-wrap gap-x-5 gap-y-2 self-center">
-					<label class="flex cursor-pointer items-center gap-2 text-sm text-slate-700"><input type="checkbox" class="accent-blue-600" bind:checked={loginShowRememberMe} /> showRememberMe</label>
-					<label class="flex cursor-pointer items-center gap-2 text-sm text-slate-700"><input type="checkbox" class="accent-blue-600" bind:checked={loginShowForgotPassword} /> showForgotPassword</label>
-					<label class="flex cursor-pointer items-center gap-2 text-sm text-slate-700"><input type="checkbox" class="accent-blue-600" bind:checked={loginShowSignUpLink} /> showSignUpLink</label>
-				</div>
-			</div>
+			{/snippet}
+			{#snippet loginToggles()}
+				{@render Toggle('showRememberMe', loginShowRememberMe, () => (loginShowRememberMe = !loginShowRememberMe))}
+				{@render Toggle(
+					'showForgotPassword',
+					loginShowForgotPassword,
+					() => (loginShowForgotPassword = !loginShowForgotPassword)
+				)}
+				{@render Toggle('showSignUpLink', loginShowSignUpLink, () => (loginShowSignUpLink = !loginShowSignUpLink))}
+			{/snippet}
+			{@render PropsPanel(activeSection.label, activeSection.description, loginPickers, loginToggles)}
 
-			<div class="overflow-hidden rounded-lg border border-slate-200">
+			<div class="overflow-hidden rounded-lg border border-border-primary">
 				{#if activeLoginVariant === 'simple'}
 					<LoginSimple
 						appName="Acme"

@@ -57,7 +57,7 @@
 </script>
 
 <div
-	class="w-full font-sans text-primary {className}"
+	class="text-primary {className}"
 	style:border-radius={containerBorderRadius || undefined}
 >
 	<div
@@ -80,7 +80,7 @@
 					: `-mb-px border-b-2 border-transparent ${sizeClass} ${selected ? 'border-b-accent font-bold text-accent' : ''}`}
 					{radiusClass} {tabClass}"
 				style:border-radius={borderRadius || undefined}
-				onclick={() => selectTab(tab)}
+				onclick={() => selectTab(tab)} 
 			>
 				{#if showIcons && iconPosition === 'left' && (tab.icon || tab.selectedIcon)}
 					<Icon icon={selected ? (tab.selectedIcon ?? tab.icon) : tab.icon} klass="h-3.5 w-3.5" />
