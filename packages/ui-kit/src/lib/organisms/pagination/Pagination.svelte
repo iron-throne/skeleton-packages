@@ -22,10 +22,12 @@
 	const from = $derived(totalItems ? (currentPage - 1) * pageSize + 1 : 0);
 	const to = $derived(totalItems ? Math.min(currentPage * pageSize, totalItems) : 0);
 	const controlSize = $derived(
-		variant === 'compact' ? 'h-[26px] min-w-[26px] text-[11px]' : 'h-[30px] min-w-[30px] text-xs'
+		variant === 'compact'
+			? 'h-[26px] min-w-[26px] text-[11px] [--button-height:26px]'
+			: 'h-[30px] min-w-[30px] text-xs [--button-height:30px]'
 	);
 	const controlClass = $derived(
-		`grid place-items-center rounded-[5px] border border-border-primary bg-surface-primary px-1.5 font-semibold text-primary transition-all duration-150 hover:border-accent hover:text-accent disabled:cursor-not-allowed disabled:opacity-40 ${controlSize}`
+		`grid place-items-center rounded-[5px] border border-border-primary px-1.5 font-semibold transition-all duration-150 [--button-padding-inline:6px] [--button-radius:5px] [--button-hover-color:var(--semantic-accent)] hover:border-accent disabled:cursor-not-allowed disabled:opacity-40 ${controlSize}`
 	);
 	const pages = $derived.by(() => {
 		if (totalPages <= siblingCount * 2 + 5) {
@@ -89,7 +91,7 @@
 			<label class="flex items-center gap-1.5 text-[11px] text-tertiary">
 				<span>Rows</span>
 				<select
-					class="h-[30px] rounded-[5px] border border-border-primary bg-surface-primary px-2 text-[11px] text-primary"
+					class="h-[30px]! w-14! appearance-auto! rounded-[5px]! bg-surface-primary! px-2! py-0! text-[11px]! leading-none! text-primary!"
 					value={pageSize}
 					onchange={changeSize}
 				>
@@ -115,7 +117,7 @@
 				{:else}
 					<button
 						class="{controlClass} {page === currentPage
-							? 'border-accent bg-accent text-white hover:text-white'
+							? 'border-accent [--button-bg:var(--semantic-accent)] [--button-color:var(--on-accent)] [--button-border-color:var(--semantic-accent)] [--button-hover-bg:var(--semantic-accent)] [--button-hover-color:var(--on-accent)]'
 							: ''}"
 						type="button"
 						aria-current={page === currentPage ? 'page' : undefined}

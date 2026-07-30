@@ -150,34 +150,3 @@
 		<div role="tabpanel" class="pt-4 {panelClass}">{@render children()}</div>
 	{/if}
 </div>
-
-<style>
-	.tabs__tab {
-		--button-bg: transparent;
-		--button-shadow: none;
-	}
-
-	.tabs__tab[data-variant='segmented'] {
-		--button-color: var(--text-secondary);
-		--button-hover-bg: var(--surface-primary);
-		--button-hover-color: var(--text-primary);
-	}
-
-	.tabs__tab[data-variant='segmented'][aria-selected='true'] {
-		--button-bg: var(--semantic-accent);
-		--button-color: var(--on-accent);
-		--button-hover-bg: var(--semantic-accent);
-		--button-hover-color: var(--on-accent);
-		--button-shadow: var(--shadow-sm);
-	}
-
-	.tabs__tab[data-variant='surface'] {
-		--button-color: var(--text-secondary);
-	}
-
-	.tabs__tab[data-variant='surface'][aria-selected='true'] {
-		--button-bg: var(--surface-primary);
-		--button-color: var(--semantic-accent);
-		--button-shadow: var(--shadow-sm);
-	}
-</style>

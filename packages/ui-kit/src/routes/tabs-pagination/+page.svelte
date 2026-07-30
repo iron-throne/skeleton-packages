@@ -64,6 +64,7 @@
 				bind:active={classicTab}
 				variant="classic"
 				showIcons={false}
+
 				borderRadius="6px 6px 0 0"
 			>
 				<p class="text-sm text-secondary">Active classic view: <strong>{classicTab}</strong></p>
