@@ -21,6 +21,8 @@ export { default as Chart } from './chart/Chart.svelte';
 export { default as DataTable } from './data-table/DataTable.svelte';
 export { default as ConfirmDialog } from './modals/ConfirmDialog.svelte';
 export { default as Modal } from './modals/Modal.svelte';
+export { default as Dialog } from './dialog/Dialog.svelte';
+export type { DialogProps, DialogRadius, DialogVariant } from './dialog/types';
 export { default as Pagination } from './pagination/Pagination.svelte';
 export type { PaginationProps, PaginationVariant } from './pagination/types';
 export { default as RichTextEditor } from './rich-text-editor/RichTextEditor.svelte';
