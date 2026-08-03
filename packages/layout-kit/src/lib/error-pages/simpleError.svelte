@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import { LightbulbOff, ArrowClockwise, ArrowRight, ArrowLeft } from 'svelte-bootstrap-icons';
+	import { LightbulbOff, ArrowClockwise, ArrowLeft } from 'svelte-bootstrap-icons';
 	import { errorTitle, errorHint } from '@aryagg/utils';
 	import { resolve } from '$app/paths';
 	import type { HttpStatus, IconType } from '@aryagg/types';
