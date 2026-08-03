@@ -4,7 +4,9 @@
 		CollapsibleSidebar,
 		LandingPageHero,
 		LandingPageSearch,
-		ErrorSimple
+		ErrorSimple,
+		ErrorOverlayIcon,
+		ErrorCard
 	} from '$lib';
 	import { LoginSimple, LoginSplit, LoginCover, type LoginCredentials } from '$lib/login';
 	import { ETheme, EInputType, HttpStatus, type IMenu } from '@aryagg/types';
@@ -159,6 +161,8 @@
 	}
 
 	// ── Error Pages demo ─────────────────────────────────────────────
+	const errorVariants = ['simple', 'overlay', 'card'] as const;
+	let activeErrorVariant = $state<(typeof errorVariants)[number]>('simple');
 	const errorStatusLabels = ['404', '403', '500', '400'] as const;
 	const errorStatusByLabel: Record<(typeof errorStatusLabels)[number], HttpStatus> = {
 		'404': HttpStatus.NOT_FOUND,
@@ -596,16 +600,40 @@
 							<div
 								class="h-[600px] overflow-hidden rounded-xl border border-border-primary bg-surface-primary shadow-sm"
 							>
-								<ErrorSimple
-									status={errorStatus}
-									title={errorPageTitle}
-									hint={errorPageHint}
-									hideIcon={errorHideIcon}
-									mainKlass="min-h-full!"
-								/>
+								{#if activeErrorVariant === 'simple'}
+									<ErrorSimple
+										status={errorStatus}
+										title={errorPageTitle}
+										hint={errorPageHint}
+										hideIcon={errorHideIcon}
+										mainKlass="min-h-full!"
+									/>
+								{:else if activeErrorVariant === 'overlay'}
+									<ErrorOverlayIcon
+										status={errorStatus}
+										title={errorPageTitle}
+										hint={errorPageHint}
+										hideIcon={errorHideIcon}
+										mainKlass="min-h-full!"
+									/>
+								{:else}
+									<ErrorCard
+										status={errorStatus}
+										title={errorPageTitle}
+										hint={errorPageHint}
+										hideIcon={errorHideIcon}
+										mainKlass="min-h-full!"
+									/>
+								{/if}
 							</div>
 
 							{#snippet errorPickers()}
+								{@render PickerField(
+									'variant',
+									errorVariants,
+									activeErrorVariant,
+									(v) => (activeErrorVariant = v)
+								)}
 								{@render PickerField(
 									'status',
 									errorStatusLabels,
