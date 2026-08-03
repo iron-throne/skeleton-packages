@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import { LightbulbOff } from 'svelte-bootstrap-icons';
+	import { LightbulbOff, ArrowClockwise, ArrowLeft } from 'svelte-bootstrap-icons';
 	import { errorTitle, errorHint } from '@aryagg/utils';
 	import { resolve } from '$app/paths';
 	import type { HttpStatus, IconType } from '@aryagg/types';
@@ -76,7 +76,15 @@
 						<span class="inline-block transition-transform group-hover:translate-x-1">→</span>
 					</a>
 
-					<button onclick={() => history.back()} class="btn btn-secondary"> Go back </button>
+					<button onclick={() => history.back()} class="btn btn-secondary">
+						Go back
+						<ArrowLeft class="size-4" />
+					</button>
+
+					<button onclick={() => location.reload()} class="btn btn-outline">
+						<ArrowClockwise class="size-4" />
+						Refresh
+					</button>
 				</div>
 			{/if}
 		</div>

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import { LightbulbOff } from 'svelte-bootstrap-icons';
+	import { ArrowClockwise, ArrowLeft, LightbulbOff } from 'svelte-bootstrap-icons';
 	import { errorTitle, errorHint } from '@aryagg/utils';
 	import { resolve } from '$app/paths';
 	import type { HttpStatus, IconType } from '@aryagg/types';
@@ -77,7 +77,14 @@
 			{:else}
 				<div class="mt-4 flex w-full flex-col gap-2">
 					<a href={resolve('/')} class="btn btn-primary w-full"> GO TO HOME </a>
-					<button onclick={() => history.back()} class="btn btn-secondary w-full"> Go back </button>
+					<button onclick={() => history.back()} class="btn btn-secondary">
+						Go back
+						<ArrowLeft class="size-4" />
+					</button>
+					<button onclick={() => location.reload()} class="btn btn-outline">
+						<ArrowClockwise class="size-4" />
+						Refresh
+					</button>
 				</div>
 			{/if}
 		</div>
