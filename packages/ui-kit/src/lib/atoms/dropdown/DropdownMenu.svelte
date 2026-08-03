@@ -18,6 +18,7 @@
 		header,
 		footer,
 		menuClass,
+		activeKlass,
 		selected = $bindable(),
 		closeOnSelect = true,
 		onSelect
@@ -128,7 +129,14 @@
 			{/if}
 			<div class={variant === 'rounded' ? 'p-2' : 'py-1'}>
 				{#each menus as menu, ind (menu.id ?? ind)}
-					<DropdownMenuItem {menu} {align} {variant} onNavigate={selectItem} bind:selected />
+					<DropdownMenuItem
+						{menu}
+						{align}
+						{variant}
+						onNavigate={selectItem}
+						bind:selected
+						{activeKlass}
+					/>
 				{/each}
 			</div>
 			{#if footer}
