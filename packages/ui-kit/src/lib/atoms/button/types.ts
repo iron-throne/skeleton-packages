@@ -28,10 +28,7 @@ export type ButtonProps = Omit<
 	/** Text content. May be replaced with the children snippet for richer content. */
 	label?: string;
 	children?: Snippet;
-	class?: string;
-	/** @deprecated Use class instead. */
 	klass?: string;
-	/** @deprecated Use class instead. */
 	classes?: string;
 	variant?: ButtonVariant;
 	size?: ESize;
