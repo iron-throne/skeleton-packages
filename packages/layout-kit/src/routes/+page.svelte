@@ -6,7 +6,8 @@
 		LandingPageSearch,
 		ErrorSimple,
 		ErrorOverlayIcon,
-		ErrorCard
+		ErrorCard,
+		ErrorSplit
 	} from '$lib';
 	import { LoginSimple, LoginSplit, LoginCover, type LoginCredentials } from '$lib/login';
 	import { ETheme, EInputType, HttpStatus, type IMenu } from '@aryagg/types';
@@ -161,7 +162,7 @@
 	}
 
 	// ── Error Pages demo ─────────────────────────────────────────────
-	const errorVariants = ['simple', 'overlay', 'card'] as const;
+	const errorVariants = ['simple', 'overlay', 'card', 'split'] as const;
 	let activeErrorVariant = $state<(typeof errorVariants)[number]>('simple');
 	const errorStatusLabels = ['404', '403', '500', '400'] as const;
 	const errorStatusByLabel: Record<(typeof errorStatusLabels)[number], HttpStatus> = {
@@ -616,8 +617,16 @@
 										hideIcon={errorHideIcon}
 										mainKlass="min-h-full!"
 									/>
-								{:else}
+								{:else if activeErrorVariant === 'card'}
 									<ErrorCard
+										status={errorStatus}
+										title={errorPageTitle}
+										hint={errorPageHint}
+										hideIcon={errorHideIcon}
+										mainKlass="min-h-full!"
+									/>
+								{:else}
+									<ErrorSplit
 										status={errorStatus}
 										title={errorPageTitle}
 										hint={errorPageHint}

@@ -13,4 +13,4 @@ export {
 export { CollapsibleSidebar } from './sidebar';
 export type { CollapsibleSidebarProps, SidebarMenuItem, SidebarPosition } from './sidebar';
 
-export { ErrorSimple, ErrorOverlayIcon, ErrorCard } from './error-pages';
+export { ErrorSimple, ErrorOverlayIcon, ErrorCard, ErrorSplit } from './error-pages';
