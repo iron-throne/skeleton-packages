@@ -26,6 +26,13 @@ export type { DialogProps, DialogRadius, DialogVariant } from './dialog/types';
 export { default as Pagination } from './pagination/Pagination.svelte';
 export type { PaginationProps, PaginationVariant } from './pagination/types';
 export { default as RichTextEditor } from './rich-text-editor/RichTextEditor.svelte';
+export { default as SearchSuggestions } from './search-suggestions/SearchSuggestions.svelte';
+export type {
+	SearchSuggestionAction,
+	SearchSuggestionItem,
+	SearchSuggestionsProps,
+	SearchSuggestionTone
+} from './search-suggestions/types';
 export { default as Tabs } from './tabs/Tabs.svelte';
 export type {
 	TabItem,
