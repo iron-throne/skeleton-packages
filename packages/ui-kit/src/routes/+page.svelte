@@ -133,6 +133,11 @@
 					href: '/rich-text-editor'
 				},
 				{
+					name: 'Search Suggestions',
+					description: 'Recent items, filtered matches, quick actions and view-all behavior.',
+					href: '/search-suggestions'
+				},
+				{
 					name: 'Tabs',
 					description: 'Underline and segmented content navigation.',
 					href: '/tabs-pagination'
