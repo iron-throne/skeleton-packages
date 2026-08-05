@@ -1,10 +1,10 @@
-import type { DocumentTableRow } from '$lib/atoms/document-table/types';
+import type { DocumentTableRow } from '$atoms/document-table/types';
 import type {
 	AdvancedTableColumn,
 	AdvancedTableFilterGroup,
 	AdvancedTableRow,
 	AdvancedTableView
-} from '$lib/organisms/advanced-table/types';
+} from '$organisms/advanced-table/types';
 
 export const DOCUMENT_ROWS: DocumentTableRow[] = [
 	{

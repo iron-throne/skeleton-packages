@@ -1,4 +1,4 @@
-import type { AutocompleteOption } from '$lib/atoms/autocomplete/types';
+import type { AutocompleteOption } from '$atoms/autocomplete/types';
 import {
 	Building,
 	Buildings,

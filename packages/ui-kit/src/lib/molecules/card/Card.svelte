@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
 	import type { CardVariant, CardPadding } from './types';
-	import { SkeletonLoader } from '$lib/atoms';
+	import { SkeletonLoader } from '../../atoms';
 
 	let {
 		variant = 'outlined',

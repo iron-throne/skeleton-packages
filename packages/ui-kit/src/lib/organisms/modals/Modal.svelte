@@ -4,7 +4,7 @@
 	import { cubicOut } from 'svelte/easing';
 	import type { Snippet, SvelteComponent } from 'svelte';
 	import { XLg } from 'svelte-bootstrap-icons';
-	import { Icon } from '$lib/atoms';
+	import { Icon } from '../../atoms';
 	import { SIZE_CLASS } from '$lib/constants';
 
 	let {

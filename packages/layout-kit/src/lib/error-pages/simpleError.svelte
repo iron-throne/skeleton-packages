@@ -1,20 +1,19 @@
 <script lang="ts">
-	import { page } from '$app/state';
 	import { LightbulbOff, ArrowClockwise, ArrowLeft } from 'svelte-bootstrap-icons';
 	import { errorTitle, errorHint } from '@aryagg/utils';
-	import { resolve } from '$app/paths';
 	import type { HttpStatus, IconType } from '@aryagg/types';
 	import { Icon } from '@aryagg/ui-kit';
 	import type { Snippet } from 'svelte';
 
 	let {
-		status = $bindable(page.status),
-		message = $bindable(page.error?.message ?? 'An unexpected error occurred'),
+		status = $bindable(500),
+		message = $bindable('An unexpected error occurred'),
 		title = $bindable(errorTitle(status)),
 		hint = $bindable(errorHint(status, message)),
 
 		hideIcon = false,
 		icon = LightbulbOff,
+		homeHref = '/',
 		mainKlass = '',
 		containerKlass = '',
 		iconKlass = '',
@@ -28,6 +27,7 @@
 
 		hideIcon?: boolean;
 		icon?: IconType;
+		homeHref?: string;
 		mainKlass?: string;
 		containerKlass?: string;
 		iconKlass?: string;
@@ -79,7 +79,7 @@
 					{@render footerSlot()}
 				{:else}
 					<div class="mt-10 flex items-center gap-8">
-						<a href={resolve('/')} class="btn btn-primary">
+						<a href={homeHref} class="btn btn-primary">
 							GO TO HOME
 							<span class="inline-block transition-transform group-hover:translate-x-1">→</span>
 						</a>

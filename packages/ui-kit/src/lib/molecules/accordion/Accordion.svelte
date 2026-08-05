@@ -5,7 +5,7 @@
 	import type { IAccordionData, IAccordionProps } from './types';
 	import type { Snippet } from 'svelte';
 	import { ChevronDown, ChevronLeft } from 'svelte-bootstrap-icons';
-	import Icon from '$lib/atoms/icon/Icon.svelte';
+	import Icon from '../../atoms/icon/Icon.svelte';
 	import { fade, slide } from 'svelte/transition';
 
 	function initialExpanded(

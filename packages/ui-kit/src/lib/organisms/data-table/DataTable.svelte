@@ -5,7 +5,7 @@
 	import { SortAlphaDown, SortAlphaUp, ArrowDownUp, Search } from 'svelte-bootstrap-icons';
 	import type { TableColumn } from '@aryagg/types';
 	import { parseInputValue } from '@aryagg/utils';
-	import { SkeletonLoader, NoData } from '$lib/atoms';
+	import { SkeletonLoader, NoData } from '../../atoms';
 	import { Pagination } from '..';
 
 	let {

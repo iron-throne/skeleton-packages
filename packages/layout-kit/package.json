@@ -38,7 +38,6 @@
 		"@aryagg/types": "file:../types",
 		"@eslint/js": "^10.0.1",
 		"@sveltejs/adapter-auto": "^7.0.1",
-		"@sveltejs/kit": "^2.63.0",
 		"@sveltejs/package": "^2.5.8",
 		"@sveltejs/vite-plugin-svelte": "^6.2.4",
 		"@tailwindcss/vite": "^4.0.0",
@@ -60,7 +59,7 @@
 		"svelte"
 	],
 	"dependencies": {
-		"@aryagg/ui-kit": "^0.2.2",
+		"@aryagg/ui-kit": "file:../ui-kit",
 		"@aryagg/utils": "file:../utils",
 		"svelte-bootstrap-icons": "^3.3.0"
 	}
