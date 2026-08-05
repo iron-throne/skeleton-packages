@@ -1,15 +1,15 @@
-# ui-kit
+# layout-kit
 
-A Svelte 5 component library template powered by [SvelteKit](https://svelte.dev/docs/kit), [Tailwind CSS v4](https://tailwindcss.com), and TypeScript.
+A Svelte 5 layout component library (topbar, sidebar, login screens, error pages, landing pages) for aryagg projects. Built with Tailwind CSS v4 and TypeScript. No SvelteKit dependency — works in any Svelte 5 app.
 
 ## Stack
 
 - **Svelte 5** with runes mode enforced across the project
-- **SvelteKit** — dev server, routing, and packaging
+- **Vite** — dev server and packaging (via `@sveltejs/package`)
 - **Tailwind CSS v4** via `@tailwindcss/vite`
 - **TypeScript** with strict config
 - **ESLint + Prettier** (with `eslint-plugin-svelte`)
-- **`@aryagg/theme`**, **`@aryagg/types`**, **`@aryagg/utils`** — shared design system packages
+- **`@aryagg/theme`**, **`@aryagg/types`**, **`@aryagg/utils`**, **`@aryagg/ui-kit`** — shared design system packages
 
 ## Getting started
 
@@ -19,7 +19,7 @@ Install dependencies:
 npm install
 ```
 
-Start the dev server (includes a live showcase app at `src/routes`):
+Start the dev server (a live component showcase at `src/routes`):
 
 ```sh
 npm run dev
@@ -34,9 +34,11 @@ npm run dev -- --open
 src/
   lib/        ← library source (exported to consumers)
   routes/     ← showcase / preview app (not published)
+  App.svelte  ← dev-only preview shell that mounts the showcase
+  main.ts     ← dev-only Vite entry point
 ```
 
-Everything inside `src/lib` is part of the published library. Use `src/routes` to build demos and test components interactively.
+Everything inside `src/lib` is part of the published library. `src/routes`, `src/App.svelte` and `src/main.ts` only exist to preview components locally and are never published.
 
 ## Building
 
@@ -46,7 +48,7 @@ Build and package the library:
 npm run build
 ```
 
-This runs `svelte-kit sync`, `svelte-package`, and `publint` in sequence. Output goes to `dist/`.
+This builds the showcase app (to `.demo-build/`, gitignored) then runs `svelte-package` + `publint` to produce the published output in `dist/`.
 
 Preview the showcase app production build:
 
