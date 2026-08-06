@@ -48,13 +48,7 @@ Build and package the library:
 npm run build
 ```
 
-This builds the showcase app (to `.demo-build/`, gitignored) then runs `svelte-package` + `publint` to produce the published output in `dist/`.
-
-Preview the showcase app production build:
-
-```sh
-npm run preview
-```
+This runs `svelte-package` + `publint` to produce the published output in `dist/`.
 
 ## Type checking & linting
 

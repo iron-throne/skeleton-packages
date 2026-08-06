@@ -3,8 +3,7 @@
     "version": "0.2.3",
     "scripts": {
         "dev": "vite dev",
-        "build": "vite build && npm run prepack",
-        "preview": "vite preview",
+        "build": "npm run prepack",
         "prepack": "svelte-package && publint",
         "check": "svelte-check --tsconfig ./tsconfig.json",
         "check:watch": "svelte-check --tsconfig ./tsconfig.json --watch",

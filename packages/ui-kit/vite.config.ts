@@ -13,11 +13,6 @@ export default defineConfig({
 			$organisms: fileURLToPath(new URL('./src/lib/organisms', import.meta.url))
 		}
 	},
-	build: {
-		// Demo app build output only — kept separate from `dist/`, which is
-		// svelte-package's published library output (see `npm run prepack`).
-		outDir: '.demo-build'
-	},
 	plugins: [
 		tailwindcss(),
 		svelte({
