@@ -34,4 +34,5 @@ export type TabsProps = {
 	onChange?: (tab: TabItem) => void;
 	/** Extra class(es) applied to a tab button only while it is selected. */
 	activeKlass?: string;
+	
 };

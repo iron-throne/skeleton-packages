@@ -65,6 +65,7 @@
 	});
 
 	// ── Derived: filter → sort → paginate ─────────────────────────
+
 	const filtered = $derived.by(() => {
 		if (!query.trim()) return rows;
 		const q = query.toLowerCase();
@@ -141,6 +142,7 @@
                                    {col.sortable
 								? 'hover:text-primary cursor-pointer transition-colors select-none'
 								: ''}"
+							
 							onclick={() => col.sortable && toggleSort(col.key)}
 						>
 							<span class="inline-flex items-center gap-1.5">

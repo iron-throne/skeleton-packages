@@ -87,7 +87,7 @@
 </script>
 
 {#snippet tabIcon(tab: TabItem, selected: boolean)}
-	<Icon icon={selected ? (tab.selectedIcon ?? tab.icon) : tab.icon} klass="size-3.5" />
+	<Icon icon={selected ? (tab.icon ?? tab.icon) : tab.icon} klass="size-3.5" />
 {/snippet}
 
 <div class="text-primary {klass}">
@@ -109,7 +109,7 @@
 					{tabVariantClass(selected)} {radiusClass} {tabKlass}"
 				onclick={() => selectTab(tab)}
 			>
-				{#if showIcons && iconPosition === 'left' && (tab.icon || tab.selectedIcon)}
+				{#if showIcons && iconPosition === 'left' && (tab.icon || tab.icon)}
 					{@render tabIcon(tab, selected)}
 				{/if}
 				<span>{tab.label}</span>
@@ -125,7 +125,7 @@
 						{tab.badge}
 					</small>
 				{/if}
-				{#if showIcons && iconPosition === 'right' && (tab.icon || tab.selectedIcon)}
+				{#if showIcons && iconPosition === 'right' && (tab.icon || tab.icon)}
 					{@render tabIcon(tab, selected)}
 				{/if}
 			</button>
