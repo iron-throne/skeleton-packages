@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { page } from '$app/state';
 	import { ChevronRight, HouseFill } from 'svelte-bootstrap-icons';
 
 	/**
@@ -7,10 +6,13 @@
 	 * e.g. { admin: 'Administration', 'reset-password': 'Reset Password' }
 	 */
 	let {
+		pathname,
 		labels = {},
 		homeLabel = 'Home',
 		homeHref = '/'
 	}: {
+		/** Current route path, e.g. `page.url.pathname` from `$app/state` in the host app. */
+		pathname: string;
 		labels?: Record<string, string>;
 		homeLabel?: string;
 		homeHref?: string;
@@ -23,7 +25,7 @@
 	}
 
 	const crumbs = $derived.by((): Crumb[] => {
-		const segments = page.url.pathname
+		const segments = pathname
 			.split('/')
 			.filter(Boolean)
 			// Strip SvelteKit route group brackets e.g. (auth), (protected)

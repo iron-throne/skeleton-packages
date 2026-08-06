@@ -1,20 +1,19 @@
 <script lang="ts">
-	import { page } from '$app/state';
 	import { ArrowClockwise, ArrowLeft, LightbulbOff } from 'svelte-bootstrap-icons';
 	import { errorTitle, errorHint } from '@aryagg/utils';
-	import { resolve } from '$app/paths';
 	import type { HttpStatus, IconType } from '@aryagg/types';
 	import { Icon } from '@aryagg/ui-kit';
 	import type { Snippet } from 'svelte';
 
 	let {
-		status = $bindable(page.status),
-		message = $bindable(page.error?.message ?? 'An unexpected error occurred'),
+		status = $bindable(500),
+		message = $bindable('An unexpected error occurred'),
 		title = $bindable(errorTitle(status)),
 		hint = $bindable(errorHint(status, message)),
 
 		hideIcon = false,
 		icon = LightbulbOff,
+		homeHref = '/',
 		mainKlass = '',
 		containerKlass = '',
 		iconKlass = '',
@@ -27,6 +26,7 @@
 
 		hideIcon?: boolean;
 		icon?: IconType;
+		homeHref?: string;
 		mainKlass?: string;
 		containerKlass?: string;
 		iconKlass?: string;
@@ -76,7 +76,7 @@
 				{@render footerSlot()}
 			{:else}
 				<div class="mt-4 flex w-full flex-col gap-2">
-					<a href={resolve('/')} class="btn btn-primary w-full"> GO TO HOME </a>
+					<a href={homeHref} class="btn btn-primary w-full"> GO TO HOME </a>
 					<button onclick={() => history.back()} class="btn btn-secondary">
 						Go back
 						<ArrowLeft class="size-4" />

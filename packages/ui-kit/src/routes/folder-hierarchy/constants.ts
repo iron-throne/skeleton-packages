@@ -1,10 +1,10 @@
-import type { FolderHierarchyNode } from '$lib/atoms/folder-hierarchy/types';
+import type { FolderHierarchyNode } from '$atoms/folder-hierarchy/types';
 import type {
 	AdvancedFolderHierarchyFilter,
 	AdvancedFolderHierarchyGroupField,
 	AdvancedFolderHierarchyNode,
 	AdvancedFolderHierarchyRecord
-} from '$lib/organisms/advanced-folder-hierarchy/types';
+} from '$organisms/advanced-folder-hierarchy/types';
 
 export const DOCUMENT_TREE: FolderHierarchyNode[] = [
 	{

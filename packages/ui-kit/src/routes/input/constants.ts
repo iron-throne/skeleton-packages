@@ -1,4 +1,4 @@
-import type { InputFieldOption } from '$lib/atoms/input-field/types';
+import type { InputFieldOption } from '$atoms/input-field/types';
 
 export const DISCIPLINE_OPTIONS: InputFieldOption[] = [
 	{ label: 'Architecture', value: 'architecture' },

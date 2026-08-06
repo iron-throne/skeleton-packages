@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { ArrowRight, Search } from 'svelte-bootstrap-icons';
-	import Icon from '$lib/atoms/icon/Icon.svelte';
+	import Icon from '../../atoms/icon/Icon.svelte';
 	import type {
 		SearchSuggestionAction,
 		SearchSuggestionItem,

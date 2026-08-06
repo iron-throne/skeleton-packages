@@ -1,5 +1,5 @@
 import type { Snippet } from 'svelte';
-import type { ActionResult } from '@sveltejs/kit';
+import type { ActionResult } from '@aryagg/types';
 
 export interface LoginCredentials {
 	email: string;

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import Icon from '$lib/atoms/icon/Icon.svelte';
+	import Icon from '../../atoms/icon/Icon.svelte';
 	import type { Snippet, SvelteComponent } from 'svelte';
 	import Modal from './Modal.svelte';
 	import { ExclamationTriangleFill } from 'svelte-bootstrap-icons';

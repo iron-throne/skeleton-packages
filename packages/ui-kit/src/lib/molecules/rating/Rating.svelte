@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Icon } from '$lib/atoms';
+	import { Icon } from '../../atoms';
 	import type { IconType } from '@aryagg/types';
 	import { Star, StarFill } from 'svelte-bootstrap-icons';
 
