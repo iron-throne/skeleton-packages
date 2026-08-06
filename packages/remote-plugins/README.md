@@ -1,77 +1,47 @@
-# ui-kit
+# Svelte + TS + Vite
 
-A Svelte 5 component library template powered by [SvelteKit](https://svelte.dev/docs/kit), [Tailwind CSS v4](https://tailwindcss.com), and TypeScript.
+This template should help get you started developing with Svelte and TypeScript in Vite.
 
-## Stack
+## Recommended IDE Setup
 
-- **Svelte 5** with runes mode enforced across the project
-- **SvelteKit** — dev server, routing, and packaging
-- **Tailwind CSS v4** via `@tailwindcss/vite`
-- **TypeScript** with strict config
-- **ESLint + Prettier** (with `eslint-plugin-svelte`)
-- **`@aryagg/theme`**, **`@aryagg/types`**, **`@aryagg/utils`** — shared design system packages
+[VS Code](https://code.visualstudio.com/) + [Svelte](https://marketplace.visualstudio.com/items?itemName=svelte.svelte-vscode).
 
-## Getting started
+## Need an official Svelte framework?
 
-Install dependencies:
+Check out [SvelteKit](https://github.com/sveltejs/kit#readme), which is also powered by Vite. Deploy anywhere with its serverless-first approach and adapt to various platforms, with out of the box support for TypeScript, SCSS, and Less, and easily-added support for mdsvex, GraphQL, PostCSS, Tailwind CSS, and more.
 
-```sh
-npm install
+## Technical considerations
+
+**Why use this over SvelteKit?**
+
+- It brings its own routing solution which might not be preferable for some users.
+- It is first and foremost a framework that just happens to use Vite under the hood, not a Vite app.
+
+This template contains as little as possible to get started with Vite + TypeScript + Svelte, while taking into account the developer experience with regards to HMR and intellisense. It demonstrates capabilities on par with the other `create-vite` templates and is a good starting point for beginners dipping their toes into a Vite + Svelte project.
+
+Should you later need the extended capabilities and extensibility provided by SvelteKit, the template has been structured similarly to SvelteKit so that it is easy to migrate.
+
+**Why `global.d.ts` instead of `compilerOptions.types` inside `jsconfig.json` or `tsconfig.json`?**
+
+Setting `compilerOptions.types` shuts out all other types not explicitly listed in the configuration. Using triple-slash references keeps the default TypeScript setting of accepting type information from the entire workspace, while also adding `svelte` and `vite/client` type information.
+
+**Why include `.vscode/extensions.json`?**
+
+Other templates indirectly recommend extensions via the README, but this file allows VS Code to prompt the user to install the recommended extension upon opening the project.
+
+**Why enable `allowJs` in the TS template?**
+
+While `allowJs: false` would indeed prevent the use of `.js` files in the project, it does not prevent the use of JavaScript syntax in `.svelte` files. In addition, it would force `checkJs: false`, bringing the worst of both worlds: not being able to guarantee the entire codebase is TypeScript, and also having worse typechecking for the existing JavaScript. In addition, there are valid use cases in which a mixed codebase may be relevant.
+
+**Why is HMR not preserving my local component state?**
+
+HMR state preservation comes with a number of gotchas! It has been disabled by default in both `svelte-hmr` and `@sveltejs/vite-plugin-svelte` due to its often surprising behavior. You can read the details [here](https://github.com/rixo/svelte-hmr#svelte-hmr).
+
+If you have state that's important to retain within a component, consider creating an external store which would not be replaced by HMR.
+
+```ts
+// store.ts
+// An extremely simple external store
+import { writable } from 'svelte/store'
+export default writable(0)
 ```
-
-Start the dev server (includes a live showcase app at `src/routes`):
-
-```sh
-npm run dev
-
-# open in browser automatically
-npm run dev -- --open
-```
-
-## Project structure
-
-```
-src/
-  lib/        ← library source (exported to consumers)
-  routes/     ← showcase / preview app (not published)
-```
-
-Everything inside `src/lib` is part of the published library. Use `src/routes` to build demos and test components interactively.
-
-## Building
-
-Build and package the library:
-
-```sh
-npm run build
-```
-
-This runs `svelte-kit sync`, `svelte-package`, and `publint` in sequence. Output goes to `dist/`.
-
-Preview the showcase app production build:
-
-```sh
-npm run preview
-```
-
-## Type checking & linting
-
-```sh
-npm run check          # svelte-check + tsc
-npm run check:watch    # watch mode
-
-npm run lint           # prettier + eslint
-npm run format         # auto-format with prettier
-```
-
-## Publishing
-
-1. Set the `"name"` field in `package.json` to your desired package name.
-2. Add a `"license"` field and a `LICENSE` file (e.g. [MIT](https://opensource.org/license/mit/)).
-3. Publish to npm:
-
-```sh
-npm publish
-```
-
-The `"exports"` field in `package.json` exposes `./dist/index.js` (Svelte) and `./dist/index.d.ts` (types) for consumers.
