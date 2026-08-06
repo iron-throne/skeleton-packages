@@ -8,6 +8,7 @@
 		align = 'right',
 		variant = 'v3',
 		menuClass,
+		activeKlass,
 		selected = $bindable(),
 		onSelect
 	}: MenuListProps = $props();
@@ -20,12 +21,19 @@
 </script>
 
 <div
-	class="w-full overflow-auto border border-border-primary bg-surface-primary shadow-lg {variant ===
+	class="w-full overflow-auto border border-border-primary bg-surface-primary shadow-sm {variant ===
 	'rounded'
 		? 'rounded-xl'
 		: 'rounded-lg'} {menuClass ?? ''}"
 >
 	{#each menus as menu, ind (menu.id ?? ind)}
-		<DropdownMenuItem {menu} {align} {variant} onNavigate={selectItem} bind:selected />
+		<DropdownMenuItem
+			{menu}
+			{align}
+			{variant}
+			onNavigate={selectItem}
+			bind:selected
+			{activeKlass}
+		/>
 	{/each}
 </div>

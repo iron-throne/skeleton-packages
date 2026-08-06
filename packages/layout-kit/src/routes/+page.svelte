@@ -1,7 +1,18 @@
 <script lang="ts">
-	import { Topbar, CollapsibleSidebar, LandingPageHero, LandingPageSearch } from '$lib';
+	import {
+		Topbar,
+		CollapsibleSidebar,
+		LandingPageHero,
+		LandingPageSearch,
+		ErrorSimple,
+		ErrorOverlayIcon,
+		ErrorCard,
+		ErrorSplit
+	} from '$lib';
 	import { LoginSimple, LoginSplit, LoginCover, type LoginCredentials } from '$lib/login';
-	import { ETheme, EInputType, type IMenu } from '@aryagg/types';
+	import { ETheme, EInputType, HttpStatus, type IMenu } from '@aryagg/types';
+	import { errorTitle, errorHint } from '@aryagg/utils';
+	import type { Snippet } from 'svelte';
 	import {
 		HouseDoorFill,
 		GearFill,
@@ -12,7 +23,10 @@
 		LayoutTextWindow,
 		LayoutSidebarInset,
 		Window,
-		BoxArrowInRight
+		BoxArrowInRight,
+		ExclamationTriangleFill,
+		ArrowLeft,
+		ArrowRight
 	} from 'svelte-bootstrap-icons';
 
 	// Shared placeholder logomark reused across every component preview below.
@@ -24,7 +38,8 @@
 			id: 'topbar',
 			label: 'Topbar',
 			icon: LayoutTextWindow,
-			description: 'Responsive application header with brand, nav, search, language and profile menu.'
+			description:
+				'Responsive application header with brand, nav, search, language and profile menu.'
 		},
 		{
 			id: 'sidebar',
@@ -43,11 +58,18 @@
 			label: 'Login',
 			icon: BoxArrowInRight,
 			description: 'Simple, split and cover presentations sharing one base props API.'
+		},
+		{
+			id: 'errors',
+			label: 'Error Pages',
+			icon: ExclamationTriangleFill,
+			description: 'Full-page 404 / 403 / 500 states with icon, title, hint and CTAs.'
 		}
 	] as const;
 
-	let activeComponent = $state<(typeof sections)[number]['id']>('topbar');
-	const activeSection = $derived(sections.find((s) => s.id === activeComponent)!);
+	// null = landing grid; otherwise the id of the component being viewed.
+	let activeComponent = $state<(typeof sections)[number]['id'] | null>(null);
+	const activeSection = $derived(sections.find((s) => s.id === activeComponent));
 
 	// ── Topbar demo ─────────────────────────────────────────────
 	const topbarVariants = ['default', 'centered', 'stacked', 'minimal'] as const;
@@ -138,6 +160,24 @@
 		console.log('[LoginDemo] submitted', credentials);
 		alert(`Signed in as ${credentials.email} (remember me: ${credentials.rememberMe})`);
 	}
+
+	// ── Error Pages demo ─────────────────────────────────────────────
+	const errorVariants = ['simple', 'overlay', 'card', 'split'] as const;
+	let activeErrorVariant = $state<(typeof errorVariants)[number]>('simple');
+	const errorStatusLabels = ['404', '403', '500', '400'] as const;
+	const errorStatusByLabel: Record<(typeof errorStatusLabels)[number], HttpStatus> = {
+		'404': HttpStatus.NOT_FOUND,
+		'403': HttpStatus.FORBIDDEN,
+		'500': HttpStatus.INTERNAL_SERVER_ERROR,
+		'400': HttpStatus.BAD_REQUEST
+	};
+	let errorStatusLabel = $state<(typeof errorStatusLabels)[number]>('404');
+	let errorHideIcon = $state(false);
+	const errorStatus = $derived(errorStatusByLabel[errorStatusLabel]);
+	const errorPageTitle = $derived(errorTitle(errorStatus));
+	const errorPageHint = $derived(
+		errorHint(errorStatus, 'Please check your request and try again.')
+	);
 </script>
 
 <svelte:head>
@@ -145,14 +185,20 @@
 	<meta name="description" content="Live preview of every component in @aryagg/layout-kit." />
 </svelte:head>
 
-{#snippet PickerField(label: string, options: readonly string[], active: string, onPick: (v: any) => void)}
+{#snippet PickerField(
+	label: string,
+	options: readonly string[],
+	active: string,
+	onPick: (v: any) => void
+)}
 	<div>
 		<p class="mb-2 text-[11px] font-semibold uppercase tracking-wider text-tertiary">{label}</p>
 		<div class="flex flex-wrap gap-1.5">
 			{#each options as opt (opt)}
 				<button
 					type="button"
-					class="rounded-md px-2.5 py-1.5 text-xs font-medium capitalize transition-colors {active === opt
+					class="rounded-md px-2.5 py-1.5 text-xs font-medium capitalize transition-colors {active ===
+					opt
 						? 'bg-accent text-on-accent'
 						: 'border border-border-primary bg-surface-primary text-secondary hover:bg-surface-tertiary'}"
 					onclick={() => onPick(opt)}
@@ -171,248 +217,446 @@
 	</label>
 {/snippet}
 
-{#snippet PropsPanel(
-	title: string,
-	description: string,
-	pickers: import('svelte').Snippet,
-	toggles: import('svelte').Snippet
-)}
-	<div>
-		<h2 class="text-xl font-bold text-primary">{title}</h2>
-		<p class="mt-1 max-w-2xl text-sm text-secondary">{description}</p>
-	</div>
-	<div class="mt-4 rounded-xl border border-border-primary bg-surface-secondary p-4 sm:p-5">
+{#snippet OptionsPanel(pickers: Snippet, toggles: Snippet)}
+	<div class="rounded-xl border border-border-primary bg-surface-primary p-5 sm:p-6">
 		<div class="flex flex-wrap gap-x-8 gap-y-4">
 			{@render pickers()}
-		</div>
-		<div class="mt-4 flex flex-wrap gap-x-5 gap-y-2 border-t border-border-primary pt-4">
 			{@render toggles()}
 		</div>
 	</div>
 {/snippet}
 
-<div class="min-h-screen bg-surface-tertiary text-primary lg:flex">
-	<aside
-		class="shrink-0 border-b border-border-primary bg-surface-primary lg:sticky lg:top-0 lg:h-screen lg:w-52 lg:border-r lg:border-b-0"
+<div class="min-h-screen bg-surface-tertiary text-primary">
+	<header
+		class="sticky top-0 z-10 border-b border-border-primary bg-surface-primary/95 backdrop-blur"
 	>
-		<div class="px-4 py-4">
-			<h1 class="text-sm font-bold tracking-tight text-primary">@aryagg/layout-kit</h1>
-			<p class="mt-0.5 text-[11px] text-tertiary">Component showcase</p>
-		</div>
-		<nav class="flex gap-1 overflow-x-auto px-2 pb-3 lg:flex-col lg:overflow-visible lg:px-3" aria-label="Components">
-			{#each sections as section (section.id)}
+		<div class="px-4 py-5 sm:px-8 lg:px-12">
+			{#if activeSection}
 				<button
 					type="button"
-					onclick={() => (activeComponent = section.id)}
-					class="flex shrink-0 items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold whitespace-nowrap transition-colors lg:w-full {activeComponent ===
-					section.id
-						? 'bg-accent text-on-accent'
-						: 'text-secondary hover:bg-surface-tertiary hover:text-accent'}"
+					class="mb-3 inline-flex items-center gap-1.5 text-xs font-semibold text-secondary transition-colors hover:text-accent"
+					onclick={() => (activeComponent = null)}
 				>
-					<section.icon class="size-4 shrink-0" />
-					{section.label}
+					<ArrowLeft class="size-3.5" />
+					All components
 				</button>
-			{/each}
-		</nav>
-	</aside>
-
-	<main class="min-w-0 flex-1 px-4 py-6 sm:px-8">
-		<!-- TOPBAR -->
-		<section class="flex flex-col gap-4" class:hidden={activeComponent !== 'topbar'}>
-			{#snippet topbarPickers()}
-				{@render PickerField('variant', topbarVariants, topbarVariant, (v) => (topbarVariant = v))}
-				{@render PickerField('menuLayout', topbarMenuLayouts, topbarMenuLayout, (v) => (topbarMenuLayout = v))}
-			{/snippet}
-			{#snippet topbarToggles()}
-				{@render Toggle('logoSrc', showTopbarLogo, () => (showTopbarLogo = !showTopbarLogo))}
-				{@render Toggle('searchField', showSearchField, () => (showSearchField = !showSearchField))}
-				{@render Toggle('languages', showLanguages, () => (showLanguages = !showLanguages))}
-				{@render Toggle('profileItems', showProfileMenu, () => (showProfileMenu = !showProfileMenu))}
-			{/snippet}
-			{@render PropsPanel(activeSection.label, activeSection.description, topbarPickers, topbarToggles)}
-
-			<div class="overflow-hidden rounded-lg border border-border-primary">
-				<Topbar
-					variant={topbarVariant}
-					brand="Acme"
-					logoSrc={showTopbarLogo ? demoLogo : ''}
-					tagline="Everything you need to learn, in one place."
-					menus={topbarMenus}
-					menuLayout={topbarMenuLayout}
-					activeHref="#"
-					searchField={showSearchField
-						? { id: 'topbar-search', key: 'search', label: '', placeholder: 'Search…', type: EInputType.SEARCH }
-						: undefined}
-					languages={showLanguages ? [{ label: 'EN', value: 'en' }, { label: 'AR', value: 'ar' }] : []}
-					currentLanguage="en"
-					userName={showProfileMenu ? 'Jordan Lee' : ''}
-					profileLabel={showProfileMenu ? 'Jordan Lee' : ''}
-					profileItems={showProfileMenu ? topbarProfileItems : []}
-					showThemeToggle
-					bind:theme={topbarTheme}
-				/>
-				<div class="flex h-24 items-center justify-center bg-surface-tertiary text-sm text-tertiary">
-					Page content renders below the topbar
-				</div>
-			</div>
-		</section>
-
-		<!-- SIDEBAR -->
-		<section class="flex flex-col gap-4" class:hidden={activeComponent !== 'sidebar'}>
-			{#snippet sidebarPickers()}
-				{@render PickerField('position', sidebarPositions, sidebarPosition, (v) => (sidebarPosition = v))}
-				{@render PickerField(
-					'collapsedMode',
-					sidebarCollapsedModes,
-					sidebarCollapsedMode,
-					(v) => (sidebarCollapsedMode = v)
-				)}
-			{/snippet}
-			{#snippet sidebarToggles()}
-				{@render Toggle('collapsible', sidebarCollapsible, () => (sidebarCollapsible = !sidebarCollapsible))}
-				{@render Toggle('collapsed', sidebarCollapsed, () => (sidebarCollapsed = !sidebarCollapsed))}
-			{/snippet}
-			{@render PropsPanel(activeSection.label, activeSection.description, sidebarPickers, sidebarToggles)}
-
-			<div class="overflow-hidden rounded-lg border border-border-primary">
-				<div class="relative flex h-128">
-					<CollapsibleSidebar
-						menus={sidebarMenus}
-						position={sidebarPosition}
-						collapsedMode={sidebarCollapsedMode}
-						collapsible={sidebarCollapsible}
-						bind:collapsed={sidebarCollapsed}
-						logosrc={demoLogo}
+				<div class="flex items-center gap-3">
+					<div
+						class="flex size-10 shrink-0 items-center justify-center rounded-lg bg-accent/10 text-accent"
 					>
-						{#snippet headerSlot()}<span class="text-sm font-bold text-primary">Acme</span>{/snippet}
-					</CollapsibleSidebar>
-					<div class="flex flex-1 flex-col gap-4 bg-surface-tertiary p-6">
-						<div class="grid grid-cols-3 gap-3">
-							<div class="h-16 rounded-lg bg-surface-primary shadow-sm"></div>
-							<div class="h-16 rounded-lg bg-surface-primary shadow-sm"></div>
-							<div class="h-16 rounded-lg bg-surface-primary shadow-sm"></div>
-						</div>
-						<div class="flex-1 rounded-lg bg-surface-primary shadow-sm"></div>
+						<activeSection.icon class="size-5" />
+					</div>
+					<div>
+						<h1 class="text-lg font-bold text-primary">{activeSection.label}</h1>
+						<p class="text-sm text-secondary">{activeSection.description}</p>
 					</div>
 				</div>
+			{:else}
+				<h1 class="text-2xl font-bold tracking-tight text-primary">@aryagg/layout-kit</h1>
+				<p class="mt-1 text-sm text-secondary">
+					Browse every component below, then open one to preview it live and try all of its options.
+				</p>
+			{/if}
+		</div>
+	</header>
+
+	<main class="px-4 py-8 sm:px-8 lg:px-12">
+		{#if !activeSection}
+			<!-- COMPONENT GRID -->
+			<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+				{#each sections as section (section.id)}
+					<button
+						type="button"
+						class="group flex flex-col items-start gap-3 rounded-xl border border-border-primary bg-surface-primary p-5 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-md"
+						onclick={() => (activeComponent = section.id)}
+					>
+						<div
+							class="flex size-10 items-center justify-center rounded-lg bg-accent/10 text-accent transition-colors group-hover:bg-accent group-hover:text-on-accent"
+						>
+							<section.icon class="size-5" />
+						</div>
+						<div class="w-full">
+							<h2 class="font-semibold text-primary">{section.label}</h2>
+							<p class="mt-1 text-sm text-secondary whitespace-pre-line text-secondary">
+								{section.description}
+							</p>
+						</div>
+						<span
+							class="mt-auto inline-flex items-center gap-1 text-xs font-semibold text-accent opacity-0 transition-opacity group-hover:opacity-100"
+						>
+							View component
+							<ArrowRight class="size-3.5" />
+						</span>
+					</button>
+				{/each}
 			</div>
-		</section>
+		{:else}
+			<div class="flex flex-col gap-6 lg:flex-row lg:items-start">
+				<nav
+					class="flex gap-1.5 overflow-x-auto pb-1 lg:sticky lg:top-24 lg:w-56 lg:shrink-0 lg:flex-col lg:overflow-visible lg:pb-0"
+					aria-label="Components"
+				>
+					{#each sections as section (section.id)}
+						<button
+							type="button"
+							onclick={() => (activeComponent = section.id)}
+							class="flex shrink-0 items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium whitespace-nowrap transition-colors lg:w-full {activeComponent ===
+							section.id
+								? 'bg-accent text-on-accent'
+								: 'text-secondary hover:bg-surface-primary hover:text-accent'}"
+						>
+							<section.icon class="size-4 shrink-0" />
+							{section.label}
+						</button>
+					{/each}
+				</nav>
 
-		<!-- LANDING PAGES -->
-		<section class="flex flex-col gap-4" class:hidden={activeComponent !== 'landing'}>
-			{#snippet landingPickers()}
-				{@render PickerField('variant', landingVariants, activeLandingVariant, (v) => (activeLandingVariant = v))}
-			{/snippet}
-			{#snippet landingToggles()}
-				{#if activeLandingVariant === 'hero'}
-					{@render Toggle('logo', showHeroLogo, () => (showHeroLogo = !showHeroLogo))}
-					{@render Toggle('hideDivider', hideHeroDivider, () => (hideHeroDivider = !hideHeroDivider))}
-				{:else}
-					{@render Toggle(
-						'showSearch',
-						showLandingSearchButton,
-						() => (showLandingSearchButton = !showLandingSearchButton)
-					)}
-				{/if}
-			{/snippet}
-			{@render PropsPanel(activeSection.label, activeSection.description, landingPickers, landingToggles)}
+				<div class="min-w-0 flex-1">
+					{#if activeComponent === 'topbar'}
+						<!-- TOPBAR -->
+						<div class="flex flex-col gap-6">
+							{@render OptionsPanel(topbarPickers, topbarToggles)}
+							<div
+								class="overflow-hidden rounded-xl border border-border-primary bg-surface-primary shadow-sm"
+							>
+								<Topbar
+									variant={topbarVariant}
+									brand="Acme"
+									logoSrc={showTopbarLogo ? demoLogo : ''}
+									tagline="Everything you need to learn, in one place."
+									menus={topbarMenus}
+									menuLayout={topbarMenuLayout}
+									activeHref="#"
+									searchField={showSearchField
+										? {
+												id: 'topbar-search',
+												key: 'search',
+												label: '',
+												placeholder: 'Search…',
+												type: EInputType.SEARCH
+											}
+										: undefined}
+									languages={showLanguages
+										? [
+												{ label: 'EN', value: 'en' },
+												{ label: 'AR', value: 'ar' }
+											]
+										: []}
+									currentLanguage="en"
+									userName={showProfileMenu ? 'Jordan Lee' : ''}
+									profileLabel={showProfileMenu ? 'Jordan Lee' : ''}
+									profileItems={showProfileMenu ? topbarProfileItems : []}
+									showThemeToggle
+									bind:theme={topbarTheme}
+								/>
+								<div
+									class="flex h-24 items-center justify-center bg-surface-tertiary text-sm text-tertiary"
+								>
+									Page content renders below the topbar
+								</div>
+							</div>
 
-			<div class="overflow-hidden rounded-lg border border-border-primary">
-				{#if activeLandingVariant === 'hero'}
-					<div class="h-[520px] bg-surface-primary">
-						<LandingPageHero
-							title="Acme"
-							heading="Build something great"
-							highlight="great"
-							description="Create beautiful, responsive layouts with flexible, ready-made components."
-							ctaText="Get Started"
-							hideDivider={hideHeroDivider}
-							logo={showHeroLogo ? demoLogo : ''}
-						/>
-					</div>
-				{:else}
-					<div class="h-[80vh]">
-						<LandingPageSearch
-							title="Discover Your New Home"
-							placeholder="City, address, or ZIP"
-							buttonText="Search"
-							showSearch={showLandingSearchButton}
-							onSubmit={(value: string) => console.log('[LandingPageSearch] submitted', value)}
-						/>
-					</div>
-				{/if}
+							{#snippet topbarPickers()}
+								{@render PickerField(
+									'variant',
+									topbarVariants,
+									topbarVariant,
+									(v) => (topbarVariant = v)
+								)}
+								{@render PickerField(
+									'menuLayout',
+									topbarMenuLayouts,
+									topbarMenuLayout,
+									(v) => (topbarMenuLayout = v)
+								)}
+							{/snippet}
+							{#snippet topbarToggles()}
+								{@render Toggle(
+									'logoSrc',
+									showTopbarLogo,
+									() => (showTopbarLogo = !showTopbarLogo)
+								)}
+								{@render Toggle(
+									'searchField',
+									showSearchField,
+									() => (showSearchField = !showSearchField)
+								)}
+								{@render Toggle('languages', showLanguages, () => (showLanguages = !showLanguages))}
+								{@render Toggle(
+									'profileItems',
+									showProfileMenu,
+									() => (showProfileMenu = !showProfileMenu)
+								)}
+							{/snippet}
+						</div>
+					{:else if activeComponent === 'sidebar'}
+						<!-- SIDEBAR -->
+						<div class="flex flex-col gap-6">
+							{@render OptionsPanel(sidebarPickers, sidebarToggles)}
+
+							<div
+								class="overflow-hidden rounded-xl border border-border-primary bg-surface-primary shadow-sm"
+							>
+								<div class="relative flex h-128">
+									<CollapsibleSidebar
+										menus={sidebarMenus}
+										position={sidebarPosition}
+										collapsedMode={sidebarCollapsedMode}
+										collapsible={sidebarCollapsible}
+										bind:collapsed={sidebarCollapsed}
+										logosrc={demoLogo}
+									>
+										{#snippet headerSlot()}<span class="text-sm font-bold text-primary">Acme</span
+											>{/snippet}
+									</CollapsibleSidebar>
+									<div class="flex flex-1 flex-col gap-4 bg-surface-tertiary p-6">
+										<div class="grid grid-cols-3 gap-3">
+											<div class="h-16 rounded-lg bg-surface-primary shadow-sm"></div>
+											<div class="h-16 rounded-lg bg-surface-primary shadow-sm"></div>
+											<div class="h-16 rounded-lg bg-surface-primary shadow-sm"></div>
+										</div>
+										<div class="flex-1 rounded-lg bg-surface-primary shadow-sm"></div>
+									</div>
+								</div>
+							</div>
+
+							{#snippet sidebarPickers()}
+								{@render PickerField(
+									'position',
+									sidebarPositions,
+									sidebarPosition,
+									(v) => (sidebarPosition = v)
+								)}
+								{@render PickerField(
+									'collapsedMode',
+									sidebarCollapsedModes,
+									sidebarCollapsedMode,
+									(v) => (sidebarCollapsedMode = v)
+								)}
+							{/snippet}
+							{#snippet sidebarToggles()}
+								{@render Toggle(
+									'collapsible',
+									sidebarCollapsible,
+									() => (sidebarCollapsible = !sidebarCollapsible)
+								)}
+								{@render Toggle(
+									'collapsed',
+									sidebarCollapsed,
+									() => (sidebarCollapsed = !sidebarCollapsed)
+								)}
+							{/snippet}
+						</div>
+					{:else if activeComponent === 'landing'}
+						<!-- LANDING PAGES -->
+						<div class="flex flex-col gap-6">
+							{@render OptionsPanel(landingPickers, landingToggles)}
+
+							<div
+								class="overflow-hidden rounded-xl border border-border-primary bg-surface-primary shadow-sm"
+							>
+								{#if activeLandingVariant === 'hero'}
+									<div class="h-[520px] bg-surface-primary">
+										<LandingPageHero
+											title="Acme"
+											heading="Build something great"
+											highlight="great"
+											description="Create beautiful, responsive layouts with flexible, ready-made components."
+											ctaText="Get Started"
+											hideDivider={hideHeroDivider}
+											logo={showHeroLogo ? demoLogo : ''}
+										/>
+									</div>
+								{:else}
+									<div class="h-[80vh]">
+										<LandingPageSearch
+											title="Discover Your New Home"
+											placeholder="City, address, or ZIP"
+											buttonText="Search"
+											showSearch={showLandingSearchButton}
+											onSubmit={(value: string) =>
+												console.log('[LandingPageSearch] submitted', value)}
+										/>
+									</div>
+								{/if}
+							</div>
+
+							{#snippet landingPickers()}
+								{@render PickerField(
+									'variant',
+									landingVariants,
+									activeLandingVariant,
+									(v) => (activeLandingVariant = v)
+								)}
+							{/snippet}
+							{#snippet landingToggles()}
+								{#if activeLandingVariant === 'hero'}
+									{@render Toggle('logo', showHeroLogo, () => (showHeroLogo = !showHeroLogo))}
+									{@render Toggle(
+										'hideDivider',
+										hideHeroDivider,
+										() => (hideHeroDivider = !hideHeroDivider)
+									)}
+								{:else}
+									{@render Toggle(
+										'showSearch',
+										showLandingSearchButton,
+										() => (showLandingSearchButton = !showLandingSearchButton)
+									)}
+								{/if}
+							{/snippet}
+						</div>
+					{:else if activeComponent === 'login'}
+						<!-- LOGIN -->
+						<div class="flex flex-col gap-6">
+							{@render OptionsPanel(loginPickers, loginToggles)}
+
+							<div
+								class="overflow-hidden rounded-xl border border-border-primary bg-surface-primary shadow-sm"
+							>
+								{#if activeLoginVariant === 'simple'}
+									<LoginSimple
+										appName="Acme"
+										logo={demoLogo}
+										title="Welcome back"
+										subtitle="Sign in to your Acme account"
+										loading={demoLoading}
+										error={demoError}
+										showRememberMe={loginShowRememberMe}
+										showForgotPassword={loginShowForgotPassword}
+										showSignUpLink={loginShowSignUpLink}
+										onSubmit={handleDemoSubmit}
+									/>
+								{:else if activeLoginVariant === 'split'}
+									<LoginSplit
+										appName="Acme"
+										logo={demoLogo}
+										title="Welcome back"
+										subtitle="Sign in to your Acme account"
+										panelHeading="Build something great"
+										panelDescription="Sign in to pick up right where you left off."
+										imagePosition={loginImagePosition}
+										loading={demoLoading}
+										error={demoError}
+										showRememberMe={loginShowRememberMe}
+										showForgotPassword={loginShowForgotPassword}
+										showSignUpLink={loginShowSignUpLink}
+										onSubmit={handleDemoSubmit}
+									/>
+								{:else}
+									<LoginCover
+										appName="Acme"
+										logo={demoLogo}
+										title="Welcome back"
+										subtitle="Sign in to your Acme account"
+										loading={demoLoading}
+										error={demoError}
+										showRememberMe={loginShowRememberMe}
+										showForgotPassword={loginShowForgotPassword}
+										showSignUpLink={loginShowSignUpLink}
+										onSubmit={handleDemoSubmit}
+									/>
+								{/if}
+							</div>
+
+							{#snippet loginPickers()}
+								{@render PickerField(
+									'variant',
+									loginVariants,
+									activeLoginVariant,
+									(v) => (activeLoginVariant = v)
+								)}
+								{#if activeLoginVariant === 'split'}
+									{@render PickerField(
+										'imagePosition',
+										loginImagePositions,
+										loginImagePosition,
+										(v) => (loginImagePosition = v)
+									)}
+								{/if}
+							{/snippet}
+							{#snippet loginToggles()}
+								{@render Toggle(
+									'showRememberMe',
+									loginShowRememberMe,
+									() => (loginShowRememberMe = !loginShowRememberMe)
+								)}
+								{@render Toggle(
+									'showForgotPassword',
+									loginShowForgotPassword,
+									() => (loginShowForgotPassword = !loginShowForgotPassword)
+								)}
+								{@render Toggle(
+									'showSignUpLink',
+									loginShowSignUpLink,
+									() => (loginShowSignUpLink = !loginShowSignUpLink)
+								)}
+							{/snippet}
+						</div>
+					{:else if activeComponent === 'errors'}
+						<!-- ERROR PAGES -->
+						<div class="flex flex-col gap-6">
+							{@render OptionsPanel(errorPickers, errorToggles)}
+
+							<div
+								class="h-[600px] overflow-hidden rounded-xl border border-border-primary bg-surface-primary shadow-sm"
+							>
+								{#if activeErrorVariant === 'simple'}
+									<ErrorSimple
+										status={errorStatus}
+										title={errorPageTitle}
+										hint={errorPageHint}
+										hideIcon={errorHideIcon}
+										mainKlass="min-h-full!"
+									/>
+								{:else if activeErrorVariant === 'overlay'}
+									<ErrorOverlayIcon
+										status={errorStatus}
+										title={errorPageTitle}
+										hint={errorPageHint}
+										hideIcon={errorHideIcon}
+										mainKlass="min-h-full!"
+									/>
+								{:else if activeErrorVariant === 'card'}
+									<ErrorCard
+										status={errorStatus}
+										title={errorPageTitle}
+										hint={errorPageHint}
+										hideIcon={errorHideIcon}
+										mainKlass="min-h-full!"
+									/>
+								{:else}
+									<ErrorSplit
+										status={errorStatus}
+										title={errorPageTitle}
+										hint={errorPageHint}
+										hideIcon={errorHideIcon}
+										mainKlass="min-h-full!"
+									/>
+								{/if}
+							</div>
+
+							{#snippet errorPickers()}
+								{@render PickerField(
+									'variant',
+									errorVariants,
+									activeErrorVariant,
+									(v) => (activeErrorVariant = v)
+								)}
+								{@render PickerField(
+									'status',
+									errorStatusLabels,
+									errorStatusLabel,
+									(v) => (errorStatusLabel = v)
+								)}
+							{/snippet}
+							{#snippet errorToggles()}
+								{@render Toggle('hideIcon', errorHideIcon, () => (errorHideIcon = !errorHideIcon))}
+							{/snippet}
+						</div>
+					{/if}
+				</div>
 			</div>
-		</section>
-
-		<!-- LOGIN -->
-		<section class="flex flex-col gap-4" class:hidden={activeComponent !== 'login'}>
-			{#snippet loginPickers()}
-				{@render PickerField('variant', loginVariants, activeLoginVariant, (v) => (activeLoginVariant = v))}
-				{#if activeLoginVariant === 'split'}
-					{@render PickerField(
-						'imagePosition',
-						loginImagePositions,
-						loginImagePosition,
-						(v) => (loginImagePosition = v)
-					)}
-				{/if}
-			{/snippet}
-			{#snippet loginToggles()}
-				{@render Toggle('showRememberMe', loginShowRememberMe, () => (loginShowRememberMe = !loginShowRememberMe))}
-				{@render Toggle(
-					'showForgotPassword',
-					loginShowForgotPassword,
-					() => (loginShowForgotPassword = !loginShowForgotPassword)
-				)}
-				{@render Toggle('showSignUpLink', loginShowSignUpLink, () => (loginShowSignUpLink = !loginShowSignUpLink))}
-			{/snippet}
-			{@render PropsPanel(activeSection.label, activeSection.description, loginPickers, loginToggles)}
-
-			<div class="overflow-hidden rounded-lg border border-border-primary">
-				{#if activeLoginVariant === 'simple'}
-					<LoginSimple
-						appName="Acme"
-						logo={demoLogo}
-						title="Welcome back"
-						subtitle="Sign in to your Acme account"
-						loading={demoLoading}
-						error={demoError}
-						showRememberMe={loginShowRememberMe}
-						showForgotPassword={loginShowForgotPassword}
-						showSignUpLink={loginShowSignUpLink}
-						onSubmit={handleDemoSubmit}
-					/>
-				{:else if activeLoginVariant === 'split'}
-					<LoginSplit
-						appName="Acme"
-						logo={demoLogo}
-						title="Welcome back"
-						subtitle="Sign in to your Acme account"
-						panelHeading="Build something great"
-						panelDescription="Sign in to pick up right where you left off."
-						imagePosition={loginImagePosition}
-						loading={demoLoading}
-						error={demoError}
-						showRememberMe={loginShowRememberMe}
-						showForgotPassword={loginShowForgotPassword}
-						showSignUpLink={loginShowSignUpLink}
-						onSubmit={handleDemoSubmit}
-					/>
-				{:else}
-					<LoginCover
-						appName="Acme"
-						logo={demoLogo}
-						title="Welcome back"
-						subtitle="Sign in to your Acme account"
-						loading={demoLoading}
-						error={demoError}
-						showRememberMe={loginShowRememberMe}
-						showForgotPassword={loginShowForgotPassword}
-						showSignUpLink={loginShowSignUpLink}
-						onSubmit={handleDemoSubmit}
-					/>
-				{/if}
-			</div>
-		</section>
+		{/if}
 	</main>
 </div>

@@ -38,7 +38,13 @@
 		</header>
 
 		<Card variant="panel" title="Underline tabs">
-			<Tabs tabs={requestTabs} bind:active={requestTab} showIcons={false}>
+			<Tabs
+				tabs={requestTabs}
+				bind:active={requestTab}
+				showIcons={false}
+				tabKlass="uppercase tracking-wide"
+				panelKlass="mt-1"
+			>
 				<p class="text-sm text-secondary">Active request view: <strong>{requestTab}</strong></p>
 			</Tabs>
 		</Card>
@@ -48,11 +54,10 @@
 				tabs={documentTabs}
 				bind:active={documentTab}
 				variant="segmented"
-				borderRadius="20px"
-				containerBorderRadius="20px"
+				radius="full"
 				showIcons
 				iconPosition="left"
-	
+				activeKlass="ring-2 ring-accent/40"
 			>
 				<p class="text-sm text-secondary">Active document view: <strong>{documentTab}</strong></p>
 			</Tabs>
@@ -64,15 +69,20 @@
 				bind:active={classicTab}
 				variant="classic"
 				showIcons={false}
-
-				borderRadius="6px 6px 0 0"
+				parentKlass="overflow-hidden rounded-t-lg"
 			>
 				<p class="text-sm text-secondary">Active classic view: <strong>{classicTab}</strong></p>
 			</Tabs>
 		</Card>
 
 		<Card variant="panel" title="Surface tabs">
-			<Tabs tabs={documentTabs} bind:active={surfaceTab} variant="surface" showIcons>
+			<Tabs
+				tabs={documentTabs}
+				bind:active={surfaceTab}
+				variant="surface"
+				showIcons
+				klass="rounded-xl border border-border-primary p-2"
+			>
 				<p class="text-sm text-secondary">Active surface view: <strong>{surfaceTab}</strong></p>
 			</Tabs>
 		</Card>

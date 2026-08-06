@@ -1,18 +1,3 @@
-export const getQueryParam = (key: string, url = window.location.href): string | null =>
-    new URL(url).searchParams.get(key);
-
-export const setQueryParam = (key: string, value: string, url = window.location.href): string => {
-    const u = new URL(url);
-    u.searchParams.set(key, value);
-    return u.toString();
-};
-
-export const removeQueryParam = (key: string, url = window.location.href): string => {
-    const u = new URL(url);
-    u.searchParams.delete(key);
-    return u.toString();
-};
-
 export const parseQueryString = (search: string): Record<string, string> =>
     Object.fromEntries(new URLSearchParams(search).entries());
 

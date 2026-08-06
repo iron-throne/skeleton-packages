@@ -32,7 +32,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@aryagg/types": "^1.1.3",
+    "@aryagg/types": "file:../types",
     "tsup": "^8.5.1",
     "typescript": "^6.0.3"
   },

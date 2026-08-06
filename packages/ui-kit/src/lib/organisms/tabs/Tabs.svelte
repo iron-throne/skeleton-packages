@@ -11,15 +11,14 @@
 		size = ESize.MD,
 		variant = 'underline',
 		radius = 'small',
-		borderRadius = '',
-		containerBorderRadius = '',
 		showIcons = true,
 		iconPosition = 'left',
-		class: className = '',
-		tabClass = '',
-		tabStyle: customTabStyle = '',
-		panelClass = '',
-		onChange
+		klass = '',
+		tabKlass = '',
+		panelKlass = '',
+		parentKlass = '',
+		onChange,
+		activeKlass = ''
 	}: TabsProps = $props();
 
 	const tabSizeClass: Partial<Record<ESize, string>> = {
@@ -39,7 +38,6 @@
 			full: 'rounded-full'
 		}[radius]
 	);
-	const contained = $derived(variant === 'segmented' || variant === 'surface');
 	const listClass = $derived.by(() => {
 		if (variant === 'segmented') {
 			return 'w-fit gap-1 rounded-md border border-border-primary bg-surface-secondary p-[3px]';
@@ -56,22 +54,16 @@
 	function tabVariantClass(selected: boolean) {
 		if (variant === 'segmented') {
 			return `h-[30px] border border-transparent px-3.5 text-xs ${
-				selected
-					? 'border-accent! font-bold shadow-sm'
-					: ''
+				selected ? `border-accent! font-bold shadow-sm ${activeKlass}` : ''
 			}`;
 		}
 		if (variant === 'surface') {
-			return `h-[30px] px-3.5 text-xs ${
-				selected
-					? 'font-bold shadow-sm'
-					: ''
-			}`;
+			return `h-[30px] px-3.5 text-xs ${selected ? `font-bold shadow-sm ${activeKlass}` : ''}`;
 		}
 		if (variant === 'classic') {
 			return `${sizeClass} border border-border-primary ${
 				selected
-					? '-mb-px border-b-surface-primary! bg-surface-primary! font-bold text-accent!'
+					? `-mb-px border-b-surface-primary! bg-surface-primary! font-bold text-accent! ${activeKlass}`
 					: 'bg-surface-secondary! text-secondary!'
 			}`;
 		}
@@ -80,17 +72,11 @@
 		}`;
 	}
 
-	function getTabStyle(tab: TabItem, selected: boolean) {
-		const values = [borderRadius && `border-radius:${borderRadius}`];
-		const parentStyle =
-			typeof customTabStyle === 'function' ? customTabStyle(tab, selected) : customTabStyle;
-		values.push(parentStyle);
-
-		return values.filter(Boolean).join(';');
-	}
-
 	$effect.pre(() => {
-		if (!active) active = tabs.find((tab) => !tab.disabled)?.id ?? '';
+		const activeExists = tabs.some((tab) => tab.id === active);
+		if (!active || !activeExists) {
+			active = tabs.find((tab) => !tab.disabled)?.id ?? '';
+		}
 	});
 
 	function selectTab(tab: TabItem) {
@@ -100,15 +86,15 @@
 	}
 </script>
 
-<div
-	class="text-primary {className}"
-	style:border-radius={containerBorderRadius || undefined}
->
+{#snippet tabIcon(tab: TabItem, selected: boolean)}
+	<Icon icon={selected ? (tab.selectedIcon ?? tab.icon) : tab.icon} klass="size-3.5" />
+{/snippet}
+
+<div class="text-primary {klass}">
 	<div
 		role="tablist"
 		aria-disabled={disabled || undefined}
-		class="flex max-w-full items-center overflow-x-auto {listClass}"
-		style:border-radius={contained && containerBorderRadius ? containerBorderRadius : undefined}
+		class="flex max-w-full items-center overflow-x-auto {listClass} {parentKlass}"
 	>
 		{#each tabs as tab (tab.id)}
 			{@const selected = tab.id === active}
@@ -120,12 +106,11 @@
 				disabled={disabled || tab.disabled}
 				data-variant={variant}
 				class="tabs__tab inline-flex items-center justify-center gap-1.5 whitespace-nowrap font-medium transition-all duration-150 disabled:cursor-not-allowed disabled:opacity-45
-					{tabVariantClass(selected)} {radiusClass} {tabClass}"
-				style={getTabStyle(tab, selected)}
+					{tabVariantClass(selected)} {radiusClass} {tabKlass}"
 				onclick={() => selectTab(tab)}
 			>
 				{#if showIcons && iconPosition === 'left' && (tab.icon || tab.selectedIcon)}
-					<Icon icon={selected ? (tab.selectedIcon ?? tab.icon) : tab.icon} klass="h-3.5 w-3.5" />
+					{@render tabIcon(tab, selected)}
 				{/if}
 				<span>{tab.label}</span>
 				{#if tab.badge !== undefined}
@@ -141,12 +126,12 @@
 					</small>
 				{/if}
 				{#if showIcons && iconPosition === 'right' && (tab.icon || tab.selectedIcon)}
-					<Icon icon={selected ? (tab.selectedIcon ?? tab.icon) : tab.icon} klass="h-3.5 w-3.5" />
+					{@render tabIcon(tab, selected)}
 				{/if}
 			</button>
 		{/each}
 	</div>
 	{#if children}
-		<div role="tabpanel" class="pt-4 {panelClass}">{@render children()}</div>
+		<div role="tabpanel" class="pt-4 {panelKlass}">{@render children()}</div>
 	{/if}
 </div>

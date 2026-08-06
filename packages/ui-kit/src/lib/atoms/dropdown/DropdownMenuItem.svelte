@@ -12,7 +12,8 @@
 		align,
 		variant,
 		onNavigate,
-		selected = $bindable()
+		selected = $bindable(),
+		activeKlass = ''
 	}: {
 		menu: DropdownItem;
 		align: 'left' | 'right';
@@ -21,6 +22,8 @@
 		onNavigate: (item: DropdownItem) => void;
 		/** id of the last-clicked leaf item, two-way bound up through the whole menu tree. */
 		selected?: string;
+		/** Extra class(es) applied to any item while it is selected - common to all items, independent of each item's own `class`. */
+		activeKlass?: string;
 	} = $props();
 
 	// A menu item with children is itself a trigger for a nested flyout, so it recurses
@@ -89,7 +92,7 @@
 	function itemClass(m: DropdownItem) {
 		return `flex min-h-9 w-full items-center gap-[9px] border-0 bg-transparent px-3.5 py-2 text-left text-[13px] text-secondary no-underline transition-colors hover:bg-surface-secondary hover:text-primary disabled:cursor-not-allowed disabled:opacity-50 ${
 			variant === 'rounded' ? 'rounded-lg' : ''
-		} ${isSelected(m) ? 'bg-accent/10 font-semibold text-accent' : ''} ${
+		} ${isSelected(m) ? `bg-accent/10 font-semibold text-accent ${activeKlass}` : ''} ${
 			m.danger ? 'text-error' : ''
 		} ${m.class ?? ''}`;
 	}
@@ -139,7 +142,14 @@
 				onmouseleave={scheduleCloseSubmenu}
 			>
 				{#each menu.children as child, childIndex (child.id ?? childIndex)}
-					<DropdownMenuItem menu={child} {align} {variant} {onNavigate} bind:selected />
+					<DropdownMenuItem
+						menu={child}
+						{align}
+						{variant}
+						{onNavigate}
+						bind:selected
+						{activeKlass}
+					/>
 				{/each}
 			</div>
 		{/if}

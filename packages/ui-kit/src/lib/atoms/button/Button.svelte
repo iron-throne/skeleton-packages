@@ -6,9 +6,7 @@
 	let {
 		label,
 		children,
-		class: className = '',
 		klass = '',
-		classes = '',
 		variant = 'primary',
 		size = ESize.MD,
 		radius = 'md',
@@ -20,9 +18,7 @@
 		iconPosition = 'left',
 		icon,
 		onclick,
-		onClick,
 		onkeydown,
-		onKeydown,
 		onEnterKeydown,
 		...restProps
 	}: ButtonProps = $props();
@@ -34,9 +30,7 @@
 			BUTTON_SIZE_CLASS[size] ?? BUTTON_SIZE_CLASS[ESize.MD],
 			fullWidth && 'btn-full',
 			iconOnly && 'btn-icon-only',
-			className,
 			klass,
-			classes
 		]
 			.filter(Boolean)
 			.join(' ')
@@ -47,12 +41,10 @@
 	function handleClick(event: MouseEvent) {
 		if (loading || disabled) return;
 		onclick?.(event);
-		onClick?.(event);
 	}
 
 	function handleKeydown(event: KeyboardEvent) {
 		onkeydown?.(event);
-		onKeydown?.(event);
 
 		if (event.key === 'Enter') {
 			onEnterKeydown?.();
