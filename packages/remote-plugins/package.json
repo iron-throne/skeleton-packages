@@ -1,8 +1,15 @@
 {
-  "name": "remote-plugins",
+  "name": "@arygg/remote-plugins",
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "types": "./src/lib/types/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/lib/types/index.ts",
+      "default": "./src/lib/index.ts"
+    }
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -17,5 +24,8 @@
     "svelte-check": "^4.7.3",
     "typescript": "~6.0.2",
     "vite": "^8.2.0"
+  },
+  "dependencies": {
+    "@aryagg/theme": "^0.0.3"
   }
 }

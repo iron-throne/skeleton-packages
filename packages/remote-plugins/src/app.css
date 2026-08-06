@@ -1,0 +1,2 @@
+/* 1. Shared design system — imports Tailwind base + theme colors + global styles */
+@import "@aryagg/theme";
