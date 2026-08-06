@@ -114,6 +114,7 @@
 		const fieldId = keys[depth];
 		const field = groupFields.find((candidate) => candidate.id === fieldId);
 		const recordKey = field?.key ?? fieldId;
+		// eslint-disable-next-line svelte/prefer-svelte-reactivity
 		const groups = new Map<string, AdvancedFolderHierarchyRecord[]>();
 		for (const record of source) {
 			const rawValue = record[recordKey];
@@ -174,6 +175,7 @@
 		if (sourceIndex < 0 || targetIndex < 0) return;
 		const reordered = [...orderedFields];
 		const [moved] = reordered.splice(sourceIndex, 1);
+
 		reordered.splice(targetIndex, 0, moved);
 		orderedFields = reordered;
 	}
