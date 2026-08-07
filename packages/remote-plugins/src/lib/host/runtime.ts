@@ -1,7 +1,7 @@
 // This should coordinate loading and mounting, without Svelte UI concerns.
 
 import type { IMountedRemotePlugin, IRemotePluginContext, IRemotePluginManifest } from "../types";
-import { loadRemotePlugin, loadRemotePluginCached } from "./loader";
+import { loadRemotePlugin } from "./loader";
 
 
 export const mountRemotePlugin = async (
