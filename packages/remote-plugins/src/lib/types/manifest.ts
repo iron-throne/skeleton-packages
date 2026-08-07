@@ -1,11 +1,25 @@
 //The manifest describes a plugin before it is loaded:
-export interface RemotePluginManifest {
+export interface IRemotePluginManifest {
 	id: string;
 	name: string;
 	version: string;
 	entryUrl: string;
 	modes: RemotePluginMode[];
-	permissions?: RemotePluginPermission[];
+	permissions?: IRemotePluginPermission[];
+}
+
+/**
+ * Capabilities a plugin declares it needs. This is metadata only — the host
+ * decides what to do with it (e.g. show a consent screen, or reject the
+ * plugin outright). `mountRemotePlugin()` does not enforce these; wire that
+ * up in the host app once you know what each permission should gate.
+ */
+export enum IRemotePluginPermission {
+    NAVIGATE = 'navigate', // Plugin wants to call context.navigate().
+    HOST_DATA = 'host_data', // Plugin wants to read host data via the bus.
+    NOTIFICATIONS = 'notifications', // Plugin wants to show host-level notifications.
+    STORAGE = 'storage', // Plugin wants a persisted key/value slot via SAVE_STATE/STATE.
+    CLIPBOARD = 'clipboard', // Plugin wants clipboard read/write access.
 }
 
 export enum RemotePluginMode {

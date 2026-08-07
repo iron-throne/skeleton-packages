@@ -1,7 +1,13 @@
 import type { IRemotePluginContext } from "./context";
 
-// This represents one running copy of a plugin:A single plugin module could potentially create several instances. For example, the same plugin might appear as both a page and a widget.
-export interface IRemotePluginInstance {
-    update?(context: IRemotePluginContext): void;
-    destroy(): void | Promise<void>;
+/**
+ * Handle returned to the host app after a plugin has been mounted.
+ * The host uses this instead of talking to the raw plugin instance —
+ * it adds the "only destroy once" safety net.
+ */
+export interface IMountedRemotePlugin {
+    /** Push a new context (theme/locale/user/etc. changed) into the running plugin. No-ops after destroy(). */
+    update(context: IRemotePluginContext): void;
+    /** Tear down the plugin and clear its event bus. Safe to call more than once. */
+    destroy(): Promise<void>;
 }
