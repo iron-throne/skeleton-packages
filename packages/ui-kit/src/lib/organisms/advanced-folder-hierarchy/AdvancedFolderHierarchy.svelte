@@ -70,6 +70,7 @@
 	$effect(() => {
 		if (fieldsInitialized || !groupFields.length) return;
 		orderedFields = groupFields.map((field) => ({ ...field }));
+		
 		const enabledCount = orderedFields.filter((field) => field.enabled).length;
 		levels = Math.max(1, enabledCount || 1);
 		fieldsInitialized = true;
