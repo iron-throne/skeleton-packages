@@ -1,12 +1,12 @@
 {
-  "name": "@arygg/remote-plugins",
+  "name": "@aryagg/remote-plugins",
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "types": "./src/lib/types/index.ts",
+  "types": "./src/lib/index.ts",
   "exports": {
     ".": {
-      "types": "./src/lib/types/index.ts",
+      "types": "./src/lib/index.ts",
       "default": "./src/lib/index.ts"
     }
   },
