@@ -18,7 +18,6 @@ export default defineRemotePlugin((target, context) => {
 	root.innerHTML = `
 		<p class="remote-plugin-card__badge">remote plugin</p>
 		<h3>Hello from across the network 👋</h3>
-		<p>mode: <strong data-field="mode"></strong></p>
 		<p>theme: <strong data-field="theme"></strong></p>
 		<p>user: <strong data-field="user"></strong></p>
 		<button type="button" data-action="emit">Send an event to the host</button>
@@ -26,14 +25,12 @@ export default defineRemotePlugin((target, context) => {
 	`;
 	target.appendChild(root);
 
-	const modeEl = root.querySelector<HTMLElement>('[data-field="mode"]')!;
 	const themeEl = root.querySelector<HTMLElement>('[data-field="theme"]')!;
 	const userEl = root.querySelector<HTMLElement>('[data-field="user"]')!;
 	const emitBtn = root.querySelector<HTMLButtonElement>('[data-action="emit"]')!;
 	const navigateBtn = root.querySelector<HTMLButtonElement>('[data-action="navigate"]')!;
 
 	const render = (ctx: IRemotePluginContext) => {
-		modeEl.textContent = ctx.mode;
 		themeEl.textContent = ctx.theme;
 		userEl.textContent = ctx.user?.name ?? 'anonymous';
 	};

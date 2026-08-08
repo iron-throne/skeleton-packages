@@ -1,0 +1,546 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<title>@aryagg/remote-plugins — Architecture Explainer</title>
+<!--
+  This page is a plain, self-contained document — all styling lives in the
+  <style> block below. No Tailwind, no @aryagg/theme, no build step. Just
+  open the file directly (double-click it, or file://...) and it renders.
+-->
+<style>
+  :root {
+    --bg: #ffffff;
+    --surface: #f6f7f9;
+    --surface-2: #eef0f3;
+    --border: #e2e4e9;
+    --text: #1a1d23;
+    --text-secondary: #52565f;
+    --text-tertiary: #8a8f99;
+    --accent: #6d5ef7;
+    --accent-bg: rgba(109, 94, 247, 0.08);
+    --success: #1c7d4d;
+    --success-bg: #e9f7ef;
+    --success-border: #bfe6cf;
+    --warning: #92600a;
+    --warning-bg: #fdf3df;
+    --warning-border: #f1ddab;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #16181d;
+      --surface: #1d2027;
+      --surface-2: #242830;
+      --border: #2e323b;
+      --text: #e7e8ea;
+      --text-secondary: #a8adb8;
+      --text-tertiary: #767c88;
+      --accent: #a99bff;
+      --accent-bg: rgba(169, 155, 255, 0.1);
+      --success: #6fd39c;
+      --success-bg: #12291d;
+      --success-border: #204a33;
+      --warning: #e3b567;
+      --warning-bg: #2c2313;
+      --warning-border: #4d3d1c;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.6;
+  }
+
+  .layout { max-width: 72rem; margin: 0 auto; display: grid; grid-template-columns: 1fr; }
+  @media (min-width: 768px) {
+    .layout { grid-template-columns: 250px 1fr; }
+  }
+
+  nav {
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+  @media (min-width: 768px) {
+    nav {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      border-bottom: none;
+      border-right: 1px solid var(--border);
+    }
+  }
+  .toc-label {
+    margin: 0 0 1rem;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-tertiary);
+    font-weight: 600;
+  }
+  nav ol { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.6rem; font-size: 0.9rem; }
+  nav a { color: var(--text-secondary); text-decoration: none; }
+  nav a:hover { color: var(--accent); font-weight: 500; }
+
+  main { min-width: 0; padding: 1.5rem; padding-bottom: 6rem; }
+  @media (min-width: 768px) {
+    main { padding: 2.5rem; }
+  }
+
+  header.page-header {
+    margin-bottom: 2.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+  h1 { font-size: 1.9rem; margin: 0 0 0.5rem; }
+  .subtitle { color: var(--text-secondary); margin: 0; }
+
+  section { margin-bottom: 3rem; scroll-margin-top: 1.5rem; }
+  h2 {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    font-size: 1.25rem;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0.5rem;
+    margin: 0 0 1rem;
+  }
+  h2 .num { color: var(--accent); }
+  h3 { font-size: 1.05rem; margin: 1.5rem 0 0.5rem; }
+  h3 .filename { color: var(--text-tertiary); font-weight: 400; font-size: 0.85rem; }
+  p { margin: 0 0 0.9rem; }
+  p.text-secondary, li.text-secondary { color: var(--text-secondary); }
+
+  code {
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    background: var(--surface-2);
+    border-radius: 0.3rem;
+    padding: 0.1rem 0.35rem;
+    font-size: 0.85em;
+  }
+  pre {
+    overflow-x: auto;
+    border-radius: 0.6rem;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    padding: 1rem;
+    font-size: 0.8rem;
+    line-height: 1.55;
+    color: var(--text-secondary);
+  }
+  pre code { background: none; padding: 0; font-size: 1em; color: inherit; }
+  pre .accent { color: var(--accent); }
+  pre .tertiary { color: var(--text-tertiary); }
+
+  ul, ol { margin: 0 0 0.9rem; padding-left: 1.25rem; color: var(--text-secondary); }
+  li { margin-bottom: 0.3rem; }
+  li strong { color: var(--text); }
+
+  table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+  .table-wrap { overflow-x: auto; }
+  th, td { text-align: left; padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { color: var(--text-tertiary); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; }
+  td code { white-space: normal; font-size: 0.78rem; }
+
+  .card {
+    border: 1px solid var(--border);
+    border-radius: 0.6rem;
+    padding: 1rem 1.1rem;
+    background: var(--surface);
+  }
+  .card.emphasis { border-width: 2px; border-color: var(--accent); background: var(--accent-bg); }
+  .card-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; margin: 1.25rem 0; }
+  @media (min-width: 768px) {
+    .card-grid { grid-template-columns: 1fr 1fr; }
+  }
+
+  .alert {
+    margin: 1rem 0;
+    padding: 0.85rem 1rem;
+    border-radius: 0.6rem;
+    border: 1px solid;
+  }
+  .alert p { margin: 0 0 0.25rem; }
+  .alert p:last-child { margin-bottom: 0; }
+  .alert .title { font-weight: 600; }
+  .alert.success { background: var(--success-bg); border-color: var(--success-border); }
+  .alert.success .title { color: var(--success); }
+  .alert.warning { background: var(--warning-bg); border-color: var(--warning-border); }
+  .alert.warning .title { color: var(--warning); }
+
+  .badge {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    padding: 0.15rem 0.5rem;
+    border-radius: 999px;
+  }
+  .badge.accent { background: var(--accent-bg); color: var(--accent); }
+  .badge.warning { background: var(--warning-bg); color: var(--warning); }
+
+  footer {
+    border-top: 1px solid var(--border);
+    padding-top: 1.5rem;
+    font-size: 0.85rem;
+    color: var(--text-tertiary);
+  }
+</style>
+</head>
+<body>
+  <div class="layout">
+
+    <nav>
+      <p class="toc-label">remote-plugins</p>
+      <ol>
+        <li><a href="#overview">1. What it's for</a></li>
+        <li><a href="#why">2. Why it exists</a></li>
+        <li><a href="#problem">3. Problem it solves</a></li>
+        <li><a href="#contract">4. The contract (types)</a></li>
+        <li><a href="#lifecycle">5. Load → validate → mount</a></li>
+        <li><a href="#comms">6. How it talks to the rest</a></li>
+        <li><a href="#files">7. Every folder &amp; file</a></li>
+        <li><a href="#functions">8. Every function</a></li>
+        <li><a href="#dataflow">9. Data flow, step by step</a></li>
+        <li><a href="#example">10. Real-world example</a></li>
+        <li><a href="#trigger">11. What happens on mount</a></li>
+        <li><a href="#hidden">12. Hidden / non-obvious logic</a></li>
+        <li><a href="#mistakes">13. Common mistakes</a></li>
+        <li><a href="#mental-model">14. Mental model</a></li>
+      </ol>
+    </nav>
+
+    <main>
+
+      <header class="page-header">
+        <h1>@aryagg/remote-plugins</h1>
+        <p class="subtitle">A from-zero explainer of this package only — what it does, how it's built, and how the pieces fit together. Written for the next developer who opens this folder cold.</p>
+      </header>
+
+      <section id="overview">
+        <h2><span class="num">1</span> What this package is for</h2>
+        <p><code>@aryagg/remote-plugins</code> is a small <strong>library</strong>, not an app. It lets a "host" web page load a piece of UI that was <strong>built and shipped separately</strong> — possibly by a different team, on a different deploy, in a different framework — and mount it into a <code>&lt;div&gt;</code>, without the host needing to know how that UI was built.</p>
+        <p>Look at <code>package.json</code>:</p>
+        <pre><code>"exports": {
+  ".": { "types": "./src/lib/index.ts", "default": "./src/lib/index.ts" }
+}</code></pre>
+        <p>Only <code>src/lib</code> is published. Everything else in the folder (<code>App.svelte</code>, <code>main.ts</code>, <code>demo/</code>) is a <strong>dev sandbox</strong> that exists purely so you can see the library work without standing up a second server. It never ships.</p>
+      </section>
+
+      <section id="why">
+        <h2><span class="num">2</span> Why it exists</h2>
+        <p class="text-secondary">Normal component libraries require the consumer to <code>npm install</code> them and bundle everything together at build time. Every "plugin" has to be known and compiled in ahead of time.</p>
+        <p>This package solves a different problem: <strong>loading UI you didn't compile in, decided at runtime, from a URL.</strong> That's what this one line in <code>loader.ts</code> does:</p>
+        <pre><code>const module = await import(/* @vite-ignore */ url);</code></pre>
+        <p>That's a <em>live, dynamic</em> <code>import()</code> — not a static one resolved at build time.</p>
+        <div class="alert success">
+          <p class="title">Analogy</p>
+          <p>A normal library is a dish you cook yourself from your own kitchen's ingredients. A remote plugin is food delivery — someone else's kitchen (a separate deploy) cooks the dish (a JS module) and hands it to you fully wrapped (a <code>mount()</code> function). You just supply a table (the <code>target</code> element) and a way to talk to the delivery person (the <code>context</code> + <code>bus</code>).</p>
+        </div>
+      </section>
+
+      <section id="problem">
+        <h2><span class="num">3</span> The problem it solves, concretely</h2>
+        <p>Without this package, embedding "someone else's UI" into your app means one of:</p>
+        <ul>
+          <li>They publish an npm package, you install &amp; rebuild every time they ship — tight coupling, slow iteration.</li>
+          <li>You use an <code>&lt;iframe&gt;</code> — full isolation, but painful cross-window messaging and styling.</li>
+          <li>You hand-roll a dynamic <code>import()</code> yourself, with no shared contract for what gets passed in/out, no safety net if the remote code misbehaves, and no standard way to tear it down cleanly.</li>
+        </ul>
+        <p>This package is the third option, done once, correctly: a tiny, typed contract (<code>manifest</code> / <code>context</code> / <code>module</code> / <code>instance</code>) plus one function, <code>mountRemotePlugin()</code>, that does the load–validate–mount–wrap dance safely every time.</p>
+      </section>
+
+      <section id="contract">
+        <h2><span class="num">4</span> How it works internally — the shape of the contract</h2>
+        <p>Everything in <code>src/lib/types/</code> is pure interfaces/enums — no logic, just the <strong>agreed vocabulary</strong> both the host and the remote plugin must speak.</p>
+        <div class="table-wrap">
+        <table>
+          <thead><tr><th>File</th><th>Defines</th><th>Purpose</th></tr></thead>
+          <tbody>
+            <tr><td><code>manifest.ts</code></td><td><code>IRemotePluginManifest</code>, <code>ERemoteAppEvent</code></td><td>Describes a plugin <em>before</em> it's loaded (id, name, entryUrl)</td></tr>
+            <tr><td><code>context.ts</code></td><td><code>IRemotePluginContext</code>, <code>IHostInfo</code>, <code>IRemotePluginUser</code></td><td>The API object the host hands the plugin every mount/update — theme, user, locale, navigate(), bus</td></tr>
+            <tr><td><code>events.ts</code></td><td><code>IRemotePluginBus</code></td><td>Shape of the pub/sub channel: emit, on, unsubscribe, clear</td></tr>
+            <tr><td><code>module.ts</code></td><td><code>IRemotePluginModule</code></td><td>What the downloaded JS file must export: mount(target, context)</td></tr>
+            <tr><td><code>instance.ts</code></td><td><code>IMountedRemotePlugin</code></td><td>What the host gets back: update() and destroy()</td></tr>
+          </tbody>
+        </table>
+        </div>
+        <div class="alert success">
+          <p class="title">The one rule the whole system boils down to</p>
+          <p>From the bottom of <code>module.ts</code>: <em>"A remote plugin, at the end of the day, is any JavaScript file that exports a <code>mount()</code> function matching that shape. It could be built in React, Vue, vanilla JS — the host doesn't care."</em></p>
+        </div>
+      </section>
+
+      <section id="lifecycle">
+        <h2><span class="num">5</span> How plugins are loaded, validated, mounted, and returned</h2>
+        <p>This is entirely <code>host/runtime.ts</code> — one function, <code>mountRemotePlugin(manifest, target, context)</code>, running four numbered steps (the source comments literally number them):</p>
+        <pre><code>mountRemotePlugin(manifest, target, context)
+│
+├─ 1. VALIDATE MANIFEST (before touching network)
+│     └─ manifest.entryUrl must exist          → else throw
+│
+├─ 2. LOAD
+│     └─ loadRemotePlugin(manifest.entryUrl)
+│          └─ import(/* @vite-ignore */ url)   ← dynamic ES import, real network fetch
+│          └─ accept module.mount OR module.default (from defineRemotePlugin)
+│          └─ else throw "must export mount()"
+│
+├─ 3. MOUNT
+│     └─ remoteModule.mount(target, context)
+│          ├─ wrapped in try/catch → rethrown with plugin name in the message
+│          └─ result must have .destroy (function) → else throw
+│
+└─ 4. WRAP into a safe controller
+      └─ returns { update, destroy } where:
+           - update(): no-op if already destroyed
+           - destroy(): guarded to run only once,
+                         calls instance.destroy(), then context.bus.clear()</code></pre>
+        <p>Nothing here is a class — <code>mountRemotePlugin</code> is a plain async function returning a plain object closure. The <code>destroyed</code> boolean lives inside that closure; that's the hidden state guarding against double-destroy.</p>
+      </section>
+
+      <section id="comms">
+        <h2><span class="num">6</span> How this package talks to the rest of the system</h2>
+        <p class="text-secondary">There are exactly two channels between host and plugin, and they serve different purposes. Both live on the same <code>context</code> object the host constructs, but they behave completely differently.</p>
+
+        <h3>1. <code>context</code> — host → remote (one-way, snapshot)</h3>
+        <p>The host builds a plain object (<code>IRemotePluginContext</code>: <code>theme</code>, <code>locale</code>, <code>params</code>, <code>user</code>, <code>navigate()</code>, <code>bus</code>) and hands it to the plugin on mount, then again on <code>update()</code> whenever something changes:</p>
+        <pre><code>// host: RemotePluginMount.svelte
+handle = await mountRemotePlugin(manifest, container, context);
+// later, when locale/params change:
+handle.update(buildRemotePluginContext({ bus, params }));</code></pre>
+        <p>Think of it like props being passed down. The remote plugin only reads it — there's no way for the remote to write back through <code>context</code>. That's why <code>close</code> was removed from the type: a plain value can't be a two-way channel, and it duplicated what the bus already does (<code>ERemoteAppEvent.CLOSE</code>).</p>
+
+        <h3>2. <code>bus</code> — host ↔ remote (two-way, event-based)</h3>
+        <p>Both sides hold the same <code>bus</code> instance — it's part of the <code>context</code> object. Either side can emit an event, the other side listens:</p>
+        <pre><code>// interface, for reference
+emit(event: string, payload?: unknown): void
+on(event: string, handler: (payload?: unknown) => void): () => void</code></pre>
+        <p><strong>Remote → host</strong> (remote wants something from host):</p>
+        <pre><code>// inside the remote plugin
+context.bus.emit('request_host_data', { key: 'userPrefs' });
+context.bus.on('host_data', (payload) => {
+  console.log('got data from host:', payload);
+});
+
+// host side, already wired in RemotePluginMount.svelte
+localBus.on(ERemoteAppEvent.REQUEST_HOST_DATA, (payload) => {
+  const { key } = payload;
+  localBus.emit(ERemoteAppEvent.HOST_DATA, { key, value: /* real data */ });
+});</code></pre>
+        <p><strong>Host → remote</strong> (host wants to push something in, unprompted):</p>
+        <pre><code>// host side
+localBus.emit(ERemoteAppEvent.HOST_EVENT, { announcement: 'new feature!' });
+
+// remote side
+context.bus.on('host_event', (payload) => {
+  // react to it
+});</code></pre>
+
+        <div class="alert success">
+          <p class="title">The mental model</p>
+          <p><code>context</code> = a snapshot the host refreshes and re-sends — good for things like theme/locale/params that the remote just needs to know. <code>bus</code> = a shared walkie-talkie — good for anything that's a request, a response, or an event that happens at an arbitrary moment (asking for data, saving state, resizing, closing, custom app events).</p>
+          <p>Anything that used to go through a one-off field like <code>close</code> on <code>context</code> can always be done as a bus event instead — that's why removing it didn't lose any capability, just a redundant second path to the same outcome.</p>
+        </div>
+
+        <p>No HTTP call, no global variable, no <code>window.postMessage</code> anywhere in this code. The plugin and host share the same JS realm (it's a dynamic <code>import()</code>, not an iframe); <code>context</code> and its embedded <code>bus</code> are the <em>only</em> sanctioned channels between them.</p>
+      </section>
+
+      <section id="files">
+        <h2><span class="num">7</span> Every folder and file</h2>
+        <pre><code>remote-plugins/
+├── src/
+│   ├── <span class="accent">lib/</span>                        <span class="tertiary">← THE ACTUAL PUBLISHED LIBRARY</span>
+│   │   ├── index.ts                 barrel: re-exports types + host + remote
+│   │   ├── types/
+│   │   │   ├── index.ts             barrel
+│   │   │   ├── manifest.ts          IRemotePluginManifest, ERemoteAppEvent
+│   │   │   ├── context.ts           IRemotePluginContext, IHostInfo, IRemotePluginUser
+│   │   │   ├── events.ts            IRemotePluginBus
+│   │   │   ├── module.ts            IRemotePluginModule
+│   │   │   └── instance.ts          IMountedRemotePlugin
+│   │   ├── <span class="badge accent">host</span>                    <span class="tertiary">← code that runs INSIDE THE HOST APP</span>
+│   │   │   ├── index.ts             barrel
+│   │   │   ├── bus.ts               createRemotePluginBus()
+│   │   │   ├── loader.ts            loadRemotePlugin(), loadRemotePluginCached()
+│   │   │   └── runtime.ts           mountRemotePlugin()
+│   │   └── <span class="badge warning">remote</span>                  <span class="tertiary">← code a PLUGIN AUTHOR imports</span>
+│   │       ├── index.ts             barrel
+│   │       └── definePlugin.ts      defineRemotePlugin()
+│   │
+│   ├── demo/
+│   │   └── exampleRemotePlugin.ts   a fake "remote" plugin, used only for the dev preview
+│   ├── App.svelte                   dev-only page: plays the HOST, mounts the demo plugin
+│   ├── main.ts                      dev-only Svelte bootstrap (mounts App.svelte to #app)
+│   └── app.css                      pulls in the shared Tailwind theme for the dev page
+│
+├── index.html                       dev server HTML shell
+├── package.json                     name, exports (only src/lib!), deps
+├── vite.config.ts / svelte.config.js / tsconfig*.json   build tooling for the dev sandbox
+└── public/favicon.svg</code></pre>
+        <p>The dividing line that matters most: <strong><code>lib/host</code> vs <code>lib/remote</code></strong>. <code>exampleRemotePlugin.ts</code> has a comment making this explicit — a remote plugin must only ever import from <code>lib/remote</code> and <code>lib/types</code>, never <code>lib/host</code>. That's not enforced by a linter, just convention plus file layout — but it's the core architectural boundary of the whole package.</p>
+      </section>
+
+      <section id="functions">
+        <h2><span class="num">8</span> Every function / module, in plain English</h2>
+
+        <h3><code>createRemotePluginBus()</code> <span class="filename">— bus.ts</span></h3>
+        <p>Factory that builds one pub/sub instance. Internally: <code>Map&lt;eventName, Set&lt;handler&gt;&gt;</code>.</p>
+        <ul>
+          <li><code>emit(event, payload)</code> — copies the handler Set to an array first, <em>then</em> iterates, so a handler that subscribes/unsubscribes mid-emit can't corrupt the live Set.</li>
+          <li><code>on(event, handler)</code> — adds to the Set, returns an unsubscribe closure (the primary way to unsubscribe — no need to keep the handler reference around).</li>
+          <li><code>unsubscribe(event, handler)</code> — manual removal if you kept the handler reference.</li>
+          <li><code>clear()</code> — nukes every handler for every event. Called once by <code>mountRemotePlugin</code>'s <code>destroy()</code>.</li>
+        </ul>
+
+        <h3><code>loadRemotePlugin(url)</code> <span class="filename">— loader.ts</span></h3>
+        <p>Does the actual <code>import(url)</code>, then normalizes the result: accepts either <code>export const mount = ...</code> (named) or <code>export default defineRemotePlugin(...)</code> (default). Throws if neither shape is found.</p>
+
+        <h3><code>loadRemotePluginCached(url)</code> <span class="filename">— loader.ts</span></h3>
+        <p>A memoizing wrapper around the above, keyed by URL in a module-level <code>Map&lt;string, Promise&lt;...&gt;&gt;</code>. If the promise rejects, it deletes itself from the cache so a later call can retry.</p>
+        <div class="alert warning"><p><strong>Not currently used by <code>mountRemotePlugin</code></strong> — see section 12.</p></div>
+
+        <h3><code>mountRemotePlugin(manifest, target, context)</code> <span class="filename">— runtime.ts</span></h3>
+        <p>The orchestrator described in section 5: validate → load → mount → wrap.</p>
+
+        <h3><code>defineRemotePlugin(setup)</code> <span class="filename">— definePlugin.ts</span></h3>
+        <p>A one-line identity-ish helper: <code>(setup) =&gt; ({ mount: setup })</code>. Does nothing at runtime except give TypeScript autocomplete on <code>target</code>/<code>context</code> and guarantee the object shape the loader expects. Purely a DX helper for plugin authors — the host's loader would accept a hand-written <code>{ mount: ... }</code> object just as well.</p>
+      </section>
+
+      <section id="dataflow">
+        <h2><span class="num">9</span> Data flow, step by step</h2>
+        <p>Using the only real example in the package — <code>App.svelte</code> mounting <code>exampleRemotePlugin.ts</code>:</p>
+        <pre><code><span class="accent">HOST (App.svelte)</span>                              <span class="accent">REMOTE (exampleRemotePlugin.ts)</span>
+──────────────────                              ───────────────────────────────
+1. const bus = createRemotePluginBus()
+2. bus.on(READY, ...) bus.on(CUSTOM_EVENT,...)   (must happen BEFORE step 4!)
+3. build manifest { entryUrl }
+4. await mountRemotePlugin(manifest, el, ctx) ─────▶ import(entryUrl)  (network/module fetch)
+                                                  ◀── module resolved, .mount found
+                                                  remoteModule.mount(target, context) runs:
+                                                     - builds DOM, appends to target
+                                                     - reads context.theme/user → renders
+                                                     - wires button clicks → context.bus.emit(...)
+                                                     - context.bus.emit(READY)  ───────┐
+5. bus fires READY handler ◀──────────────────────────────────────────────────────────┘
+                                                     returns { update, destroy }
+6. mountRemotePlugin wraps it, returns controller
+7. controller stored; mounted = true
+
+--- user clicks "Toggle theme" ---
+8. toggleTheme() rebuilds context, calls controller.update(newContext)
+                                                  ──▶ instance.update(nextContext) → re-renders text
+
+--- user clicks "Send an event to host" (inside the plugin's own UI) ---
+                                                  plugin: context.bus.emit(CUSTOM_EVENT, {...})
+9. bus fires CUSTOM_EVENT handler → appendLog(...)
+
+--- user clicks "Destroy plugin" ---
+10. controller.destroy()
+                                                  ──▶ instance.destroy(): removes listeners, removes DOM
+11. context.bus.clear()   (all handlers gone)</code></pre>
+        <div class="alert warning">
+          <p class="title">Gotcha called out in the code itself</p>
+          <p>The plugin emits <code>READY</code> <strong>synchronously inside its own <code>mount()</code></strong>, which runs before <code>mountRemotePlugin()</code>'s promise resolves (<code>App.svelte</code>, around lines 71–76). If you register <code>bus.on(READY, ...)</code> <em>after</em> <code>await mountRemotePlugin(...)</code>, you silently miss that first event. Listeners must be registered first.</p>
+        </div>
+      </section>
+
+      <section id="example">
+        <h2><span class="num">10</span> Real-world example of usage</h2>
+        <p>Picture a company dashboard (the <strong>host</strong>). A separate team ships a "billing widget" as its own deployed bundle at <code>https://billing.example.com/widget/v2/entry.js</code>. The host never installs that team's code as an npm dependency — it just does:</p>
+        <pre><code>const manifest: IRemotePluginManifest = {
+  id: 'billing-widget',
+  name: 'Billing Widget',
+  version: '2.0.0',
+  entryUrl: 'https://billing.example.com/widget/v2/entry.js',
+};
+
+const controller = await mountRemotePlugin(manifest, containerEl, {
+  apiVersion: 1,
+  host: { id: 'dashboard', name: 'Main Dashboard' },
+  user: currentUser,
+  theme: currentTheme,
+  locale: 'en',
+  params: {},
+  navigate: (path) => router.push(path),
+  bus,
+});</code></pre>
+        <p>The billing team can redeploy their widget independently — the dashboard doesn't rebuild, doesn't even know the widget changed, as long as it still exports a compatible <code>mount()</code>. That decoupling — separate deploy, shared-at-runtime contract — is the entire value proposition of this package.</p>
+      </section>
+
+      <section id="trigger">
+        <h2><span class="num">11</span> What happens internally when a plugin is mounted</h2>
+        <p>Concretely, in order, inside <code>mountRemotePlugin</code>:</p>
+        <ol>
+          <li>The <code>entryUrl</code> guard runs synchronously — zero network cost if the manifest is malformed.</li>
+          <li><code>await import(url)</code> — the browser/Vite fetches and evaluates the remote module. This is where an unreachable URL, a 404, or a syntax error in the remote file would throw.</li>
+          <li>Shape-check on the resolved module (<code>typeof module.mount === 'function'</code>), checking both named and default export.</li>
+          <li><code>remoteModule.mount(target, context)</code> executes the plugin's own setup code — inside a <code>try/catch</code> so a throwing plugin doesn't produce a stack trace pointing at your host code; it's rethrown with the plugin's name prefixed.</li>
+          <li>Shape-check on what <code>mount()</code> returned (must have <code>.destroy</code>).</li>
+          <li>A fresh closure-scoped <code>destroyed</code> flag is created, and the <code>{update, destroy}</code> controller object is returned to the caller.</li>
+        </ol>
+      </section>
+
+      <section id="hidden">
+        <h2><span class="num">12</span> Hidden / non-obvious logic worth knowing</h2>
+
+        <div class="alert warning">
+          <p class="title">loadRemotePluginCached is effectively dead code from mountRemotePlugin's perspective</p>
+          <p><code>runtime.ts</code> imports and calls the <em>uncached</em> <code>loadRemotePlugin</code> directly. The cached version is exported from the barrel and available to a host app that wants to call it manually, but the main entry point doesn't use it — repeat mounts of the same URL are not deduped by this library unless you call <code>loadRemotePluginCached</code> yourself. (Note: native <code>import()</code> on an identical URL is already deduped by the JS engine's module graph, so re-importing the same <code>entryUrl</code> mostly doesn't re-run top-level code anyway — the cache mainly saves you from redundant shape-validation and redundant in-flight requests, not redundant fetches.)</p>
+        </div>
+
+        <div class="alert warning">
+          <p class="title">Most of ERemoteAppEvent is unimplemented plumbing</p>
+          <p>The enum lists 20 event names (<code>SAVE_STATE</code>/<code>STATE</code>, <code>REQUEST_HOST_DATA</code>/<code>HOST_DATA</code>, <code>PERMISSION_REQUEST</code>/<code>PERMISSION_RESPONSE</code>, etc.), but the bus itself is generic (<code>emit(event: string, payload?: unknown)</code>) and doesn't special-case any of them. Only <code>READY</code>, <code>NAVIGATE</code>, and <code>CUSTOM_EVENT</code> are actually wired up anywhere in this package (in the demo). The rest are a shared <strong>vocabulary</strong>, not working features — a real host/plugin pair has to implement the request/response logic for e.g. <code>SAVE_STATE</code> → <code>STATE</code> themselves.</p>
+        </div>
+
+        <div class="alert success">
+          <p class="title">destroy() is idempotent, update() is a silent no-op post-destroy</p>
+          <p>Calling either after teardown will not throw, it just does nothing. Deliberate defensive design — but it means a bug that calls <code>update()</code> after <code>destroy()</code> fails <em>silently</em> rather than loudly. Worth remembering when debugging "why doesn't my context update reach the plugin."</p>
+        </div>
+
+        <div class="alert success">
+          <p class="title">update() is optional on the raw module, mandatory on the wrapped controller</p>
+          <p>A plugin's own <code>mount()</code> doesn't have to return <code>update</code> — the runtime only checks for <code>destroy</code>. If a plugin omits <code>update</code>, calling <code>controller.update()</code> just does nothing (optional chaining: <code>instance.update?.(nextContext)</code>), no error.</p>
+        </div>
+      </section>
+
+      <section id="mistakes">
+        <h2><span class="num">13</span> Common mistakes developers make with this package</h2>
+        <ol>
+          <li><strong>Registering bus listeners after <code>await mountRemotePlugin(...)</code></strong> — misses the synchronous <code>READY</code> event.</li>
+          <li><strong>Returning an object without <code>destroy()</code></strong> from your plugin's <code>mount()</code> — throws immediately: <code>"...mount() did not return an instance with destroy()"</code>.</li>
+          <li><strong>Forgetting to remove your own DOM/event listeners</strong> inside your plugin's <code>destroy()</code> — the runtime only guarantees its own teardown (<code>bus.clear()</code>); anything the plugin attached (like button click listeners) is the plugin author's responsibility to remove.</li>
+          <li><strong>Assuming <code>mountRemotePlugin</code> caches/dedupes loads</strong> — it doesn't (see section 12); calling it twice for the same URL re-runs the full load→mount pipeline twice.</li>
+          <li><strong>Reusing the same <code>target</code> element for a second plugin</strong> without destroying the first — nothing in <code>runtime.ts</code> clears <code>target</code> before mounting; a second <code>mount()</code> call just appends alongside the first plugin's DOM.</li>
+        </ol>
+      </section>
+
+      <section id="mental-model">
+        <h2><span class="num">14</span> Mental model to explain this to someone else</h2>
+        <div class="card emphasis">
+          <p><strong><code>remote-plugins</code> is a two-drawer toolbox plus one function that connects them.</strong></p>
+          <ul>
+            <li><strong>Drawer 1 — <code>types/</code></strong>: the paperwork both sides agree to before anything runs — what a plugin declares about itself (<code>manifest</code>), what info/comms channel the host hands it (<code>context</code> + <code>bus</code>), and what shape the loaded code and its return value must have (<code>module</code>, <code>instance</code>).</li>
+            <li><strong>Drawer 2a — <code>host/</code></strong>: three tools for whoever is <em>hosting</em> a plugin — <code>createRemotePluginBus()</code> to make a walkie-talkie, <code>loadRemotePlugin()</code> to fetch-and-shape-check the remote code, and <code>mountRemotePlugin()</code> — the one function that chains "validate → load → mount → wrap safely" and hands back a <code>{update, destroy}</code> remote control.</li>
+            <li><strong>Drawer 2b — <code>remote/</code></strong>: one convenience helper, <code>defineRemotePlugin()</code>, for whoever is <em>writing</em> a plugin — wraps your setup function into <code>{ mount: setup }</code> with type-checking.</li>
+            <li><strong>The <code>demo/</code> + <code>App.svelte</code> + <code>main.ts</code> files are not part of the toolbox</strong> — they're a stage play acting out both roles (host and remote) in one process, purely so you can watch the whole exchange happen without deploying anything.</li>
+          </ul>
+          <p>If you strip away comments and types, the entire runtime behavior is ~25 lines in <code>runtime.ts</code> and ~25 lines in <code>bus.ts</code>. Everything else is contract (types), convenience (the <code>defineRemotePlugin</code> wrapper), or demonstration (the Svelte shell).</p>
+        </div>
+      </section>
+
+      <footer>
+        Generated explainer for <code>@aryagg/remote-plugins</code>. Covers only this package's own source — no other packages in the monorepo are referenced.
+      </footer>
+
+    </main>
+  </div>
+</body>
+</html>

@@ -13,7 +13,6 @@
   import {
     mountRemotePlugin,
     createRemotePluginBus,
-    RemotePluginMode,
     ERemoteAppEvent,
     type IRemotePluginManifest,
     type IRemotePluginContext,
@@ -41,7 +40,6 @@
     name: "Demo Widget",
     version: "1.0.0",
     entryUrl: new URL("./demo/exampleRemotePlugin.ts", import.meta.url).href,
-    modes: [RemotePluginMode.WIDGET],
   };
 
   function appendLog(entry: string) {
@@ -60,10 +58,11 @@
         : null,
       theme,
       locale: "en",
-      mode: RemotePluginMode.WIDGET,
       params: {},
-      navigate: (path) =>
-        appendLog(`remote asked host to navigate → "${path}"`),
+      navigate: (path, params = {}) =>
+        appendLog(
+          `remote asked host to navigate → "${path}" ${Object.keys(params).length ? JSON.stringify(params) : ""}`,
+        ),
       bus,
     };
   }

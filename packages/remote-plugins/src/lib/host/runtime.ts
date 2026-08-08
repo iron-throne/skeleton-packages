@@ -14,12 +14,6 @@ export const mountRemotePlugin = async (
     if (!manifest.entryUrl) {
         throw new Error(`Remote plugin "${manifest.name}" has no entryUrl`);
     }
-    if (!manifest.modes || manifest.modes.length === 0) {
-        throw new Error(`Remote plugin "${manifest.name}" has no modes`);
-    }
-    if (!manifest.modes.includes(context.mode)) {
-        throw new Error(`Remote plugin "${manifest.name}" does not support mode "${context.mode}"`);
-    }
 
     // 2. Load (and cache) the remote plugin's JS module.
     const remoteModule = await loadRemotePlugin(manifest.entryUrl);

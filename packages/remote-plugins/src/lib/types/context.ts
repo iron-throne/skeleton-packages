@@ -1,7 +1,6 @@
 // The context is the host-controlled API passed to a running plugin:
 
 import type { ETheme } from "@aryagg/types";
-import type { RemotePluginMode } from "./manifest";
 import type { IRemotePluginBus } from "./events";
 
 
@@ -23,15 +22,9 @@ export interface IRemotePluginContext {
 	user: IRemotePluginUser | null;
 	theme: ETheme;
 	locale: string;
-	mode: RemotePluginMode;
 	/** Route params / launch params (e.g. `{ courseId: '...' }` from `/apps/[appId]/[...rest]`). */
-
 	params: Record<string, string>;
 	/** Host-owned navigation — a remote app must never touch the host's router directly. */
-
-	navigate(path: string): void;
-	/** Present only when `mode === 'modal'`. */
-
-	close?(): void;
+	navigate(path: string, params?: Record<string, string>): void;
 	bus: IRemotePluginBus;
 }
