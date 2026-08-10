@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { untrack } from 'svelte';
+	import type { TableColumn } from '@aryagg/types';
 	import {
 		ArrowDown,
 		ArrowDownUp,
@@ -11,6 +12,9 @@
 		Search,
 		X
 	} from 'svelte-bootstrap-icons';
+	import Button from '../../atoms/button/Button.svelte';
+	import InputField from '../../atoms/input-field/InputField.svelte';
+	import DataTable from '../data-table/DataTable.svelte';
 	import type {
 		AdvancedTableColumn,
 		AdvancedTableFilterGroup,
@@ -62,6 +66,21 @@
 	const visibleColumns = $derived(
 		columns.filter((column) => visibleColumnKeys.includes(column.key))
 	);
+	const dataTableColumns = $derived<TableColumn[]>([
+		...(selectable
+			? [{ key: '__selection', label: '', class: 'advanced-table__select-cell' }]
+			: []),
+		...visibleColumns.map((column) => ({
+			key: column.key,
+			label: column.label,
+			class:
+				column.align === 'center'
+					? 'advanced-table__align-center'
+					: column.align === 'right'
+						? 'advanced-table__align-right'
+						: undefined
+		}))
+	]);
 	const activeFilterItems = $derived(
 		filterGroups.flatMap((group) =>
 			(activeFilters[group.key] ?? []).map((value) => ({
@@ -202,10 +221,11 @@
 	{#if filterGroups.length}
 		<aside class="advanced-table__filters">
 			<div class="advanced-table__filter-header">
-				<strong>{filterTitle}</strong>
-				<button
+				{#if !filtersCollapsed}<strong>{filterTitle}</strong>{/if}
+				<Button
 					type="button"
-					class="advanced-table__icon-button"
+					klass="advanced-table__icon-button"
+					variant="ghost"
 					aria-label={filtersCollapsed ? 'Expand filters' : 'Collapse filters'}
 					onclick={() => (filtersCollapsed = !filtersCollapsed)}
 				>
@@ -213,7 +233,7 @@
 							width={14}
 							height={14}
 						/>{/if}
-				</button>
+				</Button>
 			</div>
 
 			{#if !filtersCollapsed}
@@ -231,10 +251,12 @@
 				<div class="advanced-table__filter-list">
 					{#each activeGroup?.options ?? [] as option (option.value)}
 						{@const active = (activeFilters[activeGroupKey] ?? []).includes(option.value)}
-						<button
+						<Button
 							type="button"
-							class:advanced-table__filter-item--active={active}
-							class="advanced-table__filter-item"
+							klass="advanced-table__filter-item {active
+								? 'advanced-table__filter-item--active'
+								: ''}"
+							variant="ghost"
 							aria-pressed={active}
 							onclick={() => toggleFilter(activeGroupKey, option.value)}
 						>
@@ -248,7 +270,7 @@
 							{#if option.count !== undefined}
 								<span class="advanced-table__filter-count">{option.count}</span>
 							{/if}
-						</button>
+						</Button>
 					{/each}
 				</div>
 			{/if}
@@ -260,30 +282,38 @@
 			<div class="advanced-table__active-filters">
 				{#each activeFilterItems as item (`${item.group.key}-${item.option?.value}`)}
 					{#if item.option}
-						<button
+						<Button
 							type="button"
-							class="advanced-table__filter-chip"
+							klass="advanced-table__filter-chip"
+							variant="ghost"
 							onclick={() => toggleFilter(item.group.key, item.option!.value)}
 						>
 							<span>{item.group.label}: {item.option.label}</span><X width={11} height={11} />
-						</button>
+						</Button>
 					{/if}
 				{/each}
-				<button type="button" class="advanced-table__clear" onclick={clearFilters}>Clear</button>
+				<Button type="button" klass="advanced-table__clear" variant="ghost" onclick={clearFilters}
+					>Clear</Button
+				>
 			</div>
 		{/if}
 
 		<div class="advanced-table__toolbar">
-			<label class="advanced-table__search">
-				<Search width={14} height={14} />
-				<input type="search" bind:value={query} placeholder={searchPlaceholder} />
-			</label>
+			<div class="advanced-table__search">
+				<InputField
+					type="search"
+					bind:value={query}
+					placeholder={searchPlaceholder}
+					icon={Search}
+				/>
+			</div>
 
 			<div class="advanced-table__toolbar-actions">
 				<div class="advanced-table__popover-wrap">
-					<button
+					<Button
 						type="button"
-						class="advanced-table__toolbar-button"
+						klass="advanced-table__toolbar-button"
+						variant="outline"
 						aria-expanded={columnsOpen}
 						onclick={() => {
 							columnsOpen = !columnsOpen;
@@ -291,20 +321,20 @@
 						}}
 					>
 						<Columns width={14} height={14} /> Columns <ChevronDown width={11} height={11} />
-					</button>
+					</Button>
 					{#if columnsOpen}
 						<div class="advanced-table__popover advanced-table__columns-popover">
 							<p>Visible columns</p>
 							<div class="advanced-table__column-options">
 								{#each columns as column (column.key)}
-									<button
+									<Button
 										type="button"
-										class:advanced-table__column-chip--active={visibleColumnKeys.includes(
-											column.key
-										)}
-										class="advanced-table__column-chip"
+										klass="advanced-table__column-chip {visibleColumnKeys.includes(column.key)
+											? 'advanced-table__column-chip--active'
+											: ''}"
+										variant="ghost"
 										aria-pressed={visibleColumnKeys.includes(column.key)}
-										onclick={() => toggleColumn(column.key)}>{column.label}</button
+										onclick={() => toggleColumn(column.key)}>{column.label}</Button
 									>
 								{/each}
 							</div>
@@ -314,9 +344,10 @@
 
 				{#if views.length}
 					<div class="advanced-table__popover-wrap">
-						<button
+						<Button
 							type="button"
-							class="advanced-table__toolbar-button"
+							klass="advanced-table__toolbar-button"
+							variant="outline"
 							aria-expanded={viewsOpen}
 							onclick={() => {
 								viewsOpen = !viewsOpen;
@@ -324,21 +355,23 @@
 							}}
 						>
 							View <ChevronDown width={11} height={11} />
-						</button>
+						</Button>
 						{#if viewsOpen}
 							<div class="advanced-table__popover advanced-table__views-popover">
 								<p>Saved views</p>
 								{#each views as view (view.id)}
-									<button
+									<Button
 										type="button"
-										class:advanced-table__view--active={activeViewId === view.id}
-										class="advanced-table__view"
+										klass="advanced-table__view {activeViewId === view.id
+											? 'advanced-table__view--active'
+											: ''}"
+										variant="ghost"
 										onclick={() => applyView(view)}
 									>
 										<span>{view.name}</span>
 										{#if view.default}<small>Default</small>{/if}
 										{#if view.personal}<small>Personal</small>{/if}
-									</button>
+									</Button>
 								{/each}
 							</div>
 						{/if}
@@ -351,87 +384,18 @@
 
 		<div class="advanced-table__card">
 			<div class="advanced-table__scroll">
-				<table>
-					<thead>
-						<tr>
-							{#if selectable}
-								<th class="advanced-table__select-cell">
-									<input
-										type="checkbox"
-										checked={pageSelected}
-										aria-label="Select all rows on this page"
-										onchange={togglePage}
-									/>
-								</th>
-							{/if}
-							{#each visibleColumns as column (column.key)}
-								<th
-									style:width={column.width}
-									class:advanced-table__sortable={column.sortable}
-									class:advanced-table__align-center={column.align === 'center'}
-									class:advanced-table__align-right={column.align === 'right'}
-									onclick={() => toggleSort(column)}
-								>
-									<span>
-										{column.label}
-										{#if column.sortable}
-											{#if sortKey === column.key}
-												{#if sortDirection === 'asc'}<ArrowUp
-														width={11}
-														height={11}
-													/>{:else}<ArrowDown width={11} height={11} />{/if}
-											{:else}
-												<ArrowDownUp width={10} height={10} />
-											{/if}
-										{/if}
-									</span>
-								</th>
-							{/each}
-							{#if RowActions}<th class="advanced-table__actions-heading">Actions</th>{/if}
-						</tr>
-					</thead>
-					<tbody>
-						{#if pageRows.length === 0}
-							<tr>
-								<td
-									class="advanced-table__empty"
-									colspan={visibleColumns.length + (selectable ? 1 : 0) + (RowActions ? 1 : 0)}
-									>{emptyText}</td
-								>
-							</tr>
-						{:else}
-							{#each pageRows as row (row.id)}
-								<tr class:advanced-table__row--selected={selectedIds.includes(row.id)}>
-									{#if selectable}
-										<td class="advanced-table__select-cell">
-											<input
-												type="checkbox"
-												checked={selectedIds.includes(row.id)}
-												aria-label="Select row"
-												onchange={() => toggleRow(row.id)}
-											/>
-										</td>
-									{/if}
-									{#each visibleColumns as column (column.key)}
-										<td
-											class:advanced-table__align-center={column.align === 'center'}
-											class:advanced-table__align-right={column.align === 'right'}
-										>
-											{#if CustomCell}
-												{@render CustomCell(row, column)}
-											{:else}
-												{String(row[column.key] ?? '')}
-											{/if}
-										</td>
-									{/each}
-									{#if RowActions}
-										<td class="advanced-table__row-actions">{@render RowActions(row)}</td>
-									{/if}
-								</tr>
-							{/each}
-						{/if}
-					</tbody>
-				</table>
+				<DataTable
+					columns={dataTableColumns}
+					rows={pageRows}
+					{emptyText}
+					{pageSize}
+					hidePagination
+					embedded
+					actions={RowActions}
+					CustomHeader={AdvancedHeader}
+					CustomCell={AdvancedCell}
+					rowClass={(row) => (selectedIds.includes(row.id) ? 'advanced-table__row--selected' : '')}
+				/>
 			</div>
 
 			<div class="advanced-table__pagination">
@@ -449,21 +413,79 @@
 					</select>
 				</label>
 				<div class="advanced-table__page-buttons">
-					<button
+					<Button
 						type="button"
+						variant="ghost"
 						aria-label="Previous page"
 						disabled={currentPage === 1}
-						onclick={() => (currentPage -= 1)}><ChevronLeft width={13} height={13} /></button
+						onclick={() => (currentPage -= 1)}><ChevronLeft width={13} height={13} /></Button
 					>
 					<span>{currentPage} / {totalPages}</span>
-					<button
+					<Button
 						type="button"
+						variant="ghost"
 						aria-label="Next page"
 						disabled={currentPage === totalPages}
-						onclick={() => (currentPage += 1)}><ChevronRight width={13} height={13} /></button
+						onclick={() => (currentPage += 1)}><ChevronRight width={13} height={13} /></Button
 					>
 				</div>
 			</div>
 		</div>
 	</section>
 </div>
+
+{#snippet AdvancedHeader(column: TableColumn)}
+	{#if column.key === '__selection'}
+		<input
+			type="checkbox"
+			checked={pageSelected}
+			aria-label="Select all rows on this page"
+			onchange={togglePage}
+		/>
+	{:else}
+		{@const advancedColumn = visibleColumns.find((item) => item.key === column.key)}
+		{#if advancedColumn}
+			<Button
+				type="button"
+				klass="advanced-table__column-header {advancedColumn.sortable
+					? 'advanced-table__sortable'
+					: ''}"
+				variant="ghost"
+				onclick={() => toggleSort(advancedColumn)}
+			>
+				{advancedColumn.label}
+				{#if advancedColumn.sortable}
+					{#if sortKey === advancedColumn.key}
+						{#if sortDirection === 'asc'}
+							<ArrowUp width={11} height={11} />
+						{:else}
+							<ArrowDown width={11} height={11} />
+						{/if}
+					{:else}
+						<ArrowDownUp width={10} height={10} />
+					{/if}
+				{/if}
+			</Button>
+		{/if}
+	{/if}
+{/snippet}
+
+{#snippet AdvancedCell(row: AdvancedTableRow, column: TableColumn)}
+	{#if column.key === '__selection'}
+		<input
+			type="checkbox"
+			checked={selectedIds.includes(row.id)}
+			aria-label="Select row"
+			onchange={() => toggleRow(row.id)}
+		/>
+	{:else}
+		{@const advancedColumn = visibleColumns.find((item) => item.key === column.key)}
+		{#if advancedColumn}
+			{#if CustomCell}
+				{@render CustomCell(row, advancedColumn)}
+			{:else}
+				{String(row[advancedColumn.key] ?? '')}
+			{/if}
+		{/if}
+	{/if}
+{/snippet}

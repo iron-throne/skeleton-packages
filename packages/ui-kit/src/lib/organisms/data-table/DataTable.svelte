@@ -1,4 +1,3 @@
-
 <!-- eslint-disable @typescript-eslint/no-unused-vars  -->
 <script lang="ts">
 	import type { Snippet } from 'svelte';
@@ -18,7 +17,9 @@
 		pageSizeOptions = [10, 25, 50],
 		emptyText = 'No data found.',
 		hidePagination = false,
-		paginationKlass = "",
+		paginationKlass = '',
+		embedded = false,
+		rowClass,
 		actions,
 		CustomHeader,
 		CustomCell
@@ -33,6 +34,8 @@
 		emptyText?: string;
 		paginationKlass?: string;
 		hidePagination?: boolean;
+		embedded?: boolean;
+		rowClass?: (row: any) => string;
 		actions?: Snippet<[any]>;
 		CustomHeader?: Snippet<[TableColumn, number]>;
 		CustomCell?: Snippet<[any, TableColumn]>;
@@ -97,7 +100,7 @@
 	}
 </script>
 
-<div class="flex flex-col gap-3">
+<div class={embedded ? '' : 'flex flex-col gap-3'}>
 	<div class="flex justify-between gap-2 items-baseline">
 		<!-- Search bar -->
 		{#if searchable}
@@ -131,7 +134,7 @@
 	</div>
 
 	<!-- Table -->
-	<div class="w-full overflow-auto rounded-xl border">
+	<div class={embedded ? 'w-full' : 'w-full overflow-auto rounded-xl border'}>
 		<table class="w-full text-sm">
 			<thead>
 				<tr class="bg-surface-secondary text-secondary">
@@ -142,7 +145,6 @@
                                    {col.sortable
 								? 'hover:text-primary cursor-pointer transition-colors select-none'
 								: ''}"
-							
 							onclick={() => col.sortable && toggleSort(col.key)}
 						>
 							<span class="inline-flex items-center gap-1.5">
@@ -198,7 +200,7 @@
 					</tr>
 				{:else}
 					{#each paginated as row, rowInd (rowInd)}
-						<tr class="hover:bg-surface-secondary/50 transition-colors">
+						<tr class="hover:bg-surface-secondary/50 transition-colors {rowClass?.(row) ?? ''}">
 							{#each columns as col, colInd (colInd)}
 								<td class="text-primary/80 text-sm px-4 py-3 whitespace-nowrap {col.class}">
 									{#if CustomCell}

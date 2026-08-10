@@ -982,10 +982,13 @@
   }
   .advanced-table__filters {
     flex: 0 0 218px;
+    min-width: 0;
+    overflow: hidden;
     border: 1px solid var(--border-primary);
     border-right: 0;
     border-radius: 8px 0 0 8px;
     background: var(--surface-primary);
+    transition: flex-basis 240ms ease;
   }
   .advanced-table--collapsed .advanced-table__filters {
     flex-basis: 46px;
@@ -1000,6 +1003,10 @@
     font-size: 12px;
     text-transform: uppercase;
     letter-spacing: 0.06em;
+  }
+  .advanced-table--collapsed .advanced-table__filter-header {
+    justify-content: center;
+    padding-inline: 0;
   }
   .advanced-table__icon-button {
     display: inline-flex;
@@ -1137,9 +1144,8 @@
     width: min(310px, 100%);
     color: var(--text-tertiary);
   }
-  .advanced-table__search > :global(svg) {
-    position: absolute;
-    left: 10px;
+  .advanced-table__search > div {
+    width: 100%;
   }
   .advanced-table__search input {
     width: 100%;
@@ -1254,6 +1260,23 @@
   }
   .advanced-table__scroll {
     overflow-x: auto;
+    scrollbar-color: var(--text-tertiary) var(--surface-tertiary);
+    scrollbar-width: auto;
+  }
+  .advanced-table__scroll::-webkit-scrollbar {
+    height: 10px;
+  }
+  .advanced-table__scroll::-webkit-scrollbar-track {
+    background: var(--surface-tertiary);
+    border-top: 1px solid var(--border-primary);
+  }
+  .advanced-table__scroll::-webkit-scrollbar-thumb {
+    border: 2px solid var(--surface-tertiary);
+    border-radius: 999px;
+    background: var(--text-tertiary);
+  }
+  .advanced-table__scroll::-webkit-scrollbar-thumb:hover {
+    background: var(--text-secondary);
   }
   table {
     width: 100%;
@@ -1281,6 +1304,18 @@
   .advanced-table__sortable {
     cursor: pointer;
     user-select: none;
+  }
+  .advanced-table__column-header {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-transform: inherit;
+    letter-spacing: inherit;
   }
   td {
     padding: 10px 12px;

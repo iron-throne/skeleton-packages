@@ -94,7 +94,7 @@
 	<div
 		role="tablist"
 		aria-disabled={disabled || undefined}
-		class="flex max-w-full items-center overflow-x-auto {listClass} {parentKlass}"
+		class="flex  max-w-full items-center overflow-x-auto {listClass} {parentKlass} "
 	>
 		{#each tabs as tab (tab.id)}
 			{@const selected = tab.id === active}
