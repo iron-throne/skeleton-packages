@@ -2,7 +2,7 @@
 	import { ESize, type IconType } from '@aryagg/types';
 	import { fade, scale } from 'svelte/transition';
 	import { cubicOut } from 'svelte/easing';
-	import type { Snippet, SvelteComponent } from 'svelte';
+	import type { Snippet } from 'svelte';
 	import { XLg } from 'svelte-bootstrap-icons';
 	import { Icon } from '../../atoms';
 	import { SIZE_CLASS } from '$lib/constants';
@@ -22,7 +22,8 @@
 		backdropKlass,
 		parentKlass,
 		bodyKlass,
-		footerKlass
+		footerKlass,
+		onClose
 	}: {
 		open: boolean;
 		title?: string;
@@ -39,6 +40,7 @@
 		panelKlass?: string;
 		bodyKlass?: string;
 		footerKlass?: string;
+		onClose?: () => void
 	} = $props();
 
 
@@ -52,6 +54,7 @@
 	};
 	const close = () => {
 		open = false;
+		onClose?.();
 	};
 </script>
 
