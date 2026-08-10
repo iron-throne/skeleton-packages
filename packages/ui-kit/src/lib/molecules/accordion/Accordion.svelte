@@ -1,3 +1,4 @@
+
 <script lang="ts">
 	import { SIZE_CLASS } from '$lib/constants';
 	import { ESize } from '@aryagg/types';
@@ -13,6 +14,7 @@
 		isMandatory: boolean | undefined,
 		forcedId: number | string | undefined
 	): (number | string)[] {
+		// eslint-disable-next-line svelte/prefer-svelte-reactivity
 		const initial = new Set<number | string>();
 		for (const item of list ?? []) {
 			if (item.expanded) initial.add(item.id);
@@ -36,7 +38,7 @@
 		mandatoryId,
 		disabled = false,
 		readonly = false,
-		variant = 'default',
+	
 		density = 'default',
 		parentklass,
 		listKlass,

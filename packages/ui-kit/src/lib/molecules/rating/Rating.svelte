@@ -84,6 +84,7 @@
 					? selectedKlass || selectedClass || 'text-warning'
 					: iconKlass || iconClass || 'text-tertiary'}"
 			/>
+
 		</button>
 	{/each}
 </div>
