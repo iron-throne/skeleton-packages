@@ -1,7 +1,11 @@
 import type { IRemotePluginModule } from "../types";
 
+export const loadRemoteManifestFile = async (url: string) => {
+    return await import(/* @vite-ignore */ url);
+}
+
 export const loadRemotePlugin = async (url: string): Promise<IRemotePluginModule> => {
-    const module = await import(/* @vite-ignore */ url);
+    const module = await loadRemoteManifestFile(url);
     // Accept both `export const mount = ...` (named) and
     // `export default defineRemotePlugin(...)` (default) — plugin authors
     // reach for both instinctively, and getting this wrong just to satisfy
