@@ -90,10 +90,10 @@
 	}
 
 	function itemClass(m: DropdownItem) {
-		return `flex min-h-9 w-full items-center gap-[9px] border-0 bg-transparent px-3.5 py-2 text-left text-[13px] text-secondary no-underline transition-colors hover:bg-surface-secondary hover:text-primary disabled:cursor-not-allowed disabled:opacity-50 ${
+		return `flex min-h-9 w-full items-center gap-[9px] border-0 bg-transparent px-3.5 py-2 text-left text-[13px]  no-underline transition-colors hover:bg-surface-secondary hover:text-primary disabled:cursor-not-allowed disabled:opacity-50 ${
 			variant === 'rounded' ? 'rounded-lg' : ''
 		} ${isSelected(m) ? `bg-accent/10 font-semibold text-accent ${activeKlass}` : ''} ${
-			m.danger ? 'text-error' : ''
+			m.danger ? 'text-error' : 'text-secondary'
 		} ${m.class ?? ''}`;
 	}
 </script>
