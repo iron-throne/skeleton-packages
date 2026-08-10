@@ -116,9 +116,11 @@
 
 {#snippet Label(text: string)}
 	<span
-		class="overflow-hidden whitespace-nowrap transition-all duration-200 ease-out {collapsed
-			? 'max-w-0 -translate-x-2 opacity-0 hidden'
-			: 'max-w-44 translate-x-0 opacity-100 delay-100'}">{text}</span
+		class="min-w-0 overflow-hidden whitespace-nowrap transition-[max-width,opacity,transform] duration-300 ease-[cubic-bezier(.22,1,.36,1)] {collapsed
+			? 'max-w-0 -translate-x-2 opacity-0'
+			: 'max-w-44 translate-x-0 opacity-100 delay-75'}"
+		style="transition: max-width 300ms cubic-bezier(.22,1,.36,1), opacity 220ms ease, transform 300ms cubic-bezier(.22,1,.36,1);"
+		>{text}</span
 	>
 {/snippet}
 
@@ -126,9 +128,9 @@
 	{@const style = !collapsed && depth > 0 ? `padding-left:${0.75 + depth}rem` : undefined}
 	{#if menu.disabled}
 		<span
-			class="{rowClass(menu)} transition-all duration-200 flex items-center gap-3 {collapsed
-				? 'mx-auto size-10 justify-center'
-				: 'w-full px-3 py-2'} {itemClass}"
+			class="{rowClass(menu)} transition-all duration-200 flex items-center {collapsed
+				? 'mx-auto size-10 justify-center gap-0'
+				: 'w-full gap-3 px-3 py-2'} {itemClass}"
 			{style}
 			role="link"
 			aria-disabled="true"
@@ -141,9 +143,9 @@
 		<a
 			href={menu.href ?? '#'}
 			onclick={menu.onclick}
-			class="{rowClass(menu)} transition-all duration-200 flex items-center gap-3 {collapsed
-				? 'mx-auto size-10 justify-center'
-				: 'w-full px-3 py-2'} {itemClass}"
+			class="{rowClass(menu)} transition-all duration-200 flex items-center {collapsed
+				? 'mx-auto size-10 justify-center gap-0'
+				: 'w-full gap-3 px-3 py-2'} {itemClass}"
 			{style}
 			aria-current={menu.selected ? 'page' : undefined}
 			title={collapsed ? menu.label : undefined}
@@ -223,20 +225,30 @@
 
 {#snippet SidebarContent()}
 	<div
-		class="flex shrink-0 items-center gap-2 p-3 border-b border-border-primary {collapsed
-			? 'flex-col'
-			: 'justify-between'} {logoClass}"
+		class="flex shrink-0 items-center border-b border-border-primary p-3 {collapsed
+			? 'justify-center gap-0'
+			: 'justify-between gap-2'} {logoClass}"
 	>
 		{#if logosrc}
-			<a href={logohref} class="flex min-w-0 items-center gap-2" aria-label={logoAlt}>
+			<a
+				href={logohref}
+				class="flex min-w-0 items-center overflow-hidden transition-[max-width,opacity,transform] duration-300 {collapsed
+					? 'pointer-events-none max-w-0 -translate-x-2 opacity-0'
+					: 'max-w-8 translate-x-0 opacity-100'}"
+				style="transition: max-width 300ms cubic-bezier(.22,1,.36,1), opacity 220ms ease, transform 300ms cubic-bezier(.22,1,.36,1);"
+				aria-label={logoAlt}
+				aria-hidden={collapsed}
+				tabindex={collapsed ? -1 : undefined}
+			>
 				<img src={logosrc} alt={logoAlt} class="size-8 shrink-0 object-contain" />
 			</a>
 		{/if}
 
 		<div
-			class="overflow-hidden transition-all duration-300 ease-[cubic-bezier(.22,1,.36,1)] {collapsed
-				? 'hidden'
-				: 'max-w-xs delay-100'}"
+			class="min-w-0 flex-1 overflow-hidden whitespace-nowrap transition-[max-width,opacity,transform] duration-300 ease-[cubic-bezier(.22,1,.36,1)] {collapsed
+				? 'max-w-0 -translate-x-2 opacity-0'
+				: 'max-w-48 translate-x-0 opacity-100 delay-75'}"
+			style="transition: max-width 300ms cubic-bezier(.22,1,.36,1), opacity 220ms ease, transform 300ms cubic-bezier(.22,1,.36,1);"
 			aria-hidden={collapsed}
 			inert={collapsed}
 		>
@@ -284,9 +296,9 @@
 				href="/"
 				aria-label="Account"
 				title={collapsed ? 'Account' : undefined}
-				class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-primary/65 hover:bg-accent/10 hover:text-accent {collapsed
-					? 'mx-auto size-10 justify-center px-0'
-					: 'w-full'}"
+				class="flex items-center rounded-lg py-2 text-sm font-medium text-primary/65 hover:bg-accent/10 hover:text-accent {collapsed
+					? 'mx-auto size-10 justify-center gap-0 px-0'
+					: 'w-full gap-3 px-3'}"
 			>
 				<Person class="size-5 shrink-0" />
 				{@render Label('Account')}
@@ -298,12 +310,13 @@
 <aside
 	class="relative flex h-full shrink-0 flex-col
 		bg-surface-primary shadow pb-2
-		transition-all duration-300 ease-[cubic-bezier(.22,1,.36,1)]
+		transition-[width,opacity,box-shadow,border-color] duration-400 ease-[cubic-bezier(.22,1,.36,1)]
 		{position === 'right' ? 'order-last border-l' : 'order-first border-r'} border-border-primary
 		{isHidden ? 'w-0 border-0 shadow-none opacity-0 pointer-events-none' : collapsed ? 'w-16' : 'w-60'}
 		{mainClass}"
 	aria-hidden={isHidden}
 	inert={isHidden}
+	style="transition: width 400ms cubic-bezier(.22,1,.36,1), opacity 300ms ease, box-shadow 300ms ease, border-color 300ms ease;"
 	in:fly={{ x: position === 'right' ? 320 : -320, duration: 350, easing: cubicOut }}
 >
 	{@render SidebarContent()}
