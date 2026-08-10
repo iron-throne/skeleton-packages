@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -214,6 +214,7 @@
         <li><a href="#hidden">12. Hidden / non-obvious logic</a></li>
         <li><a href="#mistakes">13. Common mistakes</a></li>
         <li><a href="#mental-model">14. Mental model</a></li>
+        <li><a href="#beginner-guide">15. Build &amp; connect a remote app</a></li>
       </ol>
     </nav>
 
@@ -368,8 +369,9 @@ context.bus.on('host_event', (payload) => {
 │   │   ├── <span class="badge accent">host</span>                    <span class="tertiary">← code that runs INSIDE THE HOST APP</span>
 │   │   │   ├── index.ts             barrel
 │   │   │   ├── bus.ts               createRemotePluginBus()
-│   │   │   ├── loader.ts            loadRemotePlugin(), loadRemotePluginCached()
-│   │   │   └── runtime.ts           mountRemotePlugin()
+│   │   │   ├── loader.ts            loadRemoteManifestFile(), loadRemotePlugin(), loadRemotePluginCached()
+│   │   │   ├── runtime.ts           mountRemotePlugin()
+│   │   │   └── stylesheet.ts        ensurePluginStylesheet()
 │   │   └── <span class="badge warning">remote</span>                  <span class="tertiary">← code a PLUGIN AUTHOR imports</span>
 │   │       ├── index.ts             barrel
 │   │       └── definePlugin.ts      defineRemotePlugin()
@@ -399,8 +401,11 @@ context.bus.on('host_event', (payload) => {
           <li><code>clear()</code> — nukes every handler for every event. Called once by <code>mountRemotePlugin</code>'s <code>destroy()</code>.</li>
         </ul>
 
+        <h3><code>loadRemoteManifestFile(url)</code> <span class="filename">— loader.ts</span></h3>
+        <p>The raw building block underneath <code>loadRemotePlugin</code>: just <code>await import(url)</code>, wrapped in a try/catch that returns <code>null</code> instead of throwing on a network failure, a 404, or a syntax error in the remote file. Exported on its own for callers who want a module's raw exports without the mount-shape check — e.g. a "utility" remote file that just exports plain functions, not a UI plugin.</p>
+
         <h3><code>loadRemotePlugin(url)</code> <span class="filename">— loader.ts</span></h3>
-        <p>Does the actual <code>import(url)</code>, then normalizes the result: accepts either <code>export const mount = ...</code> (named) or <code>export default defineRemotePlugin(...)</code> (default). Throws if neither shape is found.</p>
+        <p>Calls <code>loadRemoteManifestFile(url)</code>, throws if that came back <code>null</code>, then normalizes the result: accepts either <code>export const mount = ...</code> (named) or <code>export default defineRemotePlugin(...)</code> (default). Throws if neither shape is found either.</p>
 
         <h3><code>loadRemotePluginCached(url)</code> <span class="filename">— loader.ts</span></h3>
         <p>A memoizing wrapper around the above, keyed by URL in a module-level <code>Map&lt;string, Promise&lt;...&gt;&gt;</code>. If the promise rejects, it deletes itself from the cache so a later call can retry.</p>
@@ -408,6 +413,9 @@ context.bus.on('host_event', (payload) => {
 
         <h3><code>mountRemotePlugin(manifest, target, context)</code> <span class="filename">— runtime.ts</span></h3>
         <p>The orchestrator described in section 5: validate → load → mount → wrap.</p>
+
+        <h3><code>ensurePluginStylesheet(manifest)</code> <span class="filename">— stylesheet.ts</span></h3>
+        <p>Not part of the load/mount pipeline — a separate, optional helper. Derives a CSS URL by swapping the manifest's <code>entryUrl</code> extension from <code>.js</code> to <code>.css</code> (e.g. <code>entry.js</code> → <code>entry.css</code>), then appends a <code>&lt;link rel="stylesheet"&gt;</code> to <code>document.head</code> — but only if a link to that exact href isn't already there. Safe to call on every mount; a repeat call for the same plugin is a no-op. Assumes the plugin's build actually emits a matching <code>.css</code> file next to its JS entry.</p>
 
         <h3><code>defineRemotePlugin(setup)</code> <span class="filename">— definePlugin.ts</span></h3>
         <p>A one-line identity-ish helper: <code>(setup) =&gt; ({ mount: setup })</code>. Does nothing at runtime except give TypeScript autocomplete on <code>target</code>/<code>context</code> and guarantee the object shape the loader expects. Purely a DX helper for plugin authors — the host's loader would accept a hand-written <code>{ mount: ... }</code> object just as well.</p>
@@ -536,8 +544,255 @@ const controller = await mountRemotePlugin(manifest, containerEl, {
         </div>
       </section>
 
+      <section id="beginner-guide">
+        <h2><span class="num">15</span> Build &amp; connect a remote app — a from-scratch walkthrough</h2>
+        <p>Everything above explains how the machinery <em>works</em>. This section is the opposite: a straight-line recipe for going from an empty folder — say <code>my-remote-plugin</code> — to that plugin showing up inside zhalia.core.ui. It reuses the vocabulary from sections 1–14 without re-explaining it; follow the links back if a term is unfamiliar.</p>
+
+        <div class="alert success">
+          <p class="title">The two halves</p>
+          <p><strong>Part A</strong> happens in your own new folder, completely separate from zhalia.core.ui — you write a tiny plugin and build it into one JS file. <strong>Part B</strong> happens inside <code>zhalia.core.ui</code> — you tell zhalia.core.ui that file exists and drop a component on a page to mount it. Nothing in Part A ever imports anything from zhalia.core.ui; nothing in Part B ever imports your plugin's source code. The only thing that connects them is a URL.</p>
+        </div>
+
+        <h3>Part A — create the remote app</h3>
+        <div class="alert success">
+          <p class="title">This isn't hypothetical — it's the exact recipe behind the real plugins in the cheat sheet below</p>
+          <p>The three manifests referenced in Part B (<code>profileCardRemoteManifest</code>, <code>followDisplayManifest</code>, <code>sayHiRemoteManifest</code>) are backed by a real, separate project called <code>my-remote-plugin</code> — its own repo, its own <code>package.json</code>, its own git history. Everything below is that project's actual scaffold command and actual <code>vite.config.ts</code>, not a simplified stand-in.</p>
+        </div>
+
+        <h3>A1. Scaffold the folder</h3>
+        <p>A remote plugin is not a SvelteKit app, not a page — it's a tiny standalone project whose only job is to build down to <strong>one JS file per plugin</strong>. Framework is your choice (plain TS, React, Vue, Svelte); the host never sees your source, only your build output (section 2). Run this from wherever you keep projects — it does not need to live inside this monorepo:</p>
+        <pre><code>npm create vite@latest my-remote-plugin -- --template svelte-ts
+cd my-remote-plugin
+npm install</code></pre>
+        <p>This gives you the standard scaffold — <code>src/main.ts</code>, <code>src/App.svelte</code>, <code>index.html</code>, <code>vite.config.ts</code>. Keep all of it: <code>npm run dev</code> still serves <code>App.svelte</code> as a normal page the whole time, so you always have a plain browser preview of your plugin's UI with zero host involved. You're about to <em>add to</em> this scaffold, not replace it — the plugin entry point lives alongside it.</p>
+
+        <h3>A2. Add the dependency and write the plugin's real UI</h3>
+        <p>If your plugin folder lives inside this monorepo (e.g. under <code>packages/</code>), link it for real type-checking and <code>defineRemotePlugin()</code> autocomplete:</p>
+        <pre><code>npm install @aryagg/remote-plugins@file:../remote-plugins</code></pre>
+        <div class="alert warning">
+          <p class="title">If your plugin lives outside this monorepo entirely</p>
+          <p><code>@aryagg/remote-plugins</code>'s <code>package.json</code> is <code>"private": true</code> and isn't published to any registry, so a truly separate repo can't <code>npm install</code> it the normal way. That's exactly why the contract is deliberately tiny and hand-writable (section 4's "one rule") — you can export a plain <code>{ mount(target, context) { ... return { update, destroy }; } }</code> object with no dependency at all and it works identically. Everything below just adds nicer typing on top of that same shape.</p>
+        </div>
+        <p>Write your plugin as a <strong>normal Svelte component that knows nothing about being remote</strong>, then a thin <code>mount</code> file that wraps it. This is the real pattern used by all three plugins in <code>my-remote-plugin</code> — a tiny reactive "context box" plus <code>defineRemotePlugin</code>:</p>
+        <pre><code>// src/lib/remote-plugin/context.svelte.ts — the reactive bridge
+// (runes work here because the filename ends in .svelte.ts)
+import type { IRemotePluginContext } from '@aryagg/remote-plugins';
+
+export function createRemoteContext(initial: IRemotePluginContext | null = null) {
+  let context = $state(initial);
+  return {
+    get current() { return context; },
+    set(next: IRemotePluginContext) { context = next; }
+  };
+}</code></pre>
+        <pre><code>&lt;!-- src/lib/MyWidget.svelte — ordinary Svelte, no idea it's "remote" --&gt;
+&lt;script lang="ts"&gt;
+  import type { createRemoteContext } from './remote-plugin/context.svelte';
+  import type { IRemotePluginContext } from '@aryagg/remote-plugins';
+
+  let { remoteContext }: { remoteContext: ReturnType&lt;typeof createRemoteContext&gt; } = $props();
+  const context: IRemotePluginContext | null = $derived(remoteContext.current);
+&lt;/script&gt;
+
+&lt;h2&gt;Hello, {context?.user?.name ?? 'guest'}&lt;/h2&gt;
+&lt;p&gt;Theme: {context?.theme}&lt;/p&gt;</code></pre>
+        <pre><code>// src/lib/remote-plugin/mountMyWidget.ts — the actual "door" the host calls
+import { mount as svelteMount, unmount as svelteUnmount } from 'svelte';
+import { defineRemotePlugin } from '@aryagg/remote-plugins';
+import MyWidget from '../MyWidget.svelte';
+import { createRemoteContext } from './context.svelte';
+// Pulls Tailwind into THIS entry's own build graph — build.lib.entry only
+// bundles what each entry file actually imports, so without this the
+// component's utility classes ship with no CSS behind them.
+import '../../app.css';
+
+export default defineRemotePlugin((target, context) => {
+  const remoteContext = createRemoteContext(context);
+  const app = svelteMount(MyWidget, { target, props: { remoteContext } });
+
+  return {
+    update(nextContext) { remoteContext.set(nextContext); },
+    async destroy() { await svelteUnmount(app); }
+  };
+});</code></pre>
+        <p>Why the context box instead of just passing <code>context</code> straight through as a prop: the host doesn't hand your plugin a context once — it calls <code>update(nextContext)</code> repeatedly (theme toggles, user logs in, params change). A plain variable swap gives Svelte no signal to re-render; wrapping it in <code>$state(...)</code> is what makes each new <code>update()</code> actually redraw the component, while the <code>remoteContext</code> object passed as a prop keeps the same reference for the component's whole life.</p>
+
+        <h3>A3. Make each entry point buildable — the real, multi-plugin <code>vite.config.ts</code></h3>
+        <p><code>entryUrl</code> in a manifest points at one file loaded with a real <code>import()</code> (section 2). A single project can still build <strong>several independent plugins</strong> — one <code>mount*.ts</code> file per plugin, each becoming its own standalone bundle the host loads separately. This is <code>my-remote-plugin</code>'s actual config, building three entries at once:</p>
+        <pre><code>// vite.config.ts
+import { defineConfig } from 'vite';
+import { svelte } from '@sveltejs/vite-plugin-svelte';
+import tailwindcss from '@tailwindcss/vite';
+
+export default defineConfig({
+  plugins: [tailwindcss(), svelte()],
+  // Cross-origin dynamic import() of an ES module always goes through a
+  // CORS-mode fetch (unlike classic scripts), so the host (a different
+  // origin/port) can't load these entries unless this server sends
+  // Access-Control-Allow-Origin. Fixed port so the host's manifest URLs
+  // stay stable across restarts.
+  preview: {
+    port: 5175,
+    strictPort: true,
+    cors: true
+  },
+  build: {
+    // All entries share one app.css instead of per-entry stylesheets —
+    // cssCodeSplit:true made Rollup's chunk-naming fall back unpredictably
+    // whenever two entries' compiled CSS overlapped. One explicitly-named
+    // file removes that ambiguity: every remote loads the same known URL.
+    cssCodeSplit: false,
+    lib: {
+      // Each key becomes its own standalone remote entry file — a host
+      // loads only the one(s) it needs via a separate entryUrl per
+      // manifest, exactly like importing separate deployed micro-apps.
+      entry: {
+        'profile-card-entry': 'src/lib/remote-plugin/mountProfileCard.ts',
+        'follow-display-entry': 'src/lib/remote-plugin/mountFollowDisplay.ts',
+        'say-hi-service': 'src/lib/remote-plugin/mountHi.ts'
+      },
+      formats: ['es'],
+      fileName: (_format, entryName) => `${entryName}.js`
+    },
+    rollupOptions: {
+      output: {
+        assetFileNames: (asset) =>
+          asset.names?.[0]?.endsWith('.css') ? 'remote-plugin.css' : '[name][extname]'
+      }
+    }
+  }
+});</code></pre>
+        <p><code>build.lib</code> only affects <code>vite build</code> — <code>vite dev</code>/<code>npm run dev</code> still serves <code>index.html</code>/<code>App.svelte</code> untouched, so you always keep a normal dev preview alongside the production plugin bundles.</p>
+        <div class="alert warning">
+          <p class="title">A one-file entry doesn't need a Svelte component at all</p>
+          <p><code>say-hi-service</code> above points at <code>mountHi.ts</code>, which just exports a plain function — no <code>defineRemotePlugin</code>, no <code>mount()</code>, no UI:</p>
+          <pre><code>// src/lib/remote-plugin/mountHi.ts
+export const sayAlertHi = (name: string) => alert('Say Hi ' + name);</code></pre>
+          <p>That's the non-UI pattern from Part B5 — the host calls <code>loadRemoteManifestFile()</code> on this entry's URL and just uses whatever it exports, no mounting involved.</p>
+        </div>
+        <p>Build with <code>npm run build</code> → <code>dist/profile-card-entry.js</code>, <code>dist/follow-display-entry.js</code>, <code>dist/say-hi-service.js</code>, plus the shared <code>dist/remote-plugin.css</code>.</p>
+
+        <h3>A4. Serve it so zhalia.core.ui can reach it</h3>
+        <p>During development, run <code>npm run dev</code> (or <code>vite preview</code> over <code>dist/</code>) on a fixed port — <code>my-remote-plugin</code>'s <code>package.json</code> pins this with <code>"dev": "vite --port 5175"</code> — so <code>http://localhost:5175/profile-card-entry.js</code> responds. <code>5175</code> isn't arbitrary: it's zhalia.core.ui's default <code>PUBLIC_REMOTE_PLUGIN_BASE_URL</code> (see Part B1). In production this would instead be wherever you actually deploy <code>dist/</code> — a static host or CDN, with its own real URL.</p>
+
+        <h3>Part B — connect it inside zhalia.core.ui</h3>
+
+        <h3>B1. Declare the manifest</h3>
+        <p>Every plugin zhalia.core.ui knows about is a plain <code>IRemotePluginManifest</code> object in <code>src/lib/shared/connected-apps/manifest.ts</code> — there's no database or admin screen for this yet, just a TypeScript file:</p>
+        <pre><code>// src/lib/shared/connected-apps/manifest.ts
+import { PUBLIC_REMOTE_PLUGIN_BASE_URL } from '$env/static/public';
+import type { IRemotePluginManifest } from '@aryagg/remote-plugins';
+
+export const myPluginManifest: IRemotePluginManifest = {
+  id: 'my-remote-plugin',
+  name: 'My Remote Plugin',
+  version: '0.0.0',
+  entryUrl: `${PUBLIC_REMOTE_PLUGIN_BASE_URL}/entry.js`,
+};</code></pre>
+        <div class="table-wrap">
+        <table>
+          <thead><tr><th>Field</th><th>What it actually does</th></tr></thead>
+          <tbody>
+            <tr><td><code>id</code></td><td>A unique label for your own code to reference — the library itself never reads it.</td></tr>
+            <tr><td><code>name</code></td><td>Shown to users in every error this library throws (e.g. <em>"Remote plugin 'My Remote Plugin' threw while mounting…"</em>) — make it recognizable.</td></tr>
+            <tr><td><code>version</code></td><td>Documentation only right now — nothing checks it against anything.</td></tr>
+            <tr><td><code>entryUrl</code></td><td>The one field that matters at runtime — must resolve to your built <code>entry.js</code>.</td></tr>
+          </tbody>
+        </table>
+        </div>
+        <p><code>PUBLIC_REMOTE_PLUGIN_BASE_URL</code> comes from zhalia.core.ui's <code>.env</code> (see <code>.env.example</code>: <code>PUBLIC_REMOTE_PLUGIN_BASE_URL="http://localhost:5175"</code>) — one base URL shared by every plugin manifest, just a different filename per plugin.</p>
+
+        <h3>B2. Mount it on a page — the easy way</h3>
+        <p>zhalia.core.ui already has a generic wrapper component that does <code>createRemotePluginBus()</code> → <code>ensurePluginStylesheet()</code> → build context → <code>mountRemotePlugin()</code> → <code>destroy()</code>-on-unmount for you: <code>src/lib/shared/connected-apps/RemotePlugin.svelte</code>. Drop it into any page:</p>
+        <pre><code>&lt;script&gt;
+  import RemotePlugin from '$shared/connected-apps/RemotePlugin.svelte';
+  import { myPluginManifest } from '$shared/connected-apps/manifest';
+&lt;/script&gt;
+
+&lt;RemotePlugin manifest={myPluginManifest} params={{ userId: user.id }} /&gt;</code></pre>
+        <p>That's the entire integration for a UI plugin. <code>params</code> becomes <code>context.params</code> inside your plugin — use it to pass whatever the plugin needs to know about where it's mounted (a row's id, a course id, etc).</p>
+
+        <h3>B3. Mount it yourself — the manual way</h3>
+        <p>Only needed if <code>RemotePlugin.svelte</code> doesn't fit your case. This is exactly what it does internally, spelled out:</p>
+        <pre><code>import {
+  createRemotePluginBus,
+  ensurePluginStylesheet,
+  mountRemotePlugin,
+} from '@aryagg/remote-plugins';
+import { buildRemoteContext } from '$shared/connected-apps/context';
+
+ensurePluginStylesheet(myPluginManifest);
+const bus = createRemotePluginBus();
+const context = buildRemoteContext(bus, { userId: user.id });
+const handle = await mountRemotePlugin(myPluginManifest, containerEl, context);
+
+<span class="tertiary">// later, when something changes:</span>
+handle.update(buildRemoteContext(bus, { userId: user.id }));
+
+<span class="tertiary">// when the container goes away:</span>
+await handle.destroy();</code></pre>
+        <p>See section 5 for exactly what <code>mountRemotePlugin</code> does internally between those two lines, and section 6 for what <code>context</code> vs <code>bus</code> are each for.</p>
+
+        <h3>B4. React to events the plugin sends — <code>handlers</code></h3>
+        <p><code>RemotePlugin.svelte</code> accepts an optional <code>handlers</code> prop: a plain object mapping a bus event name to a function. Each entry becomes a <code>bus.on(event, handler)</code> call before mounting:</p>
+        <pre><code>&lt;RemotePlugin
+  manifest={myPluginManifest}
+  params={{ userId: user.id }}
+  handlers={{
+    MY_CUSTOM_EVENT: (payload) =&gt; {
+      console.log('plugin says:', payload);
+    },
+  }}
+/&gt;</code></pre>
+        <p>Inside your plugin, emitting that event is just <code>context.bus.emit('MY_CUSTOM_EVENT', payload)</code> — the generic pub/sub described in section 6. The event names and payload shapes are a private agreement between your plugin and whatever page mounts it; the wrapper component and the library itself don't know or care what they mean.</p>
+
+        <h3>B5. Non-UI plugins — calling a function, no <code>mount()</code> at all</h3>
+        <p>Not every remote file needs to render anything. If your entry just exports plain functions, skip <code>mountRemotePlugin</code> entirely and use the lower-level loader directly:</p>
+        <pre><code>// entry.ts of a "utility" plugin — no mount(), just exports
+export const sayAlertHi = (name: string) =&gt; alert(`Hi, ${name}!`);</code></pre>
+        <pre><code>import { loadRemoteManifestFile } from '@aryagg/remote-plugins';
+
+const utilityModule = await loadRemoteManifestFile(myUtilityManifest.entryUrl);
+<span class="tertiary">// utilityModule is null if the file 404s, fails to parse, or the URL is unreachable</span>
+utilityModule?.sayAlertHi('World');</code></pre>
+        <p>Pair this with <code>isManifestUrlLoaded(url)</code> (<code>src/lib/shared/connected-apps/loader.ts</code>, a thin zhalia.core.ui-only wrapper around <code>loadRemotePlugin</code>) to probe reachability before showing UI that depends on a plugin — e.g. hiding a menu action if its plugin isn't deployed yet.</p>
+
+        <h3>Cheat sheet — every operation, one table</h3>
+        <div class="table-wrap">
+        <table>
+          <thead><tr><th>Operation</th><th>Lives in</th><th>Use it when…</th></tr></thead>
+          <tbody>
+            <tr><td><code>defineRemotePlugin(setup)</code></td><td>plugin project (optional)</td><td>writing your plugin's <code>mount()</code>, for autocomplete on <code>target</code>/<code>context</code></td></tr>
+            <tr><td><code>mountRemotePlugin(manifest, target, context)</code></td><td><code>@aryagg/remote-plugins</code></td><td>mounting a UI plugin into a DOM element</td></tr>
+            <tr><td><code>createRemotePluginBus()</code></td><td><code>@aryagg/remote-plugins</code></td><td>before every mount — you need a bus to build a context</td></tr>
+            <tr><td><code>ensurePluginStylesheet(manifest)</code></td><td><code>@aryagg/remote-plugins</code></td><td>your plugin ships its own CSS file</td></tr>
+            <tr><td><code>loadRemoteManifestFile(url)</code></td><td><code>@aryagg/remote-plugins</code></td><td>you just want a module's raw exports, no mount-shape check, no throwing on failure</td></tr>
+            <tr><td><code>loadRemotePlugin(url)</code></td><td><code>@aryagg/remote-plugins</code></td><td>rarely called directly — <code>mountRemotePlugin</code> already calls it for you</td></tr>
+            <tr><td><code>loadRemotePluginCached(url)</code></td><td><code>@aryagg/remote-plugins</code></td><td>you're mounting the same URL repeatedly and want the shape-check deduped (section 12)</td></tr>
+            <tr><td><code>controller.update(context)</code></td><td>returned by <code>mountRemotePlugin</code></td><td>theme/user/params changed and the plugin is already mounted</td></tr>
+            <tr><td><code>controller.destroy()</code></td><td>returned by <code>mountRemotePlugin</code></td><td>always — on unmount, every time, or you leak listeners</td></tr>
+            <tr><td><code>&lt;RemotePlugin manifest params handlers /&gt;</code></td><td>zhalia.core.ui: <code>connected-apps/RemotePlugin.svelte</code></td><td>the default choice for dropping any UI plugin into a Svelte page</td></tr>
+            <tr><td><code>buildRemoteContext(bus, params)</code></td><td>zhalia.core.ui: <code>connected-apps/context.ts</code></td><td>only if you're mounting manually (B3) — builds theme/user/locale/navigate for you</td></tr>
+            <tr><td><code>isManifestUrlLoaded(url)</code></td><td>zhalia.core.ui: <code>connected-apps/loader.ts</code></td><td>gate a button/menu item on whether a plugin is actually reachable</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="alert success">
+          <p class="title">Beginner checklist, start to finish</p>
+          <ol>
+            <li>New folder, <code>src/entry.ts</code>, exports a <code>mount()</code> (A1–A2).</li>
+            <li><code>vite build</code> it to one <code>entry.js</code> (+ matching <code>.css</code> if you have styles) (A3).</li>
+            <li>Serve that <code>dist/</code> folder somewhere reachable (A4).</li>
+            <li>Add an <code>IRemotePluginManifest</code> pointing at it in <code>manifest.ts</code> (B1).</li>
+            <li>Drop <code>&lt;RemotePlugin manifest={...} /&gt;</code> on a page (B2) — or call the pieces yourself (B3), or skip mounting entirely for a non-UI plugin (B5).</li>
+          </ol>
+          <p>For everything that can go wrong along the way, section 13's common mistakes apply unchanged — nothing about being a beginner exempts you from "register bus listeners before mounting" or "always call <code>destroy()</code>."</p>
+        </div>
+      </section>
+
       <footer>
-        Generated explainer for <code>@aryagg/remote-plugins</code>. Covers only this package's own source — no other packages in the monorepo are referenced.
+        Generated explainer for <code>@aryagg/remote-plugins</code>. Sections 1–14 cover only this package's own source; section 15 also documents how <code>zhalia.core.ui</code> (a separate repo) wires it up as a host app.
       </footer>
 
     </main>

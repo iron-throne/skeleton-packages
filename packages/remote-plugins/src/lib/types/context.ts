@@ -23,7 +23,7 @@ export interface IRemotePluginContext {
 	theme: ETheme;
 	locale: string;
 	/** Route params / launch params (e.g. `{ courseId: '...' }` from `/apps/[appId]/[...rest]`). */
-	params: Record<string, string>;
+	params: Record<string, any>;
 	/** Host-owned navigation — a remote app must never touch the host's router directly. */
 	navigate(path: string, params?: Record<string, string>): void;
 	bus: IRemotePluginBus;

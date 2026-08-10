@@ -4,6 +4,7 @@ export interface IRemotePluginManifest {
 	name: string;
 	version: string;
 	entryUrl: string;
+    styleUrl?:string
 }
 
 /** Standard event names both sides always understand, regardless of the specific app. */
