@@ -1,6 +1,6 @@
 {
     "name": "@aryagg/ui-kit",
-    "version": "0.2.3",
+    "version": "0.2.4",
     "scripts": {
         "dev": "vite dev",
         "build": "npm run prepack",
@@ -54,7 +54,7 @@
     },
     "repository": {
         "type": "git",
-        "url": "https://github.com/iron-throne/skeleton-packages.git",
+        "url": "git+https://github.com/iron-throne/skeleton-packages.git",
         "directory": "packages/ui-kit"
     },
     "homepage": "https://github.com/iron-throne/skeleton-packages/tree/main/packages/ui-kit",
@@ -65,7 +65,7 @@
         "svelte"
     ],
     "dependencies": {
-        "@aryagg/utils": "file:../utils",
+        "@aryagg/utils": "^1.1.3",
         "chart.js": "^4.5.1",
         "svelte-bootstrap-icons": "^3.3.0"
     }

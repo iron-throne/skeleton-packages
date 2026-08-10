@@ -7,3 +7,4 @@ export { default as Loader } from './loader/Loader.svelte';
 export { default as SnackBar } from './snackbar/Snackbar.svelte';
 export { default as OtpInput } from './otp-input/Otp-input.svelte';
 export { default as Rating } from '../molecules/rating/Rating.svelte';
+export type { RatingProps } from '../molecules/rating/types';

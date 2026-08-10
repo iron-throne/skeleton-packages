@@ -70,6 +70,7 @@
 	$effect(() => {
 		if (fieldsInitialized || !groupFields.length) return;
 		orderedFields = groupFields.map((field) => ({ ...field }));
+		
 		const enabledCount = orderedFields.filter((field) => field.enabled).length;
 		levels = Math.max(1, enabledCount || 1);
 		fieldsInitialized = true;
@@ -114,6 +115,7 @@
 		const fieldId = keys[depth];
 		const field = groupFields.find((candidate) => candidate.id === fieldId);
 		const recordKey = field?.key ?? fieldId;
+		// eslint-disable-next-line svelte/prefer-svelte-reactivity
 		const groups = new Map<string, AdvancedFolderHierarchyRecord[]>();
 		for (const record of source) {
 			const rawValue = record[recordKey];
@@ -174,6 +176,7 @@
 		if (sourceIndex < 0 || targetIndex < 0) return;
 		const reordered = [...orderedFields];
 		const [moved] = reordered.splice(sourceIndex, 1);
+
 		reordered.splice(targetIndex, 0, moved);
 		orderedFields = reordered;
 	}
@@ -210,42 +213,55 @@
 	}
 </script>
 
-<aside class="advanced-folder {className}">
-	<header class="advanced-folder__header">
-		<div class="advanced-folder__title">
-			<Icon icon={titleIcon} klass="advanced-folder__title-icon" />
+<aside
+	class="flex h-full min-h-[420px] w-full min-w-[260px] flex-col overflow-hidden rounded-lg border border-[var(--border-primary)] bg-[var(--surface-primary)] font-[var(--font-sans)] text-[var(--text-primary)] shadow-[var(--shadow-sm)] {className}"
+>
+	<header
+		class="flex min-h-[49px] items-center justify-between border-b border-[var(--border-primary)] px-3"
+	>
+		<div class="flex items-center gap-2 text-[13px]">
+			<Icon icon={titleIcon} klass="size-[15px] text-[var(--semantic-accent)]" />
 			<strong>{builderOpen ? 'New Saved Space' : title}</strong>
 		</div>
 		{#if builderOpen}
 			<button
 				type="button"
-				class="advanced-folder__builder-close"
+				class="!grid !size-7 !min-h-0 !place-items-center !rounded-[5px] !border-0 !bg-transparent !p-0 !text-[var(--text-tertiary)] !shadow-none hover:!bg-[var(--surface-secondary)] active:!scale-100"
 				aria-label="Close space builder"
 				onclick={() => (builderOpen = false)}><X width={15} height={15} /></button
 			>
 		{:else if HeaderActions}
-			<div class="advanced-folder__header-actions">
+			<div
+				class="flex items-center gap-2 [&_button]:!grid [&_button]:!size-7 [&_button]:!place-items-center [&_button]:!rounded-[5px] [&_button]:!border-0 [&_button]:!bg-transparent [&_button]:!p-0 [&_button]:!text-[var(--text-tertiary)] [&_button:hover]:!bg-[var(--surface-secondary)]"
+			>
 				{@render HeaderActions()}
 			</div>
 		{/if}
 	</header>
 
 	{#if builderOpen}
-		<div class="advanced-folder__builder">
-			<label class="advanced-folder__builder-label">
-				<span>Space name</span>
-				<input bind:value={spaceName} />
+		<div class="flex min-h-0 flex-1 flex-col gap-3.5 overflow-y-auto px-[15px] pt-3.5 pb-[13px]">
+			<label class="!mb-0 grid gap-1.5">
+				<span class="text-[10px] font-bold tracking-[.06em] text-[var(--text-tertiary)] uppercase"
+					>Space name</span
+				>
+				<input
+					bind:value={spaceName}
+					class="!h-9 w-full rounded-md border border-[var(--border-primary)] bg-[var(--surface-secondary)] px-[11px] text-[12.5px] text-[var(--text-primary)] outline-none focus:border-[var(--semantic-accent)] focus:ring-2 focus:ring-[color-mix(in_srgb,var(--semantic-accent)_18%,transparent)]"
+				/>
 			</label>
 
-			<div class="advanced-folder__builder-copy">
-				<strong>Group by (drag to reorder)</strong>
+			<div>
+				<strong class="text-[10px] font-bold tracking-[.06em] text-[var(--text-tertiary)] uppercase"
+					>Group by (drag to reorder)</strong
+				>
 				<p>
 					Choose which tags group your projects, and in what order. Untick a field to skip it
 					entirely.
 				</p>
 			</div>
 
-			<div class="advanced-folder__group-fields">
+			<div class="grid gap-[5px]">
 				{#each orderedFields as field (field.id)}
 					{@const enabledOrder =
 						orderedFields
@@ -253,16 +269,20 @@
 							.findIndex((candidate) => candidate.id === field.id) + 1}
 					<div
 						role="listitem"
-						class:advanced-folder__group-field--disabled={!field.enabled}
-						class="advanced-folder__group-field"
+						class="grid min-h-[37px] cursor-grab grid-cols-[13px_20px_16px_minmax(60px,auto)_minmax(0,1fr)] items-center gap-1.5 rounded-md border border-[var(--border-primary)] bg-[var(--surface-secondary)] px-[7px] py-1 text-[var(--text-primary)] active:cursor-grabbing {field.enabled
+							? ''
+							: 'opacity-50'}"
 						draggable="true"
 						ondragstart={() => (draggedFieldId = field.id)}
 						ondragover={(event) => event.preventDefault()}
 						ondrop={() => moveField(field.id)}
 						ondragend={() => (draggedFieldId = '')}
 					>
-						<span class="advanced-folder__drag" aria-hidden="true">⠿</span>
-						<span class="advanced-folder__order">{field.enabled ? enabledOrder : '−'}</span>
+						<span class="text-[13px] text-[var(--text-tertiary)]" aria-hidden="true">⠿</span>
+						<span
+							class="grid size-[19px] place-items-center rounded-full bg-[var(--semantic-accent)] text-[10px] font-bold text-[var(--on-accent)]"
+							>{field.enabled ? enabledOrder : '−'}</span
+						>
 						<input
 							type="checkbox"
 							checked={field.enabled}
@@ -270,17 +290,24 @@
 							aria-label={`Use ${field.label}`}
 							onchange={() => toggleGroupField(field.id)}
 						/>
-						<strong>{field.label}</strong>
-						{#if field.example}<small>{field.example}</small>{/if}
+						<strong class="whitespace-nowrap text-[11.5px]">{field.label}</strong>
+						{#if field.example}<small
+								class="overflow-hidden text-end text-[9px] text-ellipsis whitespace-nowrap text-[var(--text-tertiary)]"
+								>{field.example}</small
+							>{/if}
 					</div>
 				{/each}
 			</div>
 
-			<p class="advanced-folder__hierarchy-note">
+			<p
+				class="-mt-[9px] ms-[3px] border-s-2 border-dashed border-[var(--border-primary)] ps-[9px] text-[10px] leading-[1.4] italic text-[var(--text-tertiary)]"
+			>
 				Hierarchy builds top → bottom through checked fields, then stops.
 			</p>
 
-			<div class="advanced-folder__levels">
+			<div
+				class="flex items-center gap-2.5 rounded-[7px] border border-[var(--border-primary)] bg-[var(--surface-secondary)] p-2.5 [&>button]:!grid [&>button]:!size-[23px] [&>button]:!min-h-0 [&>button]:!place-items-center [&>button]:!rounded-[5px] [&>button]:!border [&>button]:!border-[var(--border-primary)] [&>button]:!bg-[var(--surface-primary)] [&>button]:!p-0 [&>button]:!shadow-none [&>button:disabled]:!opacity-40"
+			>
 				<div>
 					<strong>Levels to show</strong>
 					<p>Hierarchy terminates at this level</p>
@@ -294,56 +321,81 @@
 				>
 			</div>
 
-			<div class="advanced-folder__builder-actions">
+			<div
+				class="mt-auto grid grid-cols-2 gap-2 [&>button]:!min-h-[35px] [&>button]:!rounded-md [&>button]:!border [&>button]:!border-[var(--border-primary)] [&>button]:!bg-[var(--surface-primary)] [&>button]:!text-xs [&>button]:!font-semibold [&>button]:!shadow-none"
+			>
 				<button type="button" onclick={() => (builderOpen = false)}>Cancel</button>
 				<button
 					type="button"
-					class="advanced-folder__create"
+					class="!border-[var(--semantic-accent)] !bg-[var(--semantic-accent)] !text-[var(--on-accent)] disabled:!cursor-not-allowed disabled:!opacity-50"
 					disabled={!orderedFields.some((field) => field.enabled)}
 					onclick={createSpace}>Create space</button
 				>
 			</div>
 		</div>
 	{:else}
-		<div class="advanced-folder__filters">
+		<div
+			class="relative flex flex-wrap gap-1.5 border-b border-[var(--border-primary)] px-[9px] pt-2.5 pb-2"
+		>
 			{#each visibleFilters as filter (filter.id)}
 				<button
 					type="button"
-					class:advanced-folder__filter--active={activeFilter === filter.id}
-					class="advanced-folder__filter"
+					class="!inline-flex !min-h-[27px] !rounded-full !px-[11px] !py-[3px] !text-[11.5px] !font-semibold !shadow-none {activeFilter ===
+					filter.id
+						? '!border-[var(--semantic-accent)] !bg-[var(--semantic-accent)] !text-[var(--on-accent)]'
+						: '!border-[var(--border-primary)] !bg-[var(--surface-secondary)] !text-[var(--text-secondary)]'}"
 					aria-pressed={activeFilter === filter.id}
 					onclick={() => chooseFilter(filter)}>{filter.label}</button
 				>
 			{/each}
-			<button type="button" class="advanced-folder__primary-action" onclick={onPrimaryAction}>
+			<button
+				type="button"
+				class="!min-h-[27px] !rounded-full !border-[var(--semantic-accent)] !bg-[var(--semantic-accent)] !px-[11px] !py-[3px] !text-[11.5px] !text-[var(--on-accent)] !shadow-none"
+				onclick={onPrimaryAction}
+			>
 				{primaryActionLabel}
 			</button>
-			<button type="button" class="advanced-folder__secondary-action" onclick={openBuilder}>
+			<button
+				type="button"
+				class="!min-h-[27px] !rounded-full !border-dashed !border-[var(--border-secondary)] !bg-transparent !px-[11px] !py-[3px] !text-[11.5px] !text-[var(--text-secondary)] !shadow-none"
+				onclick={openBuilder}
+			>
 				<Plus width={13} height={13} />
 				{secondaryActionLabel}
 			</button>
 		</div>
 
-		<div class="advanced-folder__search-wrap">
-			<label class="advanced-folder__search">
-				<Search width={14} height={14} />
-				<input type="search" bind:value={query} placeholder={searchPlaceholder} />
+		<div class="border-b border-[var(--border-primary)] px-[9px] py-2.5">
+			<label class="!mb-0 relative flex items-center text-[var(--text-tertiary)]">
+				<Search class="absolute start-[13px]" width={14} height={14} />
+				<input
+					class="!h-9 w-full rounded-md border border-[var(--border-primary)] bg-[var(--surface-secondary)] pe-3 ps-[35px] text-[12.5px] text-[var(--text-primary)] outline-none focus:border-[var(--semantic-accent)]"
+					type="search"
+					bind:value={query}
+					placeholder={searchPlaceholder}
+				/>
 			</label>
 		</div>
 
-		<nav class="advanced-folder__tree" aria-label={title}>
+		<nav class="min-h-0 flex-1 overflow-y-auto py-1.5" aria-label={title}>
 			{#if visibleItems.length}
 				{#each visibleItems as node (node.id)}
 					{@render TreeNode(node, 0)}
 				{/each}
 			{:else}
-				<p class="advanced-folder__empty">No matching spaces</p>
+				<p class="px-3 py-6 text-center text-xs text-[var(--text-tertiary)]">No matching spaces</p>
 			{/if}
 		</nav>
 
-		<button type="button" class="advanced-folder__footer" onclick={onFooterClick}>
-			<span><Grid width={13} height={13} /> {footerLabel}</span>
-			{#if footerCount !== undefined}<small>{footerCount}</small>{/if}
+		<button
+			type="button"
+			class="!flex !min-h-[42px] !items-center !justify-between !rounded-none !border-0 !border-t !border-[var(--border-primary)] !bg-[var(--surface-primary)] !px-3 !py-0 !text-xs !text-[var(--text-secondary)] !shadow-none hover:!bg-[var(--surface-secondary)]"
+			onclick={onFooterClick}
+		>
+			<span class="flex items-center gap-2"><Grid width={13} height={13} /> {footerLabel}</span>
+			{#if footerCount !== undefined}<small class="text-[10px] text-[var(--text-tertiary)]"
+					>{footerCount}</small
+				>{/if}
 		</button>
 	{/if}
 </aside>
@@ -354,16 +406,18 @@
 		expandedIds.includes(node.id) ||
 		(node.defaultOpen && !closedIds.includes(node.id)) ||
 		Boolean(query)}
-	<div class="advanced-folder__branch">
+	<div>
 		<div
 			role="treeitem"
 			tabindex={node.disabled ? undefined : 0}
 			aria-selected={selectedId === node.id}
 			aria-expanded={expandable ? open : undefined}
 			aria-disabled={node.disabled}
-			class:advanced-folder__row--selected={selectedId === node.id}
-			class="advanced-folder__row"
-			style:padding-left={`${12 + depth * 22}px`}
+			class="flex min-h-9 cursor-pointer items-center gap-2 pe-2.5 text-xs text-[var(--text-secondary)] hover:bg-[var(--surface-secondary)] aria-disabled:cursor-not-allowed aria-disabled:opacity-50 {selectedId ===
+			node.id
+				? 'bg-[var(--surface-secondary)] text-[var(--text-primary)]'
+				: ''}"
+			style:padding-inline-start={`${12 + depth * 22}px`}
 			onclick={() => {
 				selectNode(node);
 				if (expandable) toggle(node);
@@ -378,7 +432,7 @@
 		>
 			<button
 				type="button"
-				class="advanced-folder__toggle"
+				class="!grid !h-5 !w-3 !min-h-0 !shrink-0 !place-items-center !border-0 !bg-transparent !p-0 !text-[var(--text-tertiary)] !shadow-none disabled:!pointer-events-none"
 				disabled={!expandable}
 				aria-label={open ? `Collapse ${node.name}` : `Expand ${node.name}`}
 				onclick={(event) => {
@@ -395,16 +449,24 @@
 			</button>
 
 			{#if node.icon}
-				<Icon icon={node.icon} klass="advanced-folder__node-icon" />
+				<Icon icon={node.icon} klass="size-[13px] text-[var(--text-tertiary)]" />
 			{:else}
 				<span
-					class="advanced-folder__marker"
+					class="size-[7px] shrink-0 rounded-[1px]"
 					style:background-color={node.color ?? 'var(--semantic-accent, #0891b2)'}
 				></span>
 			{/if}
-			<span class="advanced-folder__name">{node.name}</span>
-			{#if node.meta}<small class="advanced-folder__meta">{node.meta}</small>{/if}
-			{#if node.count !== undefined}<span class="advanced-folder__count">{node.count}</span>{/if}
+			<span class="min-w-0 flex-1 overflow-hidden font-semibold text-ellipsis whitespace-nowrap"
+				>{node.name}</span
+			>
+			{#if node.meta}<small
+					class="max-w-[76px] overflow-hidden font-[var(--font-mono,monospace)] text-[8.5px] text-ellipsis whitespace-nowrap text-[var(--text-tertiary)]"
+					>{node.meta}</small
+				>{/if}
+			{#if node.count !== undefined}<span
+					class="font-[var(--font-mono)] text-[9.5px] text-[var(--text-tertiary)]"
+					>{node.count}</span
+				>{/if}
 		</div>
 
 		{#if expandable && open}
@@ -416,415 +478,3 @@
 		{/if}
 	</div>
 {/snippet}
-
-<style>
-	.advanced-folder {
-		display: flex;
-		width: 100%;
-		min-width: 260px;
-		height: 100%;
-		min-height: 420px;
-		flex-direction: column;
-		overflow: hidden;
-		border: 1px solid var(--border-primary);
-		border-radius: 8px;
-		background: var(--surface-primary);
-		color: var(--text-primary);
-		font-family: var(--font-sans);
-		box-shadow: var(--shadow-sm);
-	}
-	.advanced-folder__header {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		min-height: 49px;
-		padding: 0 12px;
-		border-bottom: 1px solid var(--border-primary);
-	}
-	.advanced-folder__title,
-	.advanced-folder__header-actions,
-	.advanced-folder__footer > span {
-		display: flex;
-		align-items: center;
-		gap: 8px;
-	}
-	.advanced-folder__title {
-		font-size: 13px;
-	}
-	:global(.advanced-folder__title-icon) {
-		width: 15px;
-		height: 15px;
-		color: var(--semantic-accent, #0891b2);
-	}
-	.advanced-folder__header-actions button {
-		display: grid;
-		width: 28px;
-		height: 28px;
-		place-items: center;
-		padding: 0;
-		border: 0;
-		border-radius: 5px;
-		background: transparent;
-		color: var(--text-tertiary);
-	}
-	.advanced-folder__header-actions button:hover {
-		background: var(--surface-secondary);
-		color: var(--text-primary);
-	}
-	.advanced-folder__builder-close {
-		display: grid;
-		width: 28px;
-		height: 28px;
-		place-items: center;
-		padding: 0;
-		border: 0;
-		border-radius: 5px;
-		background: transparent;
-		color: var(--text-tertiary);
-	}
-	.advanced-folder__builder-close:hover {
-		background: var(--surface-secondary);
-	}
-	.advanced-folder__filters {
-		position: relative;
-		display: flex;
-		flex-wrap: wrap;
-		gap: 6px;
-		padding: 10px 9px 8px;
-		border-bottom: 1px solid var(--border-primary);
-	}
-	.advanced-folder__filter,
-	.advanced-folder__primary-action,
-	.advanced-folder__secondary-action {
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
-		gap: 4px;
-		min-height: 27px;
-		padding: 3px 11px;
-		border-radius: 999px;
-		font-size: 11.5px;
-		font-weight: 600;
-		white-space: nowrap;
-	}
-	.advanced-folder__filter {
-		border: 1px solid var(--border-primary);
-		background: var(--surface-secondary);
-		color: var(--text-secondary);
-	}
-	.advanced-folder__filter--active {
-		border-color: var(--semantic-accent, #0891b2);
-		background: var(--semantic-accent, #0891b2);
-		color: var(--on-accent, #ffffff);
-	}
-	.advanced-folder__primary-action {
-		border: 1px solid var(--semantic-accent, #0891b2);
-		background: var(--semantic-accent, #0891b2);
-		color: var(--on-accent, #ffffff);
-	}
-	.advanced-folder__secondary-action {
-		border: 1px dashed var(--border-secondary);
-		background: transparent;
-		color: var(--text-secondary);
-	}
-	.advanced-folder__builder {
-		display: flex;
-		min-height: 0;
-		flex: 1;
-		flex-direction: column;
-		gap: 14px;
-		padding: 14px 15px 13px;
-		overflow-y: auto;
-	}
-	.advanced-folder__builder-label {
-		display: grid;
-		gap: 6px;
-	}
-	.advanced-folder__builder-label > span,
-	.advanced-folder__builder-copy > strong {
-		color: var(--text-tertiary);
-		font-size: 10px;
-		font-weight: 700;
-		text-transform: uppercase;
-		letter-spacing: 0.06em;
-	}
-	.advanced-folder__builder-label input {
-		width: 100%;
-		height: 36px;
-		padding: 0 11px;
-		border: 1px solid var(--border-primary);
-		border-radius: 6px;
-		background: var(--surface-secondary);
-		color: var(--text-primary);
-		font-size: 12.5px;
-		outline: none;
-	}
-	.advanced-folder__builder-label input:focus {
-		border-color: var(--semantic-accent, #0891b2);
-		box-shadow: 0 0 0 2px color-mix(in srgb, var(--semantic-accent, #0891b2) 18%, transparent);
-	}
-	.advanced-folder__builder-copy p {
-		margin: 6px 0 0;
-		color: var(--text-tertiary);
-		font-size: 11px;
-		line-height: 1.45;
-	}
-	.advanced-folder__group-fields {
-		display: grid;
-		gap: 5px;
-	}
-	.advanced-folder__group-field {
-		display: grid;
-		grid-template-columns: 13px 20px 16px minmax(60px, auto) minmax(0, 1fr);
-		align-items: center;
-		gap: 6px;
-		min-height: 37px;
-		padding: 4px 7px;
-		border: 1px solid var(--border-primary);
-		border-radius: 6px;
-		background: var(--surface-secondary);
-		color: var(--text-primary);
-		cursor: grab;
-	}
-	.advanced-folder__group-field:active {
-		cursor: grabbing;
-	}
-	.advanced-folder__group-field--disabled {
-		opacity: 0.48;
-	}
-	.advanced-folder__drag {
-		color: var(--text-tertiary);
-		font-size: 13px;
-	}
-	.advanced-folder__order {
-		display: grid;
-		width: 19px;
-		height: 19px;
-		place-items: center;
-		border-radius: 50%;
-		background: var(--semantic-accent, #0891b2);
-		color: var(--on-accent, #fff);
-		font-size: 10px;
-		font-weight: 700;
-	}
-	.advanced-folder__group-field--disabled .advanced-folder__order {
-		background: var(--text-tertiary);
-	}
-	.advanced-folder__group-field input {
-		width: 15px;
-		height: 15px;
-		accent-color: var(--semantic-accent, #0891b2);
-	}
-	.advanced-folder__group-field strong {
-		font-size: 11.5px;
-		white-space: nowrap;
-	}
-	.advanced-folder__group-field small {
-		overflow: hidden;
-		color: var(--text-tertiary);
-		font-size: 9px;
-		text-align: right;
-		text-overflow: ellipsis;
-		white-space: nowrap;
-	}
-	.advanced-folder__hierarchy-note {
-		margin: -9px 0 0 3px;
-		padding-left: 9px;
-		border-left: 2px dashed var(--border-primary);
-		color: var(--text-tertiary);
-		font-size: 10px;
-		font-style: italic;
-		line-height: 1.4;
-	}
-	.advanced-folder__levels {
-		display: flex;
-		align-items: center;
-		gap: 10px;
-		padding: 10px;
-		border: 1px solid var(--border-primary);
-		border-radius: 7px;
-		background: var(--surface-secondary);
-	}
-	.advanced-folder__levels > div {
-		min-width: 0;
-		flex: 1;
-	}
-	.advanced-folder__levels > div strong {
-		font-size: 11.5px;
-	}
-	.advanced-folder__levels p {
-		margin: 2px 0 0;
-		color: var(--text-tertiary);
-		font-size: 9.5px;
-	}
-	.advanced-folder__levels > button {
-		display: grid;
-		width: 23px;
-		height: 23px;
-		place-items: center;
-		padding: 0;
-		border: 1px solid var(--border-primary);
-		border-radius: 5px;
-		background: var(--surface-primary);
-		color: var(--text-secondary);
-	}
-	.advanced-folder__levels > button:disabled {
-		opacity: 0.4;
-	}
-	.advanced-folder__levels > strong {
-		color: var(--semantic-accent, #0891b2);
-		font-size: 13px;
-	}
-	.advanced-folder__builder-actions {
-		display: grid;
-		grid-template-columns: 1fr 1fr;
-		gap: 8px;
-		margin-top: auto;
-	}
-	.advanced-folder__builder-actions button {
-		min-height: 35px;
-		border: 1px solid var(--border-primary);
-		border-radius: 6px;
-		background: var(--surface-primary);
-		color: var(--text-primary);
-		font-size: 12px;
-		font-weight: 600;
-	}
-	.advanced-folder__builder-actions .advanced-folder__create {
-		border-color: var(--semantic-accent, #0891b2);
-		background: var(--semantic-accent, #0891b2);
-		color: var(--on-accent, #fff);
-	}
-	.advanced-folder__builder-actions .advanced-folder__create:disabled {
-		cursor: not-allowed;
-		opacity: 0.5;
-	}
-	.advanced-folder__search-wrap {
-		padding: 10px 9px;
-		border-bottom: 1px solid var(--border-primary);
-	}
-	.advanced-folder__search {
-		position: relative;
-		display: flex;
-		align-items: center;
-		color: var(--text-tertiary);
-	}
-	.advanced-folder__search > :global(svg) {
-		position: absolute;
-		left: 13px;
-	}
-	.advanced-folder__search input {
-		width: 100%;
-		height: 36px;
-		padding: 0 12px 0 35px;
-		border: 1px solid var(--border-primary);
-		border-radius: 6px;
-		background: var(--surface-secondary);
-		color: var(--text-primary);
-		font-size: 12.5px;
-		outline: none;
-	}
-	.advanced-folder__search input:focus {
-		border-color: var(--semantic-accent, #0891b2);
-		box-shadow: 0 0 0 2px color-mix(in srgb, var(--semantic-accent, #0891b2) 18%, transparent);
-	}
-	.advanced-folder__tree {
-		min-height: 0;
-		flex: 1;
-		overflow-y: auto;
-		padding: 6px 0;
-	}
-	.advanced-folder__row {
-		display: flex;
-		align-items: center;
-		gap: 8px;
-		min-height: 36px;
-		padding-right: 10px;
-		color: var(--text-secondary);
-		font-size: 12px;
-		cursor: pointer;
-	}
-	.advanced-folder__row:hover,
-	.advanced-folder__row--selected {
-		background: var(--surface-secondary);
-		color: var(--text-primary);
-	}
-	.advanced-folder__row[aria-disabled='true'] {
-		cursor: not-allowed;
-		opacity: 0.5;
-	}
-	.advanced-folder__toggle {
-		display: grid;
-		width: 12px;
-		height: 20px;
-		flex-shrink: 0;
-		place-items: center;
-		padding: 0;
-		border: 0;
-		background: transparent;
-		color: var(--text-tertiary);
-	}
-	.advanced-folder__toggle:disabled {
-		pointer-events: none;
-	}
-	.advanced-folder__marker {
-		width: 7px;
-		height: 7px;
-		flex-shrink: 0;
-		border-radius: 1px;
-	}
-	:global(.advanced-folder__node-icon) {
-		width: 13px;
-		height: 13px;
-		color: var(--text-tertiary);
-	}
-	.advanced-folder__name {
-		min-width: 0;
-		flex: 1;
-		overflow: hidden;
-		font-weight: 600;
-		text-overflow: ellipsis;
-		white-space: nowrap;
-	}
-	.advanced-folder__meta {
-		max-width: 76px;
-		overflow: hidden;
-		color: var(--text-tertiary);
-		font-family: var(--font-mono, monospace);
-		font-size: 8.5px;
-		text-overflow: ellipsis;
-		white-space: nowrap;
-	}
-	.advanced-folder__count {
-		color: var(--text-tertiary);
-		font-family: var(--font-mono);
-		font-size: 9.5px;
-	}
-	.advanced-folder__empty {
-		padding: 24px 12px;
-		color: var(--text-tertiary);
-		font-size: 12px;
-		text-align: center;
-	}
-	.advanced-folder__footer {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		min-height: 42px;
-		padding: 0 12px;
-		border: 0;
-		border-top: 1px solid var(--border-primary);
-		background: var(--surface-primary);
-		color: var(--text-secondary);
-		font-size: 12px;
-		text-align: left;
-	}
-	.advanced-folder__footer:hover {
-		background: var(--surface-secondary);
-		color: var(--text-primary);
-	}
-	.advanced-folder__footer small {
-		color: var(--text-tertiary);
-		font-size: 10px;
-	}
-</style>

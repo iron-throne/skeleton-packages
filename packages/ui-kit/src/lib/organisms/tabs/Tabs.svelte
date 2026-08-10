@@ -87,14 +87,14 @@
 </script>
 
 {#snippet tabIcon(tab: TabItem, selected: boolean)}
-	<Icon icon={selected ? (tab.selectedIcon ?? tab.icon) : tab.icon} klass="size-3.5" />
+	<Icon icon={selected ? (tab.icon ?? tab.icon) : tab.icon} klass="size-3.5" />
 {/snippet}
 
 <div class="text-primary {klass}">
 	<div
 		role="tablist"
 		aria-disabled={disabled || undefined}
-		class="flex max-w-full items-center overflow-x-auto {listClass} {parentKlass}"
+		class="flex  max-w-full items-center overflow-x-auto {listClass} {parentKlass} "
 	>
 		{#each tabs as tab (tab.id)}
 			{@const selected = tab.id === active}
@@ -109,7 +109,7 @@
 					{tabVariantClass(selected)} {radiusClass} {tabKlass}"
 				onclick={() => selectTab(tab)}
 			>
-				{#if showIcons && iconPosition === 'left' && (tab.icon || tab.selectedIcon)}
+				{#if showIcons && iconPosition === 'left' && (tab.icon || tab.icon)}
 					{@render tabIcon(tab, selected)}
 				{/if}
 				<span>{tab.label}</span>
@@ -125,7 +125,7 @@
 						{tab.badge}
 					</small>
 				{/if}
-				{#if showIcons && iconPosition === 'right' && (tab.icon || tab.selectedIcon)}
+				{#if showIcons && iconPosition === 'right' && (tab.icon || tab.icon)}
 					{@render tabIcon(tab, selected)}
 				{/if}
 			</button>

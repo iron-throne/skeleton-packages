@@ -18,3 +18,13 @@ export const SIZE_CLASS: Record<ESize, string> = {
     [ESize.MIN]: 'max-w-min',
     [ESize.MAX]: 'max-w-max'
 };
+
+/** Shared dimensions for icons and icon-like controls. */
+export const ICON_SIZE_CLASS: Partial<Record<ESize, string>> = {
+    [ESize.XS]: 'size-3.5',
+    [ESize.SM]: 'size-4',
+    [ESize.MD]: 'size-5',
+    [ESize.LG]: 'size-6',
+    [ESize.XL]: 'size-8',
+    [ESize.XL2]: 'size-10'
+};

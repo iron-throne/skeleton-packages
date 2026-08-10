@@ -43,7 +43,7 @@
 				bind:active={requestTab}
 				showIcons={false}
 				tabKlass="uppercase tracking-wide"
-				panelKlass="mt-1"
+				panelKlass="mt-1" 
 			>
 				<p class="text-sm text-secondary">Active request view: <strong>{requestTab}</strong></p>
 			</Tabs>
@@ -56,6 +56,7 @@
 				variant="segmented"
 				radius="full"
 				showIcons
+				parentKlass="rounded-xl"
 				iconPosition="left"
 				activeKlass="ring-2 ring-accent/40"
 			>

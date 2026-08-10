@@ -1,6 +1,7 @@
 {
 	"compilerOptions": {
 		"allowJs": true,
+		"allowArbitraryExtensions": true,
 		"checkJs": true,
 		"forceConsistentCasingInFileNames": true,
 		"resolveJsonModule": true,
