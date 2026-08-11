@@ -368,7 +368,7 @@ const profileCardHandlers = {
 
       <section id="trace">
         <h2><span class="num">6</span> Trace a real example: opening the Profile Card</h2>
-        <p>This is the actual flow in <code>zhalia.core.ui</code> today — real files, real function calls, no invented demo. A user clicks "View profile" on a row in a data table:</p>
+        <p>This is the actual flow in the host app today — real files, real function calls, no invented demo. A user clicks "View profile" on a row in a data table:</p>
         <ol>
           <li><code>user = row</code> is set, which opens a <code>&lt;Modal&gt;</code> containing <code>&lt;RemotePlugin manifest={profileCardRemoteManifest} params={user} handlers={profileCardHandlers} /&gt;</code>.</li>
           <li><code>RemotePlugin.svelte</code>'s <code>onMount</code> fires: <code>ensurePluginStylesheet(manifest)</code> links <code>profile-card-entry.css</code>, then calls <code>mountPlugin()</code>.</li>
@@ -377,7 +377,7 @@ const profileCardHandlers = {
           <li><code>mountRemotePlugin(manifest, container, context)</code> runs → <code>import('http://localhost:5175/profile-card-entry.js')</code>, a real network fetch.</li>
           <li>Inside that file, <code>ProfileCard.svelte</code> mounts via Svelte's own <code>mount()</code>, rendering from <code>context.params</code> — the user that was clicked.</li>
           <li>User clicks "Follow" → the plugin calls <code>context.bus.emit('UPDATE_FOLLOW', user)</code> (section 4's real snippet).</li>
-          <li>zhalia's <code>profileCardHandlers.UPDATE_FOLLOW</code> fires → updates the table's local state → the UI reflects it instantly, no page reload, no reaching into the host's internals.</li>
+          <li>The host's <code>profileCardHandlers.UPDATE_FOLLOW</code> fires → updates the table's local state → the UI reflects it instantly, no page reload, no reaching into the host's internals.</li>
           <li>Modal closes → <code>onDestroy</code> calls <code>handle.destroy()</code> → the plugin's own <code>destroy()</code> unmounts its Svelte tree, then the bus is cleared.</li>
         </ol>
         <p>That's the entire round trip: one URL, one mount call, one bus, one destroy. Section 9 walks through building this project from an empty folder.</p>
@@ -418,11 +418,11 @@ const profileCardHandlers = {
 
       <section id="build">
         <h2><span class="num">9</span> Build your own — a from-scratch walkthrough</h2>
-        <p>Everything above explains how the machinery <em>works</em>. This is the opposite: a straight-line recipe for going from an empty folder to a plugin showing up inside <code>zhalia.core.ui</code> — and it's not hypothetical. The Profile Card from section 6 is backed by exactly this recipe, in a real project called <code>my-remote-plugin</code>: its own repo, its own <code>package.json</code>, its own git history.</p>
+        <p>Everything above explains how the machinery <em>works</em>. This is the opposite: a straight-line recipe for going from an empty folder to a plugin showing up inside the host app — and it's not hypothetical. The Profile Card from section 6 is backed by exactly this recipe, in a real project called <code>my-remote-plugin</code>: its own repo, its own <code>package.json</code>, its own git history.</p>
 
         <div class="alert success">
           <p class="title">The two halves</p>
-          <p><strong>Part A</strong> happens in your own new folder, completely separate from <code>zhalia.core.ui</code> — you write a plugin and build it into one JS file. <strong>Part B</strong> happens inside <code>zhalia.core.ui</code> — you tell it that file exists and drop a component on a page to mount it. Nothing in Part A imports anything from zhalia; nothing in Part B imports your plugin's source. The only thing connecting them is a URL.</p>
+          <p><strong>Part A</strong> happens in your own new folder, completely separate from the host app — you write a plugin and build it into one JS file. <strong>Part B</strong> happens inside the host app — you tell it that file exists and drop a component on a page to mount it. Nothing in Part A imports anything from the host; nothing in Part B imports your plugin's source. The only thing connecting them is a URL.</p>
         </div>
 
         <h3>Part A — create the remote app</h3>
@@ -531,13 +531,13 @@ export const sayAlertHi = (name: string) => alert('Say Hi ' + name);</code></pre
         </div>
         <p><code>npm run build</code> → <code>dist/profile-card-entry.js</code>, <code>dist/follow-display-entry.js</code>, <code>dist/say-hi-service.js</code>, plus the shared <code>dist/remote-plugin.css</code>.</p>
 
-        <h3>A4. Serve it so zhalia.core.ui can reach it</h3>
-        <p>During development, <code>npm run dev</code> — <code>my-remote-plugin</code>'s <code>package.json</code> pins this to <code>"dev": "vite --port 5175"</code> — so <code>http://localhost:5175/profile-card-entry.js</code> responds. <code>5175</code> isn't arbitrary: it's zhalia's default <code>PUBLIC_REMOTE_PLUGIN_BASE_URL</code> (Part B1). In production this is wherever you actually deploy <code>dist/</code> — a static host or CDN.</p>
+        <h3>A4. Serve it so the host app can reach it</h3>
+        <p>During development, <code>npm run dev</code> — <code>my-remote-plugin</code>'s <code>package.json</code> pins this to <code>"dev": "vite --port 5175"</code> — so <code>http://localhost:5175/profile-card-entry.js</code> responds. <code>5175</code> isn't arbitrary: it's the host's default <code>PUBLIC_REMOTE_PLUGIN_BASE_URL</code> (Part B1). In production this is wherever you actually deploy <code>dist/</code> — a static host or CDN.</p>
 
-        <h3>Part B — connect it inside zhalia.core.ui</h3>
+        <h3>Part B — connect it inside the host app</h3>
 
         <h3>B1. Declare the manifest</h3>
-        <p>Every plugin zhalia knows about is a plain <code>IRemotePluginManifest</code> object in <code>src/lib/shared/connected-apps/manifest.ts</code> — no database, no admin screen, just a TypeScript file:</p>
+        <p>Every plugin the host knows about is a plain <code>IRemotePluginManifest</code> object in <code>src/lib/shared/connected-apps/manifest.ts</code> — no database, no admin screen, just a TypeScript file:</p>
         <pre><code>// src/lib/shared/connected-apps/manifest.ts
 import { PUBLIC_REMOTE_PLUGIN_BASE_URL } from '$env/static/public';
 import type { IRemotePluginManifest } from '@aryagg/remote-plugins';
@@ -559,10 +559,10 @@ export const profileCardRemoteManifest: IRemotePluginManifest = {
           </tbody>
         </table>
         </div>
-        <p><code>PUBLIC_REMOTE_PLUGIN_BASE_URL</code> comes from zhalia's <code>.env</code> (default <code>http://localhost:5175</code>) — one base URL shared by every plugin manifest, just a different filename per plugin.</p>
+        <p><code>PUBLIC_REMOTE_PLUGIN_BASE_URL</code> comes from the host's <code>.env</code> (default <code>http://localhost:5175</code>) — one base URL shared by every plugin manifest, just a different filename per plugin.</p>
 
         <h3>B2. Mount it on a page — the easy way</h3>
-        <p>zhalia already has a generic wrapper that does <code>createRemotePluginBus()</code> → <code>ensurePluginStylesheet()</code> → build context → <code>mountRemotePlugin()</code> → <code>destroy()</code>-on-unmount for you: <code>RemotePlugin.svelte</code>. This is the exact call from section 6:</p>
+        <p>The host already has a generic wrapper that does <code>createRemotePluginBus()</code> → <code>ensurePluginStylesheet()</code> → build context → <code>mountRemotePlugin()</code> → <code>destroy()</code>-on-unmount for you: <code>RemotePlugin.svelte</code>. This is the exact call from section 6:</p>
         <pre><code>&lt;RemotePlugin
   manifest={profileCardRemoteManifest}
   params={user}
@@ -596,7 +596,7 @@ await handle.destroy();</code></pre>
 const utilityModule = await loadRemoteManifestFile(sayHiRemoteManifest.entryUrl);
 <span class="tertiary">// null if the file 404s, fails to parse, or the URL is unreachable</span>
 utilityModule?.sayAlertHi('World');</code></pre>
-        <p>Pair this with <code>isManifestUrlLoaded(url)</code> (a thin zhalia-only wrapper around <code>loadRemotePlugin</code>) to probe reachability before showing UI that depends on a plugin — e.g. hiding a menu action if it isn't deployed yet.</p>
+        <p>Pair this with <code>isManifestUrlLoaded(url)</code> (a thin host-only wrapper around <code>loadRemotePlugin</code>) to probe reachability before showing UI that depends on a plugin — e.g. hiding a menu action if it isn't deployed yet.</p>
 
         <h3>Cheat sheet — every operation, one table</h3>
         <div class="table-wrap">
@@ -612,9 +612,9 @@ utilityModule?.sayAlertHi('World');</code></pre>
             <tr><td><code>loadRemotePluginCached(url)</code></td><td><code>@aryagg/remote-plugins</code></td><td>mounting the same URL repeatedly and want it deduped (section 7)</td></tr>
             <tr><td><code>controller.update(context)</code></td><td>returned by <code>mountRemotePlugin</code></td><td>theme/user/params changed on an already-mounted plugin</td></tr>
             <tr><td><code>controller.destroy()</code></td><td>returned by <code>mountRemotePlugin</code></td><td>always — on unmount, every time</td></tr>
-            <tr><td><code>&lt;RemotePlugin manifest params handlers /&gt;</code></td><td>zhalia: <code>connected-apps/RemotePlugin.svelte</code></td><td>the default choice for any UI plugin on a page</td></tr>
-            <tr><td><code>buildRemoteContext(bus, params)</code></td><td>zhalia: <code>connected-apps/context.ts</code></td><td>only if mounting manually (B3)</td></tr>
-            <tr><td><code>isManifestUrlLoaded(url)</code></td><td>zhalia: <code>connected-apps/loader.ts</code></td><td>gate UI on whether a plugin is reachable</td></tr>
+            <tr><td><code>&lt;RemotePlugin manifest params handlers /&gt;</code></td><td>Host: <code>connected-apps/RemotePlugin.svelte</code></td><td>the default choice for any UI plugin on a page</td></tr>
+            <tr><td><code>buildRemoteContext(bus, params)</code></td><td>Host: <code>connected-apps/context.ts</code></td><td>only if mounting manually (B3)</td></tr>
+            <tr><td><code>isManifestUrlLoaded(url)</code></td><td>Host: <code>connected-apps/loader.ts</code></td><td>gate UI on whether a plugin is reachable</td></tr>
           </tbody>
         </table>
         </div>
@@ -632,7 +632,7 @@ utilityModule?.sayAlertHi('World');</code></pre>
       </section>
 
       <footer>
-        Generated explainer for <code>@aryagg/remote-plugins</code>. Sections 1–8 cover the package's own source; section 9 also documents how <code>zhalia.core.ui</code> (a separate repo) wires it up as a host app.
+        Generated explainer for <code>@aryagg/remote-plugins</code>. Sections 1–8 cover the package's own source; section 9 also documents how the host app (a separate repo) wires it up.
       </footer>
 
     </main>
