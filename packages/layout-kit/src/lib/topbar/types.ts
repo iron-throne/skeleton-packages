@@ -1,57 +1,52 @@
-import { ETheme, type IFormField, type IMenu } from '@aryagg/types';
 import type { Snippet } from 'svelte';
+import type { ETheme, IMenu } from '@aryagg/types';
 
-export interface TopbarProps {
-	homeHref?: string;
-	homeAriaLabel?: string;
-	homeClass?: string;
-	logoSrc?: string;
-	logoAlt?: string;
-	brandClass?: string;
+export type SwitchDisplay = 'icon' | 'label' | 'both';
+export type SwitchLayout = 'stacked' | 'horizontal';
 
-	menus?: IMenu[];
+export interface NavConfig {
+	items: IMenu[];
 	activeHref?: string;
+	layout?: SwitchLayout;
 	menuClass?: string;
-	menuLayout?: 'stacked' | 'horizontal';
-
-	searchField?: IFormField;
-	onSearchInput?: (value?: string) => void;
-	searchSlot?: Snippet | null;
-
-	languages?: { label?: string; value?: string }[];
-	currentLanguage?: string;
-	onLanguageChange?: (value?: string) => void;
-
-	theme?: ETheme;
-	onThemeChange?: (theme?: ETheme) => void;
-	themeStorageKey?:string;
-	showThemeToggle?:boolean
-
-	avatarSrc?: string;
-	userName?: string;
-	profileLabel?: string;
-	profileItems?: any[];
-	profileSlot?: Snippet | null;
-
-	leftSlot?: Snippet | null;
-	midSlot?: Snippet | null;
-	rightSlot?: Snippet | null;
-	klass?: string;
-	brand?: string;
-	brandHref?: string;
-	tagline?: string;
-	items?: IMenu[];
-	actions?: Snippet;
-	variant?: HeaderVariant;
-	headerClass?: string;
 }
 
-export type NavItem = {
-	label: string;
-	href?: string;
-	icon?: any;
-	badge?: string;
-	children?: NavItem[];
-};
+export interface LanguageSwitchConfig {
+	languages: { label?: string; value?: string }[];
+	currentLanguage?: string;
+	onLanguageChange?: (value?: string) => void;
+	display?: SwitchDisplay;
+	layout?: SwitchLayout;
+	klass?: string;
+}
 
-export type HeaderVariant = 'default' | 'centered' | 'stacked' | 'minimal';
+export interface ThemeSwitchConfig {
+	theme?: ETheme;
+	onThemeChange?: (theme?: ETheme) => void;
+	themeStorageKey?: string;
+	display?: SwitchDisplay;
+	layout?: SwitchLayout;
+	klass?: string;
+}
+
+export interface TopbarProps {
+	title?: string;
+	logoSrc?: string;
+	logoAlt?: string;
+	href?: string;
+
+	klass?: string;
+
+	leftSlot?: Snippet;
+	midSlot?: Snippet;
+	children?: Snippet;
+
+	nav?: NavConfig;
+	languageSwitch?: LanguageSwitchConfig;
+	themeSwitch?: ThemeSwitchConfig;
+
+	avatarSrc?: string;
+	avatarName?: string;
+	onAvatarClick?: () => void;
+	avatarKlass?:string;
+}

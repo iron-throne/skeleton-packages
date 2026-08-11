@@ -1,268 +1,83 @@
 <script lang="ts">
-	import { Avatar, DropdownMenu, Input } from '@aryagg/ui-kit';
-	import { EMenuAlign, ESize, EStorageKey, ETheme, type IMenu } from '@aryagg/types';
-	import { CaretDownFill, Globe2, Moon, Search, Sun } from 'svelte-bootstrap-icons';
+	import { Avatar } from '@aryagg/ui-kit';
+	import { ESize } from '@aryagg/types';
 	import type { TopbarProps } from './types';
 	import HeaderNavList from './components/HeaderNavList.svelte';
-	import { enableDarkTheme, enableLightTheme } from '@aryagg/utils';
+	import LanguageSwitcher from './components/LanguageSwitcher.svelte';
+	import ThemeToggle from './components/ThemeToggle.svelte';
 
 	let {
-		homeHref = '/',
-		homeClass = '',
+		title = '',
 		logoSrc = '',
 		logoAlt = 'Logo',
-		brand = '',
-		brandClass = '',
-		brandHref,
-		tagline = '',
+		href = '/',
 
-		menus = [],
-		menuClass = '',
-		menuLayout = 'stacked',
-		activeHref = '',
+		klass = '',
 
-		searchField = $bindable(),
-		searchSlot = null,
+		leftSlot,
+		midSlot,
+		children,
 
-		languages = [],
-		currentLanguage = '',
-		onLanguageChange,
-
-		theme = $bindable(ETheme.LIGHT),
-		themeStorageKey = EStorageKey.THEME,
-		onThemeChange,
-		showThemeToggle = false,
+		nav,
+		languageSwitch,
+		themeSwitch,
 
 		avatarSrc = '',
-		userName = '',
-		profileLabel = '',
-		profileItems = [],
-		profileSlot = null,
-
-		leftSlot = null,
-		midSlot = null,
-		rightSlot = null,
-		actions,
-		variant = 'default',
-		klass = '',
-		headerClass = ''
+		avatarName = '',
+		avatarKlass = '',
+		onAvatarClick
 	}: TopbarProps = $props();
-
-	const brandLink = $derived(brandHref ?? homeHref);
-
-	function toggleTheme() {
-		theme = theme === ETheme.DARK ? ETheme.LIGHT : ETheme.DARK;
-		if (theme === ETheme.DARK) {
-			enableDarkTheme(themeStorageKey);
-		} else {
-			enableLightTheme(themeStorageKey);
-		}
-		onThemeChange?.();
-	}
 </script>
 
-{#snippet BrandMark()}
-	{#if logoSrc || brand}
-		<a
-			href={brandLink}
-			class="flex shrink-0 items-center gap-2 no-underline opacity-100 transition-opacity hover:opacity-80 mr-3 {homeClass}"
-			aria-label={brand}
-			title={brand}
-		>
+<header
+	class="flex w-full items-center gap-4 border-b border-border-primary bg-surface-primary px-4 {klass}"
+>
+	{#if leftSlot}
+		<div class="flex shrink-0 items-center gap-2">{@render leftSlot()}</div>
+	{/if}
+
+	{#if logoSrc || title}
+		<a {href} class="flex shrink-0 items-center gap-2 text-primary no-underline">
 			{#if logoSrc}
-				<img alt={logoAlt} class="size-10 object-contain" src={logoSrc} />
+				<img src={logoSrc} alt={logoAlt} class="size-8 object-contain" />
 			{/if}
-			{#if brand}
-				<span class="text-primary text-sm font-bold whitespace-nowrap {brandClass}">{brand}</span>
+			{#if title}
+				<span class="text-sm font-bold whitespace-nowrap">{title}</span>
 			{/if}
 		</a>
 	{/if}
-{/snippet}
 
-{#snippet searchBar()}
-	{#if searchSlot}
-		{@render searchSlot()}
-	{:else if searchField}
-		<div class="min-w-45 sm:min-w-60 md:min-w-75 relative {searchField.klass}">
-			<Input bind:field={searchField} />
-		</div>
+	{#if midSlot}
+			{@render midSlot()}
 	{/if}
-{/snippet}
 
-{#snippet navList()}
-	{#if menus.length}
-		<HeaderNavList items={menus} {activeHref} {menuClass} layout={menuLayout} />
+	{#if nav}
+		<HeaderNavList {...nav} />
 	{/if}
-{/snippet}
 
-{#snippet profileMenu()}
-	{#if profileSlot}
-		{@render profileSlot()}
-	{:else if userName || profileItems.length}
-		{@const isDropdown = profileItems.length > 0}
-		<DropdownMenu menus={profileItems} align={EMenuAlign.RIGHT}>
-			{#snippet trigger({ open, toggle }: { open: boolean; toggle: () => void })}
+	<div class="ml-auto flex min-w-0 items-center gap-3">
+		{@render children?.()}
+
+		{#if languageSwitch}
+			<LanguageSwitcher {...languageSwitch} />
+		{/if}
+
+		{#if themeSwitch}
+			<ThemeToggle {...themeSwitch} />
+		{/if}
+		{#if avatarSrc || avatarName}
+			{#if onAvatarClick}
 				<button
-					onclick={isDropdown ? toggle : null}
-					aria-label="User menu"
-					aria-expanded={open}
-					class="group hover:text-accent! relative flex flex-col items-center justify-between border-0 bg-transparent pb-1 text-[11px]! font-medium transition-colors hover:bg-transparent {open
-						? 'text-accent'
-						: 'text-secondary'}"
+					type="button"
+					onclick={onAvatarClick}
+					aria-label="Account"
+					class="rounded-full border-0 bg-transparent p-0"
 				>
-					<Avatar src={avatarSrc} name={userName} size={ESize.XS} />
-					{#if isDropdown}
-						<span class="hidden items-center gap-1 px-4 pt-1 sm:flex">
-							{profileLabel}
-							<CaretDownFill
-								class="size-3 transition-transform group-hover:text-accent {open
-									? 'rotate-180'
-									: ''}"
-							/>
-						</span>
-					{/if}
-					<!-- <span
-						class="absolute bottom-0 h-0.5 w-full rounded-full transition-opacity {open
-							? 'bg-accent opacity-100'
-							: 'bg-transparent opacity-0 group-hover:bg-accent/40 group-hover:opacity-100'}"
-					></span> -->
+					<Avatar src={avatarSrc} name={avatarName} size={ESize.XS} klass={avatarKlass} />
 				</button>
-			{/snippet}
-		</DropdownMenu>
-	{/if}
-{/snippet}
-
-{#snippet actionBar()}
-	<div class="flex items-center">
-		{#if actions}
-			{@render actions()}
-		{/if}
-
-		{#if languages.length}
-			<DropdownMenu
-				menus={languages.map((l) => ({
-					label: l.label,
-					id: l.value ?? l.label,
-					onclick: () => onLanguageChange?.(l.value)
-				})) as IMenu[]}
-				align={EMenuAlign.RIGHT}
-			>
-				{#snippet trigger({ open, toggle }: { open: boolean; toggle: () => void })}
-					<button
-						onclick={toggle}
-						aria-label="Switch language"
-						aria-expanded={open}
-						class="group hover:text-accent! relative flex flex-col items-center justify-between border-0 bg-transparent pb-1 text-[11px]! font-medium transition-colors hover:bg-transparent {open
-							? 'text-accent'
-							: 'text-secondary'}"
-					>
-						<Globe2 class="size-5 group-hover:text-accent" />
-						<span class="hidden px-4 pt-1 uppercase sm:block">{currentLanguage}</span>
-						<span
-							class="absolute bottom-0 h-0.5 w-full rounded-full transition-opacity {open
-								? 'bg-accent opacity-100'
-								: 'bg-transparent opacity-0 group-hover:bg-accent/40 group-hover:opacity-100 group-hover:font-medium'}"
-						></span>
-					</button>
-				{/snippet}
-			</DropdownMenu>
-		{/if}
-
-		{#if showThemeToggle}
-			<button
-				onclick={toggleTheme}
-				aria-label="Toggle theme"
-				class="group hover:text-accent! text-secondary relative flex flex-col items-center justify-between border-0 bg-transparent pb-1 px-0 text-[11px]! font-medium transition-colors hover:bg-transparent"
-			>
-				{#if theme === ETheme.LIGHT}
-					<Sun class="size-5 group-hover:text-accent" /><span class="hidden px-4 pt-1 sm:block">Light</span>
-				{:else}
-					<Moon class="size-5 group-hover:text-accent" /><span class="hidden px-4 pt-1 sm:block">Dark</span>
-				{/if}
-				<span
-					class="absolute bottom-0 h-0.5 w-full rounded-full bg-transparent opacity-0 transition-opacity group-hover:bg-accent/40 group-hover:opacity-100"
-				></span>
-			</button>
-		{/if}
-
-		{@render profileMenu()}
-
-		{#if rightSlot}
-			{@render rightSlot()}
+			{:else}
+				<Avatar src={avatarSrc} name={avatarName} size={ESize.XS} klass={avatarKlass} />
+			{/if}
 		{/if}
 	</div>
-{/snippet}
-
-<header
-	class="w-full border-b border-border-primary bg-surface-primary px-2 shadow flex-none {headerClass}"
->
-	{#if variant === 'stacked'}
-		<div class="container mx-auto flex h-15 gap-4  pt-1 {klass}">
-			{#if leftSlot}
-				<div class="flex items-center gap-2">{@render leftSlot()}</div>
-			{/if}
-			{@render BrandMark()}
-			{@render searchBar()}
-			<div class="ml-auto flex gap-3">
-				{@render actionBar()}
-			</div>
-		</div>
-		<div class="border-t border-border-primary">
-			<div class="container mx-auto flex h-15 justify-center">
-				{@render navList()}
-			</div>
-		</div>
-	{:else if variant === 'centered'}
-		<div
-			class="container mx-auto grid h-15 grid-cols-[auto_1fr_auto] gap-4 {klass}"
-		>
-			<div class="flex items-center gap-2">
-				{#if leftSlot}{@render leftSlot()}{/if}
-				{@render BrandMark()}
-				{@render searchBar()}
-			</div>
-			<div class="flex items-center justify-center gap-4">
-				{@render navList()}
-				{#if midSlot}{@render midSlot()}{/if}
-			</div>
-			<div class="flex items-center gap-3">
-				{@render actionBar()}
-			</div>
-		</div>
-	{:else if variant === 'minimal'}
-		<div
-			class="container mx-auto grid h-15 grid-cols-[auto_1fr_auto] items-center gap-4 {klass}"
-		>
-			<div class="flex items-center gap-2">
-				{#if leftSlot}{@render leftSlot()}{/if}
-				{@render BrandMark()}
-				{@render searchBar()}
-			</div>
-			{#if midSlot}
-				<div class="flex justify-center">{@render midSlot()}</div>
-			{:else if tagline}
-				<p class="text-tertiary text-center text-sm">{tagline}</p>
-			{:else}
-				<span></span>
-			{/if}
-			<div class="flex items-center gap-3">
-				{@render actionBar()}
-			</div>
-		</div>
-	{:else}
-		<div class="container mx-auto flex h-15 gap-4  pt-1{klass}">
-			{#if leftSlot}
-				<div class="flex items-center gap-2">{@render leftSlot()}</div>
-			{/if}
-			{@render BrandMark()}
-			{@render searchBar()}
-			{@render navList()}
-			{#if midSlot}
-				<div class="flex items-center gap-2">{@render midSlot()}</div>
-			{/if}
-			<div class="ml-auto flex items-center gap-3">
-				{@render actionBar()}
-			</div>
-		</div>
-	{/if}
 </header>

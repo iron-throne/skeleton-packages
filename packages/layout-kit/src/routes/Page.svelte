@@ -1,6 +1,10 @@
 <script lang="ts">
 	import {
 		Topbar,
+		HeaderNavList,
+		ThemeToggle,
+		LanguageSwitcher,
+		ProfileMenu,
 		CollapsibleSidebar,
 		LandingPageHero,
 		LandingPageSearch,
@@ -10,7 +14,7 @@
 		ErrorSplit
 	} from '$lib';
 	import { LoginSimple, LoginSplit, LoginCover, type LoginCredentials } from '$lib/login';
-	import { ETheme, EInputType, HttpStatus, type IMenu } from '@aryagg/types';
+	import { ETheme, HttpStatus, type IMenu } from '@aryagg/types';
 	import { errorTitle, errorHint } from '@aryagg/utils';
 	import type { Snippet } from 'svelte';
 	import {
@@ -72,14 +76,11 @@
 	const activeSection = $derived(sections.find((s) => s.id === activeComponent));
 
 	// ── Topbar demo ─────────────────────────────────────────────
-	const topbarVariants = ['default', 'centered', 'stacked', 'minimal'] as const;
-	const topbarMenuLayouts = ['stacked', 'horizontal'] as const;
-	let topbarVariant = $state<(typeof topbarVariants)[number]>('default');
-	let topbarMenuLayout = $state<(typeof topbarMenuLayouts)[number]>('stacked');
+	const topbarModes = ['simple', 'advanced', 'config props'] as const;
+	let topbarMode = $state<(typeof topbarModes)[number]>('simple');
 	let topbarTheme = $state<ETheme>(ETheme.LIGHT);
 	let showLanguages = $state(true);
 	let showProfileMenu = $state(true);
-	let showSearchField = $state(true);
 	let showTopbarLogo = $state(true);
 
 	const topbarMenus: IMenu[] = [
@@ -319,36 +320,61 @@
 							<div
 								class="overflow-hidden rounded-xl border border-border-primary bg-surface-primary shadow-sm"
 							>
-								<Topbar
-									variant={topbarVariant}
-									brand="Acme"
-									logoSrc={showTopbarLogo ? demoLogo : ''}
-									tagline="Everything you need to learn, in one place."
-									menus={topbarMenus}
-									menuLayout={topbarMenuLayout}
-									activeHref="#"
-									searchField={showSearchField
-										? {
-												id: 'topbar-search',
-												key: 'search',
-												label: '',
-												placeholder: 'Search…',
-												type: EInputType.SEARCH
-											}
-										: undefined}
-									languages={showLanguages
-										? [
-												{ label: 'EN', value: 'en' },
-												{ label: 'AR', value: 'ar' }
-											]
-										: []}
-									currentLanguage="en"
-									userName={showProfileMenu ? 'Jordan Lee' : ''}
-									profileLabel={showProfileMenu ? 'Jordan Lee' : ''}
-									profileItems={showProfileMenu ? topbarProfileItems : []}
-									showThemeToggle
-									bind:theme={topbarTheme}
-								/>
+								{#if topbarMode === 'simple'}
+									<Topbar title="Acme" logoSrc={showTopbarLogo ? demoLogo : ''} />
+								{:else if topbarMode === 'advanced'}
+									<Topbar title="Acme" logoSrc={showTopbarLogo ? demoLogo : ''}>
+										<HeaderNavList items={topbarMenus} activeHref="#" layout="horizontal" />
+										{#if showLanguages}
+											<LanguageSwitcher
+												languages={[
+													{ label: 'EN', value: 'en' },
+													{ label: 'AR', value: 'ar' }
+												]}
+												currentLanguage="en"
+											/>
+										{/if}
+										<ThemeToggle bind:theme={topbarTheme} />
+										{#if showProfileMenu}
+											<ProfileMenu
+												userName="Jordan Lee"
+												profileLabel="Jordan Lee"
+												profileItems={topbarProfileItems}
+											/>
+										{/if}
+									</Topbar>
+								{:else}
+									<!-- Same look as "advanced", but nav/language/theme are wired through
+									     Topbar's own config-object props instead of composed by hand.
+									     ProfileMenu still goes through children — there's no config prop
+									     for it, since a profile menu is always app-specific. -->
+									<Topbar
+										title="Acme"
+										logoSrc={showTopbarLogo ? demoLogo : ''}
+										nav={{ items: topbarMenus, activeHref: '#', layout: 'horizontal' }}
+										languageSwitch={showLanguages
+											? {
+													languages: [
+														{ label: 'EN', value: 'en' },
+														{ label: 'AR', value: 'ar' }
+													],
+													currentLanguage: 'en'
+												}
+											: undefined}
+										themeSwitch={{
+											theme: topbarTheme,
+											onThemeChange: (t) => (topbarTheme = t ?? topbarTheme)
+										}}
+									>
+										{#if showProfileMenu}
+											<ProfileMenu
+												userName="Jordan Lee"
+												profileLabel="Jordan Lee"
+												profileItems={topbarProfileItems}
+											/>
+										{/if}
+									</Topbar>
+								{/if}
 								<div
 									class="flex h-24 items-center justify-center bg-surface-tertiary text-sm text-tertiary"
 								>
@@ -357,18 +383,7 @@
 							</div>
 
 							{#snippet topbarPickers()}
-								{@render PickerField(
-									'variant',
-									topbarVariants,
-									topbarVariant,
-									(v) => (topbarVariant = v)
-								)}
-								{@render PickerField(
-									'menuLayout',
-									topbarMenuLayouts,
-									topbarMenuLayout,
-									(v) => (topbarMenuLayout = v)
-								)}
+								{@render PickerField('mode', topbarModes, topbarMode, (v) => (topbarMode = v))}
 							{/snippet}
 							{#snippet topbarToggles()}
 								{@render Toggle(
@@ -376,17 +391,18 @@
 									showTopbarLogo,
 									() => (showTopbarLogo = !showTopbarLogo)
 								)}
-								{@render Toggle(
-									'searchField',
-									showSearchField,
-									() => (showSearchField = !showSearchField)
-								)}
-								{@render Toggle('languages', showLanguages, () => (showLanguages = !showLanguages))}
-								{@render Toggle(
-									'profileItems',
-									showProfileMenu,
-									() => (showProfileMenu = !showProfileMenu)
-								)}
+								{#if topbarMode !== 'simple'}
+									{@render Toggle(
+										'languages',
+										showLanguages,
+										() => (showLanguages = !showLanguages)
+									)}
+									{@render Toggle(
+										'profileMenu',
+										showProfileMenu,
+										() => (showProfileMenu = !showProfileMenu)
+									)}
+								{/if}
 							{/snippet}
 						</div>
 					{:else if activeComponent === 'sidebar'}

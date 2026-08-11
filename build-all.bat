@@ -1,21 +1,21 @@
 @echo off
 
-cd F:\repo\Skeleton\skeleton-packages\packages\types
+cd F:\repo\CoreLibrary\skeleton-packages\packages\types
 call npm run build
 
-cd F:\repo\Skeleton\skeleton-packages\packages\i18n
+cd F:\repo\CoreLibrary\skeleton-packages\packages\i18n
 call npm run build
 
-cd F:\repo\Skeleton\skeleton-packages\packages\utils
+cd F:\repo\CoreLibrary\skeleton-packages\packages\utils
 call npm run build
 
-cd F:\repo\Skeleton\skeleton-packages\packages\ui-kit
+cd F:\repo\CoreLibrary\skeleton-packages\packages\ui-kit
 call npm run build
 
-cd F:\repo\Skeleton\skeleton-packages\packages\layout-kit
+cd F:\repo\CoreLibrary\skeleton-packages\packages\layout-kit
 call npm run build
 
-cd F:\repo\Skeleton\skeleton-packages\packages\remote-plugins
+cd F:\repo\CoreLibrary\skeleton-packages\packages\remote-plugins
 call npm run build
 
 echo All builds completed!

@@ -1,5 +1,12 @@
-export { Topbar } from './topbar';
-export type { HeaderVariant } from './topbar';
+export { Topbar, HeaderNavList, ThemeToggle, LanguageSwitcher, ProfileMenu } from './topbar';
+export type {
+	TopbarProps,
+	NavConfig,
+	LanguageSwitchConfig,
+	ThemeSwitchConfig,
+	SwitchDisplay,
+	SwitchLayout
+} from './topbar';
 
 export { LandingPageHero, LandingPageSearch } from './landing-pages';
 
