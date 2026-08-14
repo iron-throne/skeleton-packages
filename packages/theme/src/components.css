@@ -202,7 +202,7 @@
     --button-bg: var(--semantic-info);
     --button-color: var(--on-info);
     --button-border-color: var(--semantic-info);
-    --button-hover-bg: color-mix(in srgb, var(--semantic-info) 86%, black);
+    --: color-mix(in srgb, var(--semantic-info) 86%, black);
   }
 
   /* â•â•â•â•â•â•â•â•â•â•â•â•â•â• BUTTON SIZES â•â•â•â•â•â•â•â•â•â•â•â•â•â• */

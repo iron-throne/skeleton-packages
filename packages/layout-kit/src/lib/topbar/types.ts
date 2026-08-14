@@ -1,8 +1,8 @@
 import type { Snippet } from 'svelte';
-import type { ETheme, IMenu } from '@aryagg/types';
+import { ESwitchLayout, type ETheme, type IMenu } from '@aryagg/types';
 
 export type SwitchDisplay = 'icon' | 'label' | 'both';
-export type SwitchLayout = 'stacked' | 'horizontal';
+export type SwitchLayout = ESwitchLayout;
 
 export interface NavConfig {
 	items: IMenu[];
@@ -29,6 +29,17 @@ export interface ThemeSwitchConfig {
 	klass?: string;
 }
 
+export interface ProfileConfig {
+	src?: string;
+	name?: string;
+	label?: string;
+	items?: IMenu[];
+	onclick?: () => void;
+	avatarKlass?: string;
+	layout?: SwitchLayout;
+	klass?: string;
+}
+
 export interface TopbarProps {
 	title?: string;
 	logoSrc?: string;
@@ -45,8 +56,5 @@ export interface TopbarProps {
 	languageSwitch?: LanguageSwitchConfig;
 	themeSwitch?: ThemeSwitchConfig;
 
-	avatarSrc?: string;
-	avatarName?: string;
-	onAvatarClick?: () => void;
-	avatarKlass?:string;
+	profile?: ProfileConfig;
 }

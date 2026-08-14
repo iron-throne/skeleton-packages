@@ -1,10 +1,9 @@
 <script lang="ts">
-	import { Avatar } from '@aryagg/ui-kit';
-	import { ESize } from '@aryagg/types';
 	import type { TopbarProps } from './types';
 	import HeaderNavList from './components/HeaderNavList.svelte';
 	import LanguageSwitcher from './components/LanguageSwitcher.svelte';
 	import ThemeToggle from './components/ThemeToggle.svelte';
+	import ProfileMenu from './components/ProfileMenu.svelte';
 
 	let {
 		title = '',
@@ -22,10 +21,7 @@
 		languageSwitch,
 		themeSwitch,
 
-		avatarSrc = '',
-		avatarName = '',
-		avatarKlass = '',
-		onAvatarClick
+		profile
 	}: TopbarProps = $props();
 </script>
 
@@ -65,19 +61,8 @@
 		{#if themeSwitch}
 			<ThemeToggle {...themeSwitch} />
 		{/if}
-		{#if avatarSrc || avatarName}
-			{#if onAvatarClick}
-				<button
-					type="button"
-					onclick={onAvatarClick}
-					aria-label="Account"
-					class="rounded-full border-0 bg-transparent p-0"
-				>
-					<Avatar src={avatarSrc} name={avatarName} size={ESize.XS} klass={avatarKlass} />
-				</button>
-			{:else}
-				<Avatar src={avatarSrc} name={avatarName} size={ESize.XS} klass={avatarKlass} />
-			{/if}
+		{#if profile}
+			<ProfileMenu {...profile} />
 		{/if}
 	</div>
 </header>

@@ -14,7 +14,7 @@
 		ErrorSplit
 	} from '$lib';
 	import { LoginSimple, LoginSplit, LoginCover, type LoginCredentials } from '$lib/login';
-	import { ETheme, HttpStatus, type IMenu } from '@aryagg/types';
+	import { ESwitchLayout, ETheme, HttpStatus, type IMenu } from '@aryagg/types';
 	import { errorTitle, errorHint } from '@aryagg/utils';
 	import type { Snippet } from 'svelte';
 	import {
@@ -324,7 +324,7 @@
 									<Topbar title="Acme" logoSrc={showTopbarLogo ? demoLogo : ''} />
 								{:else if topbarMode === 'advanced'}
 									<Topbar title="Acme" logoSrc={showTopbarLogo ? demoLogo : ''}>
-										<HeaderNavList items={topbarMenus} activeHref="#" layout="horizontal" />
+										<HeaderNavList items={topbarMenus} activeHref="#" layout={ESwitchLayout.HORIZONTAL} />
 										{#if showLanguages}
 											<LanguageSwitcher
 												languages={[
@@ -337,21 +337,20 @@
 										<ThemeToggle bind:theme={topbarTheme} />
 										{#if showProfileMenu}
 											<ProfileMenu
-												userName="Jordan Lee"
-												profileLabel="Jordan Lee"
-												profileItems={topbarProfileItems}
+												name="Jordan Lee"
+												label="Jordan Lee"
+												items={topbarProfileItems}
 											/>
 										{/if}
 									</Topbar>
 								{:else}
-									<!-- Same look as "advanced", but nav/language/theme are wired through
-									     Topbar's own config-object props instead of composed by hand.
-									     ProfileMenu still goes through children — there's no config prop
-									     for it, since a profile menu is always app-specific. -->
+									<!-- Same look as "advanced", but nav/language/theme/profile are all
+									     wired through Topbar's own config-object props instead of
+									     composed by hand in children. -->
 									<Topbar
 										title="Acme"
 										logoSrc={showTopbarLogo ? demoLogo : ''}
-										nav={{ items: topbarMenus, activeHref: '#', layout: 'horizontal' }}
+										nav={{ items: topbarMenus, activeHref: '#', layout: ESwitchLayout.HORIZONTAL }}
 										languageSwitch={showLanguages
 											? {
 													languages: [
@@ -365,15 +364,10 @@
 											theme: topbarTheme,
 											onThemeChange: (t) => (topbarTheme = t ?? topbarTheme)
 										}}
-									>
-										{#if showProfileMenu}
-											<ProfileMenu
-												userName="Jordan Lee"
-												profileLabel="Jordan Lee"
-												profileItems={topbarProfileItems}
-											/>
-										{/if}
-									</Topbar>
+										profile={showProfileMenu
+											? { name: 'Jordan Lee', label: 'Jordan Lee', items: topbarProfileItems }
+											: undefined}
+									/>
 								{/if}
 								<div
 									class="flex h-24 items-center justify-center bg-surface-tertiary text-sm text-tertiary"

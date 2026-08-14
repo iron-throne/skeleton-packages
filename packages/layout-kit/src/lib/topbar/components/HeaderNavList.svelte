@@ -1,18 +1,18 @@
 <script lang="ts">
 	import { DropdownMenu, Icon } from '@aryagg/ui-kit';
-	import { EMenuAlign, type IMenu } from '@aryagg/types';
+	import { EMenuAlign, ESwitchLayout, type IMenu } from '@aryagg/types';
 	import { CaretDownFill } from 'svelte-bootstrap-icons';
 
 	let {
 		items,
 		activeHref = '',
 		menuClass = '',
-		layout = 'stacked'
+		layout = ESwitchLayout.STACKED
 	}: {
 		items: IMenu[];
 		activeHref?: string;
 		menuClass?: string;
-		layout?: 'stacked' | 'horizontal';
+		layout?: ESwitchLayout;
 	} = $props();
 
 	function iconKlass(item: IMenu, isActive: boolean) {
@@ -27,7 +27,7 @@
 			{#if item.children?.length}
 				<DropdownMenu menus={item.children} align={EMenuAlign.LEFT}>
 					{#snippet trigger({ open, toggle }: { open: boolean; toggle: () => void })}
-						{#if layout === 'horizontal'}
+						{#if layout === ESwitchLayout.HORIZONTAL}
 							<a
 								href="/"
 								class="btn-ghost btn-sm flex items-center gap-1.5"
@@ -74,7 +74,7 @@
 						{/if}
 					{/snippet}
 				</DropdownMenu>
-			{:else if layout === 'horizontal'}
+			{:else if layout === ESwitchLayout.HORIZONTAL}
 				<a
 					href={item.href ?? '#'}
 					class="group hover:text-accent! relative flex flex-row items-center gap-1.5 rounded-md px-2 py-1.5 text-sm font-medium transition-colors {item.klass} {isActive

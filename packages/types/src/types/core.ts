@@ -76,6 +76,11 @@ export enum EMenuAlign {
   RIGHT = "right",
 }
 
+export enum ESwitchLayout {
+  STACKED = "stacked",
+  HORIZONTAL = "horizontal",
+}
+
 export enum ESize {
   XS = "xs",
   SM = "sm",

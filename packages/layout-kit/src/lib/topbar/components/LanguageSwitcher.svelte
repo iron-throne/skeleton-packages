@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { DropdownMenu } from '@aryagg/ui-kit';
-	import { EMenuAlign, type IMenu } from '@aryagg/types';
+	import { EMenuAlign, ESwitchLayout, type IMenu } from '@aryagg/types';
 	import { Globe2 } from 'svelte-bootstrap-icons';
 
 	let {
@@ -8,14 +8,14 @@
 		currentLanguage = '',
 		onLanguageChange,
 		display = 'label',
-		layout = 'horizontal',
+		layout = ESwitchLayout.HORIZONTAL,
 		klass = ''
 	}: {
 		languages: { label?: string; value?: string }[];
 		currentLanguage?: string;
 		onLanguageChange?: (value?: string) => void;
 		display?: 'icon' | 'label' | 'both';
-		layout?: 'stacked' | 'horizontal';
+		layout?: ESwitchLayout;
 		klass?: string;
 	} = $props();
 </script>
@@ -39,7 +39,7 @@
 				: 'flex-row text-sm'} {klass}"
 		>
 			{#if display !== 'label'}<Globe2 class="size-5" />{/if}
-			{#if display !== 'icon'}<span class="uppercase">{currentLanguage}</span>{/if}
+			{#if display !== 'icon'}<span class="uppercase pt-1">{currentLanguage}</span>{/if}
 		</button>
 	{/snippet}
 </DropdownMenu>
