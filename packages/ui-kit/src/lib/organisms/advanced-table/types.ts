@@ -1,3 +1,4 @@
+import type { IconType } from '@aryagg/types';
 import type { Snippet } from 'svelte';
 
 export type AdvancedTableRow = {
@@ -26,6 +27,9 @@ export type AdvancedTableFilterOption = {
 export type AdvancedTableFilterGroup = {
 	key: string;
 	label: string;
+	color?: string;
+	icon?: IconType;
+	iconClass?: string;
 	options: AdvancedTableFilterOption[];
 	getValue?: (row: AdvancedTableRow) => unknown;
 };

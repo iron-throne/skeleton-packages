@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { untrack } from 'svelte';
-	import type { TableColumn } from '@aryagg/types';
+	import { ESize, type TableColumn } from '@aryagg/types';
 	import {
 		ArrowDown,
 		ArrowDownUp,
@@ -12,6 +12,8 @@
 		Search,
 		X
 	} from 'svelte-bootstrap-icons';
+	import Autocomplete from '../../atoms/autocomplete/Autocomplete.svelte';
+	import type { AutocompleteValue } from '../../atoms/autocomplete/types';
 	import Button from '../../atoms/button/Button.svelte';
 	import InputField from '../../atoms/input-field/InputField.svelte';
 	import DataTable from '../data-table/DataTable.svelte';
@@ -63,6 +65,25 @@
 	let viewsOpen = $state(false);
 
 	const activeGroup = $derived(filterGroups.find((group) => group.key === activeGroupKey));
+	const groupOptions = $derived(
+		filterGroups.map((group) => ({
+			label: `Group by: ${group.label}`,
+			value: group.key,
+			color: group.color,
+			icon: group.icon,
+			iconClass: group.iconClass
+		}))
+	);
+	const selectedFilterGroups = $derived(
+		filterGroups
+			.map((group) => ({
+				group,
+				options: (activeFilters[group.key] ?? [])
+					.map((value) => group.options.find((option) => option.value === value))
+					.filter((option) => option !== undefined)
+			}))
+			.filter(({ options }) => options.length > 0)
+	);
 	const visibleColumns = $derived(
 		columns.filter((column) => visibleColumnKeys.includes(column.key))
 	);
@@ -155,6 +176,31 @@
 		if (currentPage > totalPages) currentPage = totalPages;
 	});
 
+	$effect(() => {
+		const groups = filterGroups;
+		if (!groups.some((group) => group.key === activeGroupKey)) {
+			activeGroupKey = groups[0]?.key ?? '';
+		}
+
+		const nextFilters: Record<string, string[]> = {};
+		let filtersChanged = false;
+
+		for (const group of groups) {
+			const currentValues = activeFilters[group.key] ?? [];
+			const validValues = currentValues.filter((value) =>
+				group.options.some((option) => option.value === value)
+			);
+			if (validValues.length) nextFilters[group.key] = validValues;
+			if (validValues.length !== currentValues.length) filtersChanged = true;
+		}
+
+		if (Object.keys(activeFilters).some((key) => !groups.some((group) => group.key === key))) {
+			filtersChanged = true;
+		}
+
+		if (filtersChanged) activeFilters = nextFilters;
+	});
+
 	function toggleFilter(groupKey: string, value: string) {
 		const current = activeFilters[groupKey] ?? [];
 		activeFilters = {
@@ -167,6 +213,10 @@
 
 	function clearFilters() {
 		activeFilters = {};
+	}
+
+	function changeGroup(value: AutocompleteValue) {
+		if (typeof value === 'string') activeGroupKey = value;
 	}
 
 	function toggleColumn(key: string) {
@@ -237,16 +287,19 @@
 			</div>
 
 			{#if !filtersCollapsed}
-				<label class="advanced-table__group-label" for="advanced-filter-group">Group by</label>
-				<select
-					id="advanced-filter-group"
-					class="advanced-table__group-select"
-					bind:value={activeGroupKey}
-				>
-					{#each filterGroups as group (group.key)}
-						<option value={group.key}>{group.label}</option>
-					{/each}
-				</select>
+				<div class="advanced-table__group-control">
+					<Autocomplete
+						id="advanced-filter-group"
+						value={activeGroupKey}
+						options={groupOptions}
+						placeholder="Choose filter group"
+						searchable={false}
+						showSearchIcon={false}
+						density={ESize.SM}
+						class="advanced-table__group-select-control"
+						onChange={changeGroup}
+					/>
+				</div>
 
 				<div class="advanced-table__filter-list">
 					{#each activeGroup?.options ?? [] as option (option.value)}
@@ -273,31 +326,55 @@
 						</Button>
 					{/each}
 				</div>
+
+				{#if selectedFilterGroups.length}
+					<div class="advanced-table__filter-summary">
+						<div class="advanced-table__filter-summary-header">
+							<span>Applied filters</span>
+							<Button
+								type="button"
+								klass="advanced-table__clear"
+								variant="ghost"
+								onclick={clearFilters}>Clear all</Button
+							>
+						</div>
+						<div class="advanced-table__selected-groups">
+							{#each selectedFilterGroups as selectedGroup (selectedGroup.group.key)}
+								<div
+									class="advanced-table__selected-group"
+									style={`--filter-color: ${selectedGroup.group.color ?? 'var(--color-primary)'}`}
+								>
+									<div class="advanced-table__selected-group-header">
+										<span class="advanced-table__selected-group-label">
+											<span class="advanced-table__selected-group-dot"></span>
+											{selectedGroup.group.label}
+										</span>
+										<span class="advanced-table__selected-group-count">
+											{selectedGroup.options.length}
+										</span>
+									</div>
+									<div class="advanced-table__filter-chips">
+										{#each selectedGroup.options as option (option.value)}
+											<Button
+												type="button"
+												klass="advanced-table__filter-chip"
+												variant="ghost"
+												onclick={() => toggleFilter(selectedGroup.group.key, option.value)}
+											>
+												<span>{option.label}</span><X width={10} height={10} />
+											</Button>
+										{/each}
+									</div>
+								</div>
+							{/each}
+						</div>
+					</div>
+				{/if}
 			{/if}
 		</aside>
 	{/if}
 
 	<section class="advanced-table__main">
-		{#if activeFilterItems.length}
-			<div class="advanced-table__active-filters">
-				{#each activeFilterItems as item (`${item.group.key}-${item.option?.value}`)}
-					{#if item.option}
-						<Button
-							type="button"
-							klass="advanced-table__filter-chip"
-							variant="ghost"
-							onclick={() => toggleFilter(item.group.key, item.option!.value)}
-						>
-							<span>{item.group.label}: {item.option.label}</span><X width={11} height={11} />
-						</Button>
-					{/if}
-				{/each}
-				<Button type="button" klass="advanced-table__clear" variant="ghost" onclick={clearFilters}
-					>Clear</Button
-				>
-			</div>
-		{/if}
-
 		<div class="advanced-table__toolbar">
 			<div class="advanced-table__search">
 				<InputField
