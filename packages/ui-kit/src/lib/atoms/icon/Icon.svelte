@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { IconType } from "@aryagg/types";
+	import type { IconType } from '@aryagg/types';
 	const {
 		icon = null,
 		klass,
@@ -7,30 +7,25 @@
 		disabled,
 		...rest
 	}: {
-		icon: IconType  | null |undefined;
+		icon: IconType | null | undefined;
 		klass?: string;
 		disabled?: boolean;
 		onclick?: ((...e: any) => void) | undefined;
 		[key: string]: any;
 	} = $props();
 
-	const baseKlass = $derived(
+	const iconClasses = $derived(
 		'size-4 shrink-0 ' +
-			(onclick ? 'cursor-pointer' : disabled ? 'cursor-not-allowed opacity-65' : '')
+			(onclick ? 'cursor-pointer' : disabled ? 'cursor-not-allowed opacity-65' : '') +
+			klass
 	);
 </script>
 
 {#if icon}
 	{#if typeof icon === 'string'}
-		<img
-			src={icon}
-			aria-hidden="true"
-			class={`${baseKlass} ${klass} `}
-			{onclick}
-			{...rest}
-		/>
+		<img src={icon} aria-hidden="true" class={iconClasses} {onclick} {...rest} />
 	{:else}
-		{@const Icon = icon}
-		<Icon class={`${baseKlass} ${klass}`} {onclick} {...rest} />
+		{@const IconComp = icon}
+		<IconComp class={iconClasses} {onclick} {...rest} />
 	{/if}
 {/if}

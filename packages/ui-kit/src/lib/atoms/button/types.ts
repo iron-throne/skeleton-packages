@@ -41,6 +41,7 @@ export type ButtonProps = Omit<
 	iconPosition?: ButtonIconPosition;
 	// Icon components come from the consumer and may expose different prop types.
 	icon?: any;
+	iconKlass?: string;
 	onclick?: (event: MouseEvent) => void;
 	/** @deprecated Use onclick instead. */
 	onClick?: (event?: MouseEvent) => void | Promise<void>;

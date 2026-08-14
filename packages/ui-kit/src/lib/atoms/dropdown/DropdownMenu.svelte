@@ -82,6 +82,16 @@
 		if (!open) return;
 
 		function reposition() {
+			// The trigger can become hidden out from under an open panel (e.g. a
+			// responsive layout swapping it for a different trigger past a
+			// breakpoint) without ever calling close(). Since the panel is
+			// portaled to <body>, it would otherwise keep floating with no
+			// trigger left to dismiss it.
+			const rect = wrapperEl?.getBoundingClientRect();
+			if (!rect || (rect.width === 0 && rect.height === 0)) {
+				close();
+				return;
+			}
 			positionPanel();
 		}
 		function handleKeydown(e: KeyboardEvent) {

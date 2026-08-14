@@ -534,7 +534,17 @@ export const sayAlertHi = (name: string) => alert('Say Hi ' + name);</code></pre
         <h3>A4. Serve it so the host app can reach it</h3>
         <p>During development, <code>npm run dev</code> — <code>my-remote-plugin</code>'s <code>package.json</code> pins this to <code>"dev": "vite --port 5175"</code> — so <code>http://localhost:5175/profile-card-entry.js</code> responds. <code>5175</code> isn't arbitrary: it's the host's default <code>PUBLIC_REMOTE_PLUGIN_BASE_URL</code> (Part B1). In production this is wherever you actually deploy <code>dist/</code> — a static host or CDN.</p>
 
+        <p>Before trusting it, check the actual production bundle too — dev mode (HMR, unminified, unbundled) can hide problems that only appear once Vite has actually bundled the entry:</p>
+        <pre><code>npm run build     <span class="tertiary">// vite build → writes dist/profile-card-entry.js, dist/remote-plugin.css, …</span>
+npm run preview   <span class="tertiary">// vite preview → statically serves dist/, on the SAME port (5175, per vite.config's preview.port)</span></code></pre>
+        <p><code>npm run preview</code> serves nothing but the <code>dist/</code> folder — no source, no HMR. With it running, open <code>http://localhost:5175/profile-card-entry.js</code> directly (you should see the built, minified module) or just load the host app as normal and confirm the plugin still mounts. This is the closest thing to "does this work once deployed" you can check locally.</p>
+        <div class="alert warning">
+          <p class="title"><code>dev</code> and <code>preview</code> are two different processes on the same port</p>
+          <p>Only run one at a time — stop <code>npm run dev</code> before starting <code>npm run preview</code> (or vice versa), otherwise the second one fails to bind <code>5175</code> or silently falls back to a different port, which breaks the host's <code>entryUrl</code> until you notice. The host doesn't care which of the two is serving the file, as long as something is listening on the port its manifest points at.</p>
+        </div>
+
         <h3>Part B — connect it inside the host app</h3>
+        <p>The host app is its own separate project (its own repo, its own <code>package.json</code>) — running <code>npm run dev</code> inside <em>that</em> project starts a completely different dev server on its own port (a typical SvelteKit app defaults to something like <code>http://localhost:5173</code>, printed in that terminal when it starts). That's the URL you actually open in the browser to see the whole app, including the mounted plugin. It's unrelated to the plugin's own port (5175) — the two dev servers are independent processes that need to be running <em>at the same time</em>, in separate terminals, for the host page to successfully fetch and mount the remote plugin.</p>
 
         <h3>B1. Declare the manifest</h3>
         <p>Every plugin the host knows about is a plain <code>IRemotePluginManifest</code> object in <code>src/lib/shared/connected-apps/manifest.ts</code> — no database, no admin screen, just a TypeScript file:</p>

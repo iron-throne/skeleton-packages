@@ -2,6 +2,7 @@
 	import { BUTTON_SIZE_CLASS, BUTTON_VARIANT_CLASS } from './constants';
 	import { ESize } from '@aryagg/types';
 	import type { ButtonProps } from './types';
+	import Icon from '../icon/Icon.svelte';
 
 	let {
 		label,
@@ -17,6 +18,7 @@
 		iconOnly = false,
 		iconPosition = 'left',
 		icon,
+		iconKlass = '',
 		onclick,
 		onkeydown,
 		onEnterKeydown,
@@ -70,8 +72,7 @@
 	{#if loading}
 		<span class="btn-spinner" aria-hidden="true"></span>
 	{:else if icon && iconPosition === 'left'}
-		{@const Icon = icon}
-		<Icon width="16" height="16" aria-hidden="true" />
+		<Icon {icon} klass={iconKlass} width="16" height="16" aria-hidden="true" />
 	{/if}
 
 	{#if !iconOnly}
@@ -83,7 +84,6 @@
 	{/if}
 
 	{#if icon && iconPosition === 'right' && !loading}
-		{@const Icon = icon}
-		<Icon width="16" height="16" aria-hidden="true" />
+		<Icon {icon} klass={iconKlass} width="16" height="16" aria-hidden="true" />
 	{/if}
 </button>
