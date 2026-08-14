@@ -156,7 +156,12 @@
 
 	<div class="relative" onfocusout={handleFocusout}>
 		<div class={wrapperClass}>
-			{#if showOptionIcons && !multiple && !open && selectedOptions[0]?.icon}
+			{#if showOptionIcons && !multiple && !open && selectedOptions[0]?.color}
+				<span
+					class="size-2.5 shrink-0 rounded-full"
+					style:background-color={selectedOptions[0].color}
+				></span>
+			{:else if showOptionIcons && !multiple && !open && selectedOptions[0]?.icon}
 				<Icon
 					icon={selectedOptions[0].icon}
 					klass="size-4 text-tertiary {selectedOptions[0].iconClass ?? ''}"
@@ -171,7 +176,10 @@
 						<span
 							class="inline-flex items-center gap-1 rounded-full bg-accent/10 px-2 py-0.5 text-[10px] font-semibold text-accent"
 						>
-							{#if showOptionIcons && option.icon}
+							{#if showOptionIcons && option.color}
+								<span class="size-2.5 shrink-0 rounded-full" style:background-color={option.color}
+								></span>
+							{:else if showOptionIcons && option.icon}
 								<Icon icon={option.icon} klass="size-3 {option.iconClass ?? ''}" />
 							{/if}
 							{option.label}

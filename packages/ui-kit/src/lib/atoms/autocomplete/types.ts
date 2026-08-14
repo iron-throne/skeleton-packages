@@ -5,6 +5,7 @@ export type AutocompleteOption = {
 	label: string;
 	value: string;
 	description?: string;
+	color?: string;
 	icon?: IconType;
 	iconClass?: string;
 	disabled?: boolean;

@@ -5,6 +5,7 @@ import type {
 	AdvancedTableRow,
 	AdvancedTableView
 } from '$organisms/advanced-table/types';
+import { CheckCircle, FileEarmark, Folder, Grid, Tag } from 'svelte-bootstrap-icons';
 
 export const DOCUMENT_ROWS: DocumentTableRow[] = [
 	{
@@ -155,6 +156,8 @@ export const ADVANCED_TABLE_FILTERS: AdvancedTableFilterGroup[] = [
 	{
 		key: 'fileType',
 		label: 'File type',
+		color: '#2563eb',
+		icon: FileEarmark,
 		options: ['RVT', 'IFC', 'DWG', 'PDF', 'XLS', 'NWD', 'DOC'].map((value) => ({
 			value,
 			label: value,
@@ -165,6 +168,8 @@ export const ADVANCED_TABLE_FILTERS: AdvancedTableFilterGroup[] = [
 	{
 		key: 'status',
 		label: 'Status',
+		color: '#dc2626',
+		icon: CheckCircle,
 		options: [
 			{ value: 'draft', label: 'Draft', color: '#64748b', count: count('status', 'draft') },
 			{
@@ -196,6 +201,8 @@ export const ADVANCED_TABLE_FILTERS: AdvancedTableFilterGroup[] = [
 	{
 		key: 'discipline',
 		label: 'Discipline',
+		color: '#7c3aed',
+		icon: Grid,
 		options: ['ARC', 'STR', 'MEP', 'CIV', 'QA', 'FM'].map((value) => ({
 			value,
 			label: value,
@@ -205,6 +212,8 @@ export const ADVANCED_TABLE_FILTERS: AdvancedTableFilterGroup[] = [
 	{
 		key: 'suit',
 		label: 'Suitability',
+		color: '#ea580c',
+		icon: Tag,
 		options: ['S1', 'S2', 'S3', 'S4', 'A1', 'A2'].map((value) => ({
 			value,
 			label: value,
@@ -214,6 +223,8 @@ export const ADVANCED_TABLE_FILTERS: AdvancedTableFilterGroup[] = [
 	{
 		key: 'workspace',
 		label: 'Folder',
+		color: '#16a34a',
+		icon: Folder,
 		options: ['WIP', 'Shared', 'Published'].map((value) => ({
 			value,
 			label: value,

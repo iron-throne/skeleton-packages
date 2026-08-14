@@ -291,6 +291,57 @@
 					</button>
 				{/each}
 			</div>
+
+			<section class="mt-8">
+				<div class="mb-4 flex items-end justify-between gap-4">
+					<div>
+						<h2 class="text-lg font-bold text-primary">Topbar example</h2>
+						<p class="mt-1 text-sm text-secondary">
+							A live preview of the default application header.
+						</p>
+					</div>
+					<button
+						type="button"
+						class="shrink-0 text-xs font-semibold text-accent hover:underline"
+						onclick={() => (activeComponent = 'topbar')}
+					>
+						View all options
+					</button>
+				</div>
+
+				<div
+					class="overflow-hidden rounded-xl border border-border-primary bg-surface-primary shadow-sm"
+				>
+					<Topbar
+						brand="Acme"
+						logoSrc={demoLogo}
+						tagline="Everything you need to learn, in one place."
+						menus={topbarMenus}
+						activeHref="#"
+						searchField={{
+							id: 'home-topbar-search',
+							key: 'search',
+							label: '',
+							placeholder: 'Search…',
+							type: EInputType.SEARCH
+						}}
+						languages={[
+							{ label: 'EN', value: 'en' },
+							{ label: 'AR', value: 'ar' }
+						]}
+						currentLanguage="en"
+						userName="Jordan Lee"
+						profileLabel="Jordan Lee"
+						profileItems={topbarProfileItems}
+						showThemeToggle
+					/>
+					<div
+						class="flex h-20 items-center justify-center bg-surface-tertiary text-sm text-tertiary"
+					>
+						Page content renders below the topbar
+					</div>
+				</div>
+			</section>
 		{:else}
 			<div class="flex flex-col gap-6 lg:flex-row lg:items-start">
 				<nav
