@@ -1,10 +1,10 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
 	import { untrack } from 'svelte';
-	import type { LoginCredentials, LoginBaseProps } from './types';
+	import type { LoginCredentials, LoginBaseProps, LoginImageConfig } from './types';
 	import { Alert, Input } from '@aryagg/ui-kit';
 	import { enhance } from '@aryagg/utils';
-	import { EInputType, type IFormField, type ActionResult } from '@aryagg/types';
+	import { EPosition, EInputType, type IFormField, type ActionResult } from '@aryagg/types';
 
 	let {
 		// Text content
@@ -31,9 +31,7 @@
 		homeHref = '/',
 		forgotPasswordHref = '/forgot-password',
 		signUpHref = '/register',
-		image = 'https://images.unsplash.com/photo-1522199710521-72d69614c702?auto=format&fit=crop&w=1200&q=80',
-		imageAlt = 'Sign in illustration',
-		imagePosition = 'left',
+		image: imageProp = {},
 
 		// Behavior — provide `action` for a SvelteKit form action, or `onSubmit` for a plain callback
 		action,
@@ -49,6 +47,7 @@
 
 		// Slots
 		logoSlot,
+		imgSlot,
 		panelSlot,
 		headerSlot,
 		formSlot,
@@ -57,24 +56,22 @@
 
 		// CSS class overrides
 		class: klass = '',
-		panelClass,
-		imageClass,
-		formSectionClass,
-		titleClass,
-		subtitleClass,
-		formClass,
+		classes = {},
 	}: LoginBaseProps & {
 		panelHeading?: string;
 		panelDescription?: string;
-		image?: string;
-		imageAlt?: string;
-		imagePosition?: 'left' | 'right';
+		image?: LoginImageConfig;
+		imgSlot?: Snippet;
 		/** Replaces the default heading/description on the branding panel */
 		panelSlot?: Snippet;
-		panelClass?: string;
-		imageClass?: string;
-		formSectionClass?: string;
 	} = $props();
+
+	const image = $derived({
+		url: 'https://images.unsplash.com/photo-1522199710521-72d69614c702?auto=format&fit=crop&w=1200&q=80',
+		alt: 'Sign in illustration',
+		position: EPosition.LEFT,
+		...imageProp,
+	});
 
 	let emailField = $state<IFormField>(
 		untrack(() => ({
@@ -147,23 +144,28 @@
 		};
 	};
 
-	const formSection = $derived(imagePosition === 'left' ? 'order-2' : 'order-1');
-	const panelSection = $derived(imagePosition === 'left' ? 'order-1' : 'order-2');
+	const formSection = $derived(image.position === 'left' ? 'order-2' : 'order-1');
+	const panelSection = $derived(image.position === 'left' ? 'order-1' : 'order-2');
 </script>
 
 <div class="bg-surface-primary flex min-h-screen flex-wrap {klass}">
 	<!-- BRANDING PANEL -->
 	<div
-		class="bg-accent/90 relative hidden w-full items-center overflow-hidden sm:flex sm:w-5/12 {panelSection} {panelClass ??
+		class="bg-accent/90 relative hidden w-full items-center overflow-hidden sm:flex sm:w-5/12 {panelSection} {classes.panel ??
 			''}"
 	>
-		{#if image}
+	{#if imgSlot}
+	{@render imgSlot()}
+
+		{:else if image.url}
 			<img
-				src={image}
-				alt={imageAlt}
-				class="absolute inset-0 size-full object-cover {imageClass ?? ''}"
+				src={image.url}
+				alt={image.alt}
+				class="absolute inset-0 size-full object-cover {image.class ?? ''}"
 			/>
-			<div class="from-accent/90 via-accent/60 absolute inset-0 bg-linear-to-t to-transparent"
+			<div
+				class="from-accent/90 via-accent/60 absolute inset-0 bg-linear-to-t to-transparent {classes.overlay ??
+					''}"
 			></div>
 		{/if}
 
@@ -173,30 +175,30 @@
 			{:else if logo || appName}
 				<a href={homeHref} class="mb-8 flex items-center gap-2">
 					{#if logo}
-						<img src={logo} alt={appName} class="h-6 w-auto" />
+						<img src={logo} alt={appName} class="h-6 w-auto {classes.logo}" />
 					{:else}
-						<span class="text-xl leading-none">✦</span>
+						<span class="text-xl leading-none text-on-accent">✦</span>
 					{/if}
-					<span class="text-lg font-semibold tracking-wide">{appName}</span>
+					<span class="text-lg font-semibold tracking-wide text-on-accent {classes.appName}">{appName}</span>
 				</a>
 			{/if}
 
 			{#if panelSlot}
 				{@render panelSlot()}
 			{:else}
-				<h2 class="text-3xl font-bold lg:text-4xl">{panelHeading}</h2>
-				<p class="text-on-accent/80 mt-4 text-lg">{panelDescription}</p>
+				<h2 class="text-3xl font-bold lg:text-4xl text-on-accent {classes.panelHeading}">{panelHeading}</h2>
+				<p class="text-on-accent/80 mt-4 text-lg text-on-accent {classes.panelDescription}">{panelDescription}</p>
 			{/if}
 		</div>
 	</div>
 
 	<!-- FORM PANEL -->
 	<div
-		class="flex w-full items-center justify-center px-4 py-12 sm:w-7/12 {formSection} {formSectionClass ??
+		class="flex w-full items-center justify-center px-4 py-12 sm:w-7/12 {formSection} {classes.formSection ??
 			''}"
 	>
 		<div class="w-full max-w-md">
-			{#if !image}
+			{#if !image.url}
 				{#if logoSlot}
 					{@render logoSlot()}
 				{:else if logo || appName}
@@ -215,10 +217,10 @@
 				{@render headerSlot()}
 			{:else}
 				<div class="mb-8">
-					<h1 class="text-content-primary mb-1 text-2xl font-bold {titleClass ?? ''}">
+					<h1 class="text-content-primary mb-1 text-2xl font-bold {classes.title ?? ''}">
 						{title}
 					</h1>
-					<p class="text-content-secondary text-sm {subtitleClass ?? ''}">{subtitle}</p>
+					<p class="text-content-secondary text-sm {classes.subtitle ?? ''}">{subtitle}</p>
 				</div>
 			{/if}
 
@@ -237,7 +239,7 @@
 					{action}
 					method="POST"
 					use:enhance={handleSubmit}
-					class="flex flex-col gap-5 {formClass ?? ''}"
+					class="flex flex-col gap-5 {classes.form ?? ''}"
 				>
 					<Input bind:field={emailField} />
 

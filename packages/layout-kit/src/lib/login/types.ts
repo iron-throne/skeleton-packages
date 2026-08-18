@@ -10,6 +10,43 @@ export interface LoginCredentials {
 /** Called with the parsed credentials. Use this for callback-driven (non SvelteKit-action) submission. */
 export type LoginSubmitHandler = (credentials: LoginCredentials) => void | Promise<void>;
 
+/**
+ * Class overrides for the internal regions of a Login* component.
+ * Every variant accepts this same shape and simply ignores the keys that don't apply to it,
+ * so swapping LoginSimple/LoginSplit/LoginCover for one another needs no prop renaming.
+ */
+export interface LoginClassNames {
+	/** Heading text */
+	title?: string;
+	/** Subheading text */
+	subtitle?: string;
+	/** The <form> element */
+	form?: string;
+	/** Boxed content card (LoginSimple, LoginCover) */
+	card?: string;
+	/** Branding side panel (LoginSplit) */
+	panel?: string;
+	/** Form-side wrapper (LoginSplit) */
+	formSection?: string;
+	/** Scrim over the background/side image (LoginCover, LoginSplit) */
+	overlay?: string;
+	logo?:string;
+	appName?:string;
+
+	panelHeading?:string;
+
+	panelDescription?:string;
+
+}
+
+/** Background/illustration image config, shared by LoginSplit (side image) and LoginCover (page background). */
+export interface LoginImageConfig {
+	url?: string;
+	alt?: string;
+	position?: 'left' | 'right';
+	class?: string;
+}
+
 /** Props shared by every Login* component variant (LoginSimple, LoginSplit, LoginCover). */
 export interface LoginBaseProps {
 	// Text content
@@ -55,7 +92,5 @@ export interface LoginBaseProps {
 
 	// CSS class overrides
 	class?: string;
-	titleClass?: string;
-	subtitleClass?: string;
-	formClass?: string;
+	classes?: LoginClassNames;
 }

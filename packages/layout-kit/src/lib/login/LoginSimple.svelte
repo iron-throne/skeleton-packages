@@ -49,13 +49,9 @@
 
 		// CSS class overrides
 		class: klass = '',
-		cardClass,
-		titleClass,
-		subtitleClass,
-		formClass
+		classes = {}
 	}: LoginBaseProps & {
 		showAmbientBackground?: boolean;
-		cardClass?: string;
 	} = $props();
 
 	let emailField = $state<IFormField>(
@@ -152,15 +148,15 @@
 			</a>
 		{/if}
 
-		<div class="card p-7 {cardClass}">
+		<div class="card p-7 {classes.card ?? ''}">
 			{#if headerSlot}
 				{@render headerSlot()}
 			{:else}
 				<div class="mb-8 text-center">
-					<h1 class="text-content-primary mb-1 text-2xl font-bold {titleClass ?? ''}">
+					<h1 class="text-content-primary mb-1 text-2xl font-bold {classes.title ?? ''}">
 						{title}
 					</h1>
-					<p class="text-content-secondary text-sm {subtitleClass ?? ''}">{subtitle}</p>
+					<p class="text-content-secondary text-sm {classes.subtitle ?? ''}">{subtitle}</p>
 				</div>
 			{/if}
 
@@ -179,7 +175,7 @@
 					{action}
 					method="POST"
 					use:enhance={handleSubmit}
-					class="flex flex-col gap-5 {formClass ?? ''}"
+					class="flex flex-col gap-5 {classes.form ?? ''}"
 				>
 					<Input bind:field={emailField} />
 

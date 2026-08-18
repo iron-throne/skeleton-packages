@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Avatar, DropdownMenu } from '@aryagg/ui-kit';
-	import { EMenuAlign, ESize, ESwitchLayout, type IMenu } from '@aryagg/types';
+	import { EPosition, ESize, ESwitchLayout, type IMenu } from '@aryagg/types';
 	import { CaretDownFill } from 'svelte-bootstrap-icons';
 
 	let {
@@ -40,7 +40,7 @@
 {/snippet}
 
 {#if isDropdown}
-	<DropdownMenu menus={items} align={EMenuAlign.RIGHT}>
+	<DropdownMenu menus={items} align={EPosition.RIGHT}>
 		{#snippet trigger({ open, toggle }: { open: boolean; toggle: () => void })}
 			<button
 				type="button"

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { untrack } from 'svelte';
-	import type { LoginCredentials, LoginBaseProps } from './types';
+	import type { LoginCredentials, LoginBaseProps, LoginImageConfig } from './types';
 	import { Alert, Input } from '@aryagg/ui-kit';
 	import { enhance } from '@aryagg/utils';
 	import { EInputType, type IFormField, type ActionResult } from '@aryagg/types';
@@ -26,7 +26,7 @@
 		homeHref = '/',
 		forgotPasswordHref = '/forgot-password',
 		signUpHref = '/register',
-		backgroundImage = 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1920&q=80',
+		image: imageProp = {},
 
 		// Behavior — provide `action` for a SvelteKit form action, or `onSubmit` for a plain callback
 		action,
@@ -49,16 +49,15 @@
 
 		// CSS class overrides
 		class: klass = '',
-		overlayClass,
-		cardClass,
-		titleClass,
-		subtitleClass,
-		formClass,
+		classes = {},
 	}: LoginBaseProps & {
-		backgroundImage?: string;
-		overlayClass?: string;
-		cardClass?: string;
+		image?: LoginImageConfig;
 	} = $props();
+
+	const image = $derived({
+		url: 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1920&q=80',
+		...imageProp,
+	});
 
 	let emailField = $state<IFormField>(
 		untrack(() => ({
@@ -134,9 +133,9 @@
 
 <div
 	class="relative flex min-h-screen items-center justify-center bg-cover bg-center px-4 py-12 {klass}"
-	style="background-image: url('{backgroundImage}')"
+	style="background-image: url('{image.url}')"
 >
-	<div class="absolute inset-0 bg-black/50 {overlayClass ?? ''}" aria-hidden="true"></div>
+	<div class="absolute inset-0 bg-black/50 {classes.overlay ?? ''}" aria-hidden="true"></div>
 
 	<div class="relative z-10 w-full max-w-md">
 		{#if logoSlot}
@@ -153,17 +152,17 @@
 		{/if}
 
 		<div
-			class="bg-surface-primary/95 rounded-2xl border border-white/10 p-8 shadow-2xl backdrop-blur-sm {cardClass ??
+			class="bg-surface-primary/95 rounded-2xl border border-white/10 p-8 shadow-2xl backdrop-blur-sm {classes.card ??
 				''}"
 		>
 			{#if headerSlot}
 				{@render headerSlot()}
 			{:else}
 				<div class="mb-8 text-center">
-					<h1 class="text-content-primary mb-1 text-2xl font-bold {titleClass ?? ''}">
+					<h1 class="text-content-primary mb-1 text-2xl font-bold {classes.title ?? ''}">
 						{title}
 					</h1>
-					<p class="text-content-secondary text-sm {subtitleClass ?? ''}">{subtitle}</p>
+					<p class="text-content-secondary text-sm {classes.subtitle ?? ''}">{subtitle}</p>
 				</div>
 			{/if}
 
@@ -182,7 +181,7 @@
 					{action}
 					method="POST"
 					use:enhance={handleSubmit}
-					class="flex flex-col gap-5 {formClass ?? ''}"
+					class="flex flex-col gap-5 {classes.form ?? ''}"
 				>
 					<Input bind:field={emailField} />
 

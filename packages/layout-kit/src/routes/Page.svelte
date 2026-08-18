@@ -14,7 +14,7 @@
 		ErrorSplit
 	} from '$lib';
 	import { LoginSimple, LoginSplit, LoginCover, type LoginCredentials } from '$lib/login';
-	import { ESwitchLayout, ETheme, HttpStatus, type IMenu } from '@aryagg/types';
+	import { ESwitchLayout, ETheme, EHttpStatus, type IMenu } from '@aryagg/types';
 	import { errorTitle, errorHint } from '@aryagg/utils';
 	import type { Snippet } from 'svelte';
 	import {
@@ -166,11 +166,11 @@
 	const errorVariants = ['simple', 'overlay', 'card', 'split'] as const;
 	let activeErrorVariant = $state<(typeof errorVariants)[number]>('simple');
 	const errorStatusLabels = ['404', '403', '500', '400'] as const;
-	const errorStatusByLabel: Record<(typeof errorStatusLabels)[number], HttpStatus> = {
-		'404': HttpStatus.NOT_FOUND,
-		'403': HttpStatus.FORBIDDEN,
-		'500': HttpStatus.INTERNAL_SERVER_ERROR,
-		'400': HttpStatus.BAD_REQUEST
+	const errorStatusByLabel: Record<(typeof errorStatusLabels)[number], EHttpStatus> = {
+		'404': EHttpStatus.NOT_FOUND,
+		'403': EHttpStatus.FORBIDDEN,
+		'500': EHttpStatus.INTERNAL_SERVER_ERROR,
+		'400': EHttpStatus.BAD_REQUEST
 	};
 	let errorStatusLabel = $state<(typeof errorStatusLabels)[number]>('404');
 	let errorHideIcon = $state(false);
@@ -313,27 +313,18 @@
 					class="overflow-hidden rounded-xl border border-border-primary bg-surface-primary shadow-sm"
 				>
 					<Topbar
-						brand="Acme"
+						title="Acme"
 						logoSrc={demoLogo}
-						tagline="Everything you need to learn, in one place."
-						menus={topbarMenus}
-						activeHref="#"
-						searchField={{
-							id: 'home-topbar-search',
-							key: 'search',
-							label: '',
-							placeholder: 'Search…',
-							type: EInputType.SEARCH
+						nav={{ items: topbarMenus, activeHref: '#' }}
+						languageSwitch={{
+							languages: [
+								{ label: 'EN', value: 'en' },
+								{ label: 'AR', value: 'ar' }
+							],
+							currentLanguage: 'en'
 						}}
-						languages={[
-							{ label: 'EN', value: 'en' },
-							{ label: 'AR', value: 'ar' }
-						]}
-						currentLanguage="en"
-						userName="Jordan Lee"
-						profileLabel="Jordan Lee"
-						profileItems={topbarProfileItems}
-						showThemeToggle
+						themeSwitch={{}}
+						profile={{ name: 'Jordan Lee', label: 'Jordan Lee', items: topbarProfileItems }}
 					/>
 					<div
 						class="flex h-20 items-center justify-center bg-surface-tertiary text-sm text-tertiary"
@@ -596,7 +587,7 @@
 										subtitle="Sign in to your Acme account"
 										panelHeading="Build something great"
 										panelDescription="Sign in to pick up right where you left off."
-										imagePosition={loginImagePosition}
+										image={{ position: loginImagePosition }}
 										loading={demoLoading}
 										error={demoError}
 										showRememberMe={loginShowRememberMe}

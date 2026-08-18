@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { DropdownMenu, Icon } from '@aryagg/ui-kit';
-	import { EMenuAlign, ESwitchLayout, type IMenu } from '@aryagg/types';
+	import { EPosition, ESwitchLayout, type IMenu } from '@aryagg/types';
 	import { CaretDownFill } from 'svelte-bootstrap-icons';
 
 	let {
@@ -25,7 +25,7 @@
 		{@const isActive = activeHref === item.href}
 		<div class="relative">
 			{#if item.children?.length}
-				<DropdownMenu menus={item.children} align={EMenuAlign.LEFT}>
+				<DropdownMenu menus={item.children} align={EPosition.LEFT}>
 					{#snippet trigger({ open, toggle }: { open: boolean; toggle: () => void })}
 						{#if layout === ESwitchLayout.HORIZONTAL}
 							<a

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { EMenuAlign, type IMenu } from '@aryagg/types';
+	import { EPosition, type IMenu } from '@aryagg/types';
 	import { DropdownMenu, Icon } from '@aryagg/ui-kit';
 	import type { Snippet } from 'svelte';
 	import { CaretDownFill, CaretLeftFill, Person } from 'svelte-bootstrap-icons';
@@ -160,7 +160,7 @@
 	{#if collapsed}
 		<DropdownMenu
 			menus={menu.children ?? []}
-			align={position === 'right' ? EMenuAlign.RIGHT : EMenuAlign.LEFT}
+			align={position === 'right' ? EPosition.RIGHT : EPosition.LEFT}
 			placement="side"
 			menuClass={'text-sm'}
 		>

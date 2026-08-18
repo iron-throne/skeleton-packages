@@ -15,11 +15,15 @@
 	let {
 		field = $bindable(),
 		icon,
-		iconPosition = 'left'
+		iconPosition = 'left',
+		parentKlass,
+		labelKlass
 	}: {
 		field: IFormField;
 		icon?: any;
 		iconPosition?: 'left' | 'right';
+		parentKlass?:string;
+		labelKlass?:string;
 	} = $props();
 
 	let showPassword = $state(false);
@@ -34,10 +38,11 @@
 
 	const inputBase = [
 		'w-full px-4 py-2 rounded-lg border ',
-		'bg-surface-secondary/50 text-content-primary text-sm',
+		'bg-surface-secondary/50 text-content-secondary text-sm',
 		'placeholder:text-content-tertiary',
 		// 'focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent',
-		'disabled:opacity-50 disabled:cursor-not-allowed transition'
+		'disabled:opacity-50 disabled:cursor-not-allowed transition',
+		'placeholder:text-xs'
 	].join(' ');
 
 	const isSearch = $derived(field.type === EInputType.SEARCH);
@@ -121,18 +126,25 @@
 	});
 </script>
 
-<div class="flex flex-col gap-1">
-	<!-- Label -->
-	{#if !field.hideLabel && field.type !== EInputType.HIDDEN}
-		<label for={field.id} class="section-label flex gap-1">
-			{#if field.icon}
-				<field.icon width={14} height={14} class="text-content-tertiary" />
-			{/if}
-			{field.label}
-			{#if field.required}
-				<span class="text-accent text-xs">*</span>
-			{/if}
-		</label>
+<!-- Reusable label markup. Rendered inline, AFTER the peer input, wherever labelKlass
+     relies on peer-* variants (peer-* only matches siblings that follow the .peer element
+     under the same parent — it can't reach backwards or into a nested wrapper). -->
+{#snippet labelBlock()}
+	<label for={field.id} class="section-label flex gap-1 {labelKlass ?? ''}">
+		{#if field.icon}
+			<field.icon width={14} height={14} class="text-content-tertiary" />
+		{/if}
+		{field.label}
+		{#if field.required}
+			<span class="text-accent text-xs">*</span>
+		{/if}
+	</label>
+{/snippet}
+
+<div class="flex flex-col gap-1 {parentKlass}">
+	<!-- Label (types that render their own label inline, after their peer input, are excluded here) -->
+	{#if !field.hideLabel && field.type !== EInputType.HIDDEN && field.type !== EInputType.PASSWORD && !NATIVE_TEXT_TYPES.has(field.type)}
+		{@render labelBlock()}
 	{/if}
 
 	<!-- ── TEXT-LIKE INPUTS ── -->
@@ -147,6 +159,9 @@
 				/>
 			{/if}
 			<input id={field.id} type={field.type} {...inputAttributes} />
+			{#if !field.hideLabel}
+				{@render labelBlock()}
+			{/if}
 		</div>
 
 		<!-- ── PASSWORD ── -->
@@ -163,8 +178,12 @@
 			<input
 				id={field.id}
 				type={showPassword ? EInputType.TEXT : EInputType.PASSWORD}
+				autocomplete="current-password"
 				{...inputAttributes}
 			/>
+			{#if !field.hideLabel}
+				{@render labelBlock()}
+			{/if}
 			<button
 				type="button"
 				onclick={() => (showPassword = !showPassword)}

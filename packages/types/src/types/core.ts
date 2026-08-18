@@ -71,7 +71,7 @@ export enum ELocale {
   AR = "ar",
 }
 
-export enum EMenuAlign {
+export enum EPosition {
   LEFT = "left",
   RIGHT = "right",
 }

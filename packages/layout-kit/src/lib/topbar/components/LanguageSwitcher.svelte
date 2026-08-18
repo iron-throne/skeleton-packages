@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { DropdownMenu } from '@aryagg/ui-kit';
-	import { EMenuAlign, ESwitchLayout, type IMenu } from '@aryagg/types';
+	import { EPosition, ESwitchLayout, type IMenu } from '@aryagg/types';
 	import { Globe2 } from 'svelte-bootstrap-icons';
 
 	let {
@@ -26,7 +26,7 @@
 		id: l.value ?? l.label,
 		onclick: () => onLanguageChange?.(l.value)
 	})) as IMenu[]}
-	align={EMenuAlign.RIGHT}
+	align={EPosition.RIGHT}
 >
 	{#snippet trigger({ toggle }: { toggle: () => void })}
 		<button
