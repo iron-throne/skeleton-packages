@@ -1,6 +1,6 @@
 import type { Snippet } from 'svelte';
 import type { HTMLButtonAttributes } from 'svelte/elements';
-import type { ESize } from '@aryagg/types';
+import type { EPosition, ESize } from '@aryagg/types';
 
 export type ButtonVariant =
 	| 'primary'
@@ -19,7 +19,6 @@ export type ButtonSize = ESize;
 
 export type ButtonRadius = 'none' | 'sm' | 'md' | 'lg' | 'full';
 
-export type ButtonIconPosition = 'left' | 'right';
 
 export type ButtonProps = Omit<
 	HTMLButtonAttributes,
@@ -38,7 +37,7 @@ export type ButtonProps = Omit<
 	disabled?: boolean;
 	fullWidth?: boolean;
 	iconOnly?: boolean;
-	iconPosition?: ButtonIconPosition;
+	iconPosition?: EPosition;
 	// Icon components come from the consumer and may expose different prop types.
 	icon?: any;
 	iconKlass?: string;

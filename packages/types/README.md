@@ -21,7 +21,7 @@ npm install @aryagg/types
 
 ```ts
 import type { IApiResult, IApiResponse, IAPIQueuePayload } from '@aryagg/types';
-import { HttpMethod } from '@aryagg/types';
+import { EHttpMethod } from '@aryagg/types';
 
 const result: IApiResult<User> = {
   status: true,
@@ -37,7 +37,7 @@ const response: IApiResponse<User[]> = {
 
 const payload: IAPIQueuePayload = {
   url: '/api/users',
-  method: HttpMethod.POST,
+  method: EHttpMethod.POST,
   data: { name: 'Alice' },
 };
 ```

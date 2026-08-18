@@ -324,7 +324,7 @@
     ):hover:not(:disabled),
   textarea:hover:not(:disabled),
   select:hover:not(:disabled) {
-    @apply border-secondary;
+    /* @apply border-secondary; */
   }
 
   input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not(

@@ -12,13 +12,13 @@ export interface IApiResponse<T> {
 
 export interface IAPIQueuePayload {
     url: string;
-    method: HttpMethod;
+    method: EHttpMethod;
     data?: unknown;
     headers?: Record<string, string>;
     isFormData?: boolean;
 }
 
-export enum HttpStatus {
+export enum EHttpStatus {
 	OK = 200,
 	CREATED = 201,
 	BAD_REQUEST = 400,
@@ -28,7 +28,7 @@ export enum HttpStatus {
 	INTERNAL_SERVER_ERROR = 500,
 }
 
-export enum HttpMethod {
+export enum EHttpMethod {
 	GET = 'GET',
 	POST = 'POST',
 	PUT = 'PUT',

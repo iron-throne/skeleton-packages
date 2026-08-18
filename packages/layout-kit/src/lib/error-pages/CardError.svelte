@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { ArrowClockwise, ArrowLeft, LightbulbOff } from 'svelte-bootstrap-icons';
 	import { errorTitle, errorHint } from '@aryagg/utils';
-	import type { HttpStatus, IconType } from '@aryagg/types';
+	import type { EHttpStatus, IconType } from '@aryagg/types';
 	import { Icon } from '@aryagg/ui-kit';
 	import type { Snippet } from 'svelte';
 
@@ -19,7 +19,7 @@
 		iconKlass = '',
 		footerSlot
 	} = $props<{
-		status?: HttpStatus;
+		status?: EHttpStatus;
 		message?: string;
 		title?: string;
 		hint?: string;

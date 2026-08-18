@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { BUTTON_SIZE_CLASS, BUTTON_VARIANT_CLASS } from './constants';
-	import { ESize } from '@aryagg/types';
+	import { EPosition, ESize } from '@aryagg/types';
 	import type { ButtonProps } from './types';
 	import Icon from '../icon/Icon.svelte';
 
@@ -16,7 +16,7 @@
 		disabled = false,
 		fullWidth = false,
 		iconOnly = false,
-		iconPosition = 'left',
+		iconPosition = EPosition.LEFT,
 		icon,
 		iconKlass = '',
 		onclick,
@@ -71,7 +71,7 @@
 >
 	{#if loading}
 		<span class="btn-spinner" aria-hidden="true"></span>
-	{:else if icon && iconPosition === 'left'}
+	{:else if icon && iconPosition === EPosition.LEFT}
 		<Icon {icon} klass={iconKlass} width="16" height="16" aria-hidden="true" />
 	{/if}
 
@@ -83,7 +83,7 @@
 		{/if}
 	{/if}
 
-	{#if icon && iconPosition === 'right' && !loading}
+	{#if icon && iconPosition === EPosition.RIGHT && !loading}
 		<Icon {icon} klass={iconKlass} width="16" height="16" aria-hidden="true" />
 	{/if}
 </button>
