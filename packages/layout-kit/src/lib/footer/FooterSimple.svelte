@@ -10,13 +10,14 @@
 		legalLinks = [],
 		socialLinks = [],
 		brandSlot,
-		class: klass = ''
+		klass = '',
+		parentKlass= ''
 	}: FooterBaseProps = $props();
 </script>
 
 <footer class="border-border-primary bg-surface-primary border-t {klass}">
 	<div
-		class="mx-auto flex max-w-7xl flex-col items-center justify-between gap-5 px-6 py-8 sm:flex-row"
+		class="mx-auto flex max-w-full flex-col items-center justify-between gap-5 px-4 py-4 sm:flex-row {parentKlass}"
 	>
 		<div
 			class="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-center sm:justify-start sm:text-left"

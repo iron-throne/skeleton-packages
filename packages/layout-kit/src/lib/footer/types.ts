@@ -26,7 +26,8 @@ export interface FooterBaseProps {
 	legalLinks?: FooterLink[];
 	socialLinks?: FooterSocialLink[];
 	brandSlot?: Snippet;
-	class?: string;
+	klass?: string;
+	parentKlass?: string;
 }
 
 export interface FooterNewsletterProps extends FooterBaseProps {

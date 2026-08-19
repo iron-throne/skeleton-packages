@@ -11,13 +11,14 @@
 		legalLinks = [],
 		socialLinks = [],
 		brandSlot,
-		class: klass = '',
+		klass = '',
+		parentKlass = '',
 		groups = []
 	}: FooterBaseProps & { groups?: FooterLinkGroup[] } = $props();
 </script>
 
 <footer class="border-border-primary bg-surface-primary border-t {klass}">
-	<div class="mx-auto max-w-7xl px-6 py-12 lg:py-16">
+	<div class="mx-auto max-w-7xl px-6 py-12 lg:py-16 {parentKlass}">
 		<div class="grid gap-10 md:grid-cols-[minmax(0,1.3fr)_minmax(0,2fr)]">
 			<div class="max-w-sm">
 				{#if brandSlot}{@render brandSlot()}{:else}

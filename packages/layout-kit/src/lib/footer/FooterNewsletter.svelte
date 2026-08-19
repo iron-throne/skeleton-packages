@@ -11,7 +11,8 @@
 		legalLinks = [],
 		socialLinks = [],
 		brandSlot,
-		class: klass = '',
+		klass = '',
+		parentKlass = '',
 		title = 'Stay in the loop',
 		subtitle = 'Product news and practical tips, once a month.',
 		emailPlaceholder = 'you@example.com',
@@ -39,7 +40,7 @@
 </script>
 
 <footer class="bg-[var(--text-primary)] text-on-accent {klass}">
-	<div class="mx-auto max-w-7xl px-6 py-12 lg:py-16">
+	<div class="mx-auto max-w-7xl px-6 py-12 lg:py-16 {parentKlass}">
 		<div class="grid items-start gap-10 lg:grid-cols-2 lg:gap-20">
 			<div>
 				{#if brandSlot}{@render brandSlot()}{:else}<a
