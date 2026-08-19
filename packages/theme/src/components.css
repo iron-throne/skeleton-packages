@@ -43,7 +43,7 @@
   }
 
   a {
-    @apply text-accent underline underline-offset-[3px] transition-opacity duration-150;
+    @apply text-accent underline-offset-[3px] transition-opacity duration-150;
   }
 
   a:hover {

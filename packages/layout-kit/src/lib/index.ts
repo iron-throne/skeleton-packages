@@ -21,3 +21,12 @@ export { CollapsibleSidebar } from './sidebar';
 export type { CollapsibleSidebarProps, SidebarMenuItem, SidebarPosition } from './sidebar';
 
 export { ErrorSimple, ErrorOverlayIcon, ErrorCard, ErrorSplit } from './error-pages';
+
+export { FooterSimple, FooterColumns, FooterNewsletter } from './footer';
+export type {
+	FooterLink,
+	FooterLinkGroup,
+	FooterSocialLink,
+	FooterBaseProps,
+	FooterNewsletterProps
+} from './footer';

@@ -22,8 +22,8 @@
 		field: IFormField;
 		icon?: any;
 		iconPosition?: 'left' | 'right';
-		parentKlass?:string;
-		labelKlass?:string;
+		parentKlass?: string;
+		labelKlass?: string;
 	} = $props();
 
 	let showPassword = $state(false);
@@ -143,7 +143,7 @@
 
 <div class="flex flex-col gap-1 {parentKlass}">
 	<!-- Label (types that render their own label inline, after their peer input, are excluded here) -->
-	{#if !field.hideLabel && field.type !== EInputType.HIDDEN && field.type !== EInputType.PASSWORD && !NATIVE_TEXT_TYPES.has(field.type)}
+	{#if !field.hideLabel && field.type !== EInputType.HIDDEN && field.type !== EInputType.PASSWORD}
 		{@render labelBlock()}
 	{/if}
 
@@ -159,9 +159,6 @@
 				/>
 			{/if}
 			<input id={field.id} type={field.type} {...inputAttributes} />
-			{#if !field.hideLabel}
-				{@render labelBlock()}
-			{/if}
 		</div>
 
 		<!-- ── PASSWORD ── -->
