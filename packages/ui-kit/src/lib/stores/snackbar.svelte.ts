@@ -1,4 +1,6 @@
-import { DEFAULT_TIMEOUT, ESnackType, type ISnackData } from "@aryagg/types";
+import { ESnackType, type ISnackData } from "@aryagg/types";
+
+const DEFAULT_TIMEOUT = 3000;
 
 const createSnackStore = () => {
 	let current = $state<ISnackData | null>(null);

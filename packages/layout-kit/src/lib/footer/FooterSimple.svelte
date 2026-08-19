@@ -10,7 +10,7 @@
 		legalLinks = [],
 		socialLinks = [],
 		brandSlot,
-		klass = ''
+		class: klass = ''
 	}: FooterBaseProps = $props();
 </script>
 
@@ -18,7 +18,9 @@
 	<div
 		class="mx-auto flex max-w-7xl flex-col items-center justify-between gap-5 px-6 py-8 sm:flex-row"
 	>
-		<div class="flex flex-col items-center gap-3 sm:items-start">
+		<div
+			class="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-center sm:justify-start sm:text-left"
+		>
 			{#if brandSlot}
 				{@render brandSlot()}
 			{:else}
@@ -27,7 +29,7 @@
 					<span>{brand}</span>
 				</a>
 			{/if}
-			<p class="text-center text-xs text-tertiary sm:text-left">{copyright}</p>
+			<p class="text-xs text-tertiary">{copyright}</p>
 		</div>
 
 		<div class="flex flex-col items-center gap-3 sm:items-end">

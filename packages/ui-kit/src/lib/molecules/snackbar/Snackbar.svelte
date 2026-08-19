@@ -2,61 +2,51 @@
 	import { onDestroy } from 'svelte';
 	import { cubicOut } from 'svelte/easing';
 	import { fly } from 'svelte/transition';
+
 	import { snackStore } from '$lib/stores/snackbar.svelte';
 	import { Icon } from '$lib/atoms';
 	import { ESnackType } from '@aryagg/types';
-	import {
-		CheckCircleFill,
-		ExclamationTriangleFill,
-		XCircleFill,
-		InfoCircleFill,
-		XLg
-	} from 'svelte-bootstrap-icons';
+
+	import { CheckLg, ExclamationLg, InfoLg, XLg } from 'svelte-bootstrap-icons';
 
 	const snackbarConfig = {
 		[ESnackType.SUCCESS]: {
-			title: 'Success',
-			icon: CheckCircleFill,
-			container: 'bg-success text-on-success',
-			soft: 'bg-on-success/15 text-on-success',
-			border: 'border-on-success/20',
-			track: 'bg-on-success/20',
-			progress: 'bg-on-success'
+			icon: CheckLg,
+			iconClass: 'bg-success text-on-success',
+			borderClass: 'border-success/30',
+			actionClass: 'text-success hover:bg-success/10',
+			timerClass: 'bg-success'
 		},
 		[ESnackType.DANGER]: {
-			title: 'Something went wrong',
-			icon: XCircleFill,
-			container: 'bg-error text-on-error',
-			soft: 'bg-on-error/15 text-on-error',
-			border: 'border-on-error/20',
-			track: 'bg-on-error/20',
-			progress: 'bg-on-error'
+			icon: XLg,
+			iconClass: 'bg-error text-on-error',
+			borderClass: 'border-error/30',
+			actionClass: 'text-error hover:bg-error/10',
+			timerClass: 'bg-error'
 		},
 		[ESnackType.WARNING]: {
-			title: 'Attention needed',
-			icon: ExclamationTriangleFill,
-			container: 'bg-warning text-on-warning',
-			soft: 'bg-on-warning/15 text-on-warning',
-			border: 'border-on-warning/20',
-			track: 'bg-on-warning/20',
-			progress: 'bg-on-warning'
+			icon: ExclamationLg,
+			iconClass: 'bg-warning text-on-warning',
+			borderClass: 'border-warning/30',
+			actionClass: 'text-warning hover:bg-warning/10',
+			timerClass: 'bg-warning'
 		},
 		[ESnackType.INFO]: {
-			title: 'For your information',
-			icon: InfoCircleFill,
-			container: 'bg-info text-on-info',
-			soft: 'bg-on-info/15 text-on-info',
-			border: 'border-on-info/20',
-			track: 'bg-on-info/20',
-			progress: 'bg-on-info'
+			icon: InfoLg,
+			iconClass: 'bg-info text-on-info',
+			borderClass: 'border-info/30',
+			actionClass: 'text-info hover:bg-info/10',
+			timerClass: 'bg-info'
 		}
 	};
 
 	let timeoutId: ReturnType<typeof setTimeout> | null = null;
-	const currentConfig = $derived(
+
+	const config = $derived(
 		snackStore.current ? snackbarConfig[snackStore.current.type] : snackbarConfig[ESnackType.INFO]
 	);
-	const timeout = $derived(snackStore.current?.timeOut ?? 5000);
+
+	const timeout = $derived(snackStore.current?.timeOut ?? 8000);
 
 	onDestroy(() => {
 		if (timeoutId) clearTimeout(timeoutId);
@@ -64,8 +54,14 @@
 
 	$effect(() => {
 		if (!snackStore.current) return;
-		if (timeoutId) clearTimeout(timeoutId);
-		timeoutId = setTimeout(() => snackStore.close(), timeout);
+
+		if (timeoutId) {
+			clearTimeout(timeoutId);
+		}
+
+		timeoutId = setTimeout(() => {
+			snackStore.close();
+		}, timeout);
 	});
 </script>
 
@@ -73,62 +69,55 @@
 	<div
 		role={snackStore.current.type === ESnackType.DANGER ? 'alert' : 'status'}
 		aria-live={snackStore.current.type === ESnackType.DANGER ? 'assertive' : 'polite'}
-		transition:fly={{ y: 16, duration: 240, easing: cubicOut }}
-		class="fixed right-4 bottom-4 z-[1000] w-[min(400px,calc(100vw-2rem))] sm:right-6 sm:bottom-6"
+		transition:fly={{
+			y: 20,
+			duration: 220,
+			easing: cubicOut
+		}}
+		class="fixed bottom-12 left-1/2 z-[1000] w-[calc(100%-2rem)] max-w-md -translate-x-1/2"
 	>
 		<div
-			data-alert={snackStore.current.type}
-			class="relative overflow-hidden rounded-2xl border shadow-xl {currentConfig.container} {currentConfig.border}"
+			class="relative flex items-center gap-3 overflow-hidden rounded-xl border bg-on-accent px-3 py-3 shadow-lg {config.borderClass}"
 		>
-			<div class="flex items-start gap-3 p-4 pr-3">
-				<!-- Icon -->
-				<div
-					class="flex size-10 shrink-0 items-center justify-center rounded-xl {currentConfig.soft}"
-				>
-					<Icon icon={currentConfig.icon} />
-				</div>
-
-				<!-- Content -->
-				<div class="min-w-0 flex-1 py-0.5">
-					<p class="text-sm leading-5 font-semibold">
-						{currentConfig.title}
-					</p>
-
-					<p class="mt-1 text-sm leading-5 opacity-90">
-						{snackStore.current.message}
-					</p>
-				</div>
-
-				<!-- Close -->
-				<button
-					type="button"
-					onclick={() => snackStore.close()}
-					aria-label="Dismiss notification"
-					class="flex size-9 shrink-0 items-center justify-center rounded-xl {currentConfig.soft} transition-transform hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
-				>
-					<Icon icon={XLg} />
-				</button>
+			<!-- Status icon -->
+			<div class="flex size-9 shrink-0 items-center justify-center rounded-lg {config.iconClass}">
+				<Icon icon={config.icon} />
 			</div>
 
-			<!-- Timeout indicator -->
-			<div class="h-1 w-full {currentConfig.track}">
-				<div
-					class="snackbar-progress h-full origin-left {currentConfig.progress}"
-					style:animation-duration={`${timeout}ms`}
-				></div>
-			</div>
+			<!-- Message -->
+			<p class="min-w-0 flex-1 text-sm leading-5 font-medium text-brand-secondary">
+				{snackStore.current.message}
+			</p>
+
+			<!-- Close -->
+			<button
+				type="button"
+				onclick={() => snackStore.close()}
+				aria-label="Close notification"
+				class="flex size-8 shrink-0 items-center justify-center rounded-lg transition-colors {config.actionClass} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
+			>
+				<Icon icon={XLg} />
+			</button>
+
+			<!-- Timer -->
+			<div
+				class="snackbar-timer absolute bottom-0 left-0 h-[2px] {config.timerClass}"
+				style:animation-duration={`${timeout}ms`}
+			></div>
 		</div>
 	</div>
 {/if}
 
 <style>
-	.snackbar-progress {
-		animation-name: snackbar-countdown;
+	.snackbar-timer {
+		width: 100%;
+		transform-origin: left;
+		animation-name: snackbar-timer;
 		animation-timing-function: linear;
 		animation-fill-mode: forwards;
 	}
 
-	@keyframes snackbar-countdown {
+	@keyframes snackbar-timer {
 		from {
 			transform: scaleX(1);
 		}
@@ -139,7 +128,7 @@
 	}
 
 	@media (prefers-reduced-motion: reduce) {
-		.snackbar-progress {
+		.snackbar-timer {
 			animation: none;
 		}
 	}
