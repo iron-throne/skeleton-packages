@@ -345,7 +345,7 @@
   }
 
   textarea {
-    @apply min-h-24 resize-y leading-relaxed;
+    @apply resize-y leading-relaxed;
   }
 
   select {
