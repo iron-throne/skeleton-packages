@@ -2,7 +2,7 @@
 	import Icon from '../../atoms/icon/Icon.svelte';
 	import { ESize } from '@aryagg/types';
 	import type { TabItem, TabsProps } from './types';
-
+	
 	let {
 		tabs,
 		active = $bindable(''),
@@ -71,6 +71,7 @@
 			selected ? 'border-b-accent! font-bold text-accent!' : 'text-tertiary!'
 		}`;
 	}
+	
 
 	$effect.pre(() => {
 		const activeExists = tabs.some((tab) => tab.id === active);
@@ -84,6 +85,7 @@
 		active = tab.id;
 		onChange?.(tab);
 	}
+	
 </script>
 
 {#snippet tabIcon(tab: TabItem, selected: boolean)}

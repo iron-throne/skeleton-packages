@@ -60,6 +60,7 @@
 						<span aria-current="page" class="font-medium text-content-primary truncate max-w-40">
 							{crumb.label}
 						</span>
+						
 					{:else}
 						<a
 							href={crumb.href}

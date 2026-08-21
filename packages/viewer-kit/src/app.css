@@ -1,0 +1,4 @@
+@import "@aryagg/theme";
+
+/* The Tailwind import lives inside @aryagg/theme, so register this package explicitly. */
+@source "./";

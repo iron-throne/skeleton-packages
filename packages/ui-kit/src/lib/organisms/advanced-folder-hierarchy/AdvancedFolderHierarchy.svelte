@@ -160,6 +160,7 @@
 		builderOpen = true;
 		onSecondaryAction?.();
 	}
+	
 
 	function toggleGroupField(id: string) {
 		orderedFields = orderedFields.map((field) =>
