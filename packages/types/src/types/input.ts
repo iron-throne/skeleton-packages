@@ -88,4 +88,4 @@ export enum EDataType {
     NULL = 'null',
 }
 
-export type InputValue = string | number | boolean | File | File[] | null;
+export type InputValue = string | string[] | number | boolean | File | File[] | null;

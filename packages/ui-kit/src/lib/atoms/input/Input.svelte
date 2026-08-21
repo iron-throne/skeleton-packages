@@ -10,7 +10,14 @@
 		NATIVE_TEXT_TYPES
 	} from '@aryagg/types';
 	import { onMount } from 'svelte';
-	import { Eye, EyeSlash, ExclamationCircle, Search, PlusLg, ChevronDown } from 'svelte-bootstrap-icons';
+	import {
+		Eye,
+		EyeSlash,
+		ExclamationCircle,
+		Search,
+		PlusLg,
+		ChevronDown
+	} from 'svelte-bootstrap-icons';
 
 	let {
 		field = $bindable(),
@@ -33,7 +40,11 @@
 
 	function debouncedEmit(val: InputValue) {
 		if (debounceTimer) clearTimeout(debounceTimer);
-		debounceTimer = setTimeout(() => emit(val), DEBOUNCE_DELAY);
+		debounceTimer = setTimeout(() => {
+			if (field.type !== EInputType.FILE) {
+				emit(val);
+			}
+		}, DEBOUNCE_DELAY);
 	}
 
 	const inputBase = [
@@ -83,7 +94,9 @@
 		checkValidation(val);
 
 		if (field.errorMsg) return;
-		field.value = val;
+		if(field.type !== EInputType.FILE) {
+			field.value = val;
+		}
 		field.onChange?.(val);
 	}
 	function checkValidation(val: InputValue) {
@@ -306,7 +319,8 @@
 				onchange={(e) => emit((e.target as HTMLSelectElement).value)}
 			>
 				{#if field.placeholder}
-					<option value="" disabled selected class="text-content-secondary">{field.placeholder}</option
+					<option value="" disabled selected class="text-content-secondary"
+						>{field.placeholder}</option
 					>
 				{/if}
 				{#each field.options ?? [] as opt (opt.value)}
