@@ -1,7 +1,7 @@
 {
 	"name": "@aryagg/viewer-kit",
 	"version": "0.0.1",
-	"description": "Extensible Svelte 5 viewers for documents, Office files, and BIM/CAD models.",
+	"description": "Extensible Svelte 5 viewers for documents, Office files, local DWG drawings, and open BIM models.",
 	"type": "module",
 	"files": [
 		"dist",
@@ -32,10 +32,12 @@
 		"svelte": "^5.0.0"
 	},
 	"dependencies": {
-		"three": "^0.185.0"
+		"@cadview/core": "^0.5.0",
+		"@node-projects/acad-ts": "2.4.0",
+		"three": "^0.185.0",
+		"web-ifc": "^0.0.77"
 	},
 	"devDependencies": {
-		"@aryagg/theme": "^0.0.3",
 		"@eslint/js": "^10.0.1",
 		"@sveltejs/package": "^2.5.8",
 		"@sveltejs/vite-plugin-svelte": "^6.2.4",
@@ -58,8 +60,10 @@
 	"keywords": [
 		"svelte",
 		"pdf",
-		"ppt",
-		"pptx",
+		"dwg",
+		"ifc",
+		"bim",
+		"gltf",
 		"file-viewer"
 	],
 	"repository": {

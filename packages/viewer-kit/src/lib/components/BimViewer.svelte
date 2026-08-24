@@ -3,34 +3,28 @@
 	import * as THREE from 'three';
 	import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 	import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-	import type {
-		BaseViewerProps,
-		BimConverter,
-		BimFileType,
-		BimViewable,
-		ViewerSource
-	} from '../types';
+	import type { BaseViewerProps, BimFileType, ViewerSource } from '../types';
+	import type { LoadedIfcModel } from '../utils/ifc-loader';
 
 	interface Props extends BaseViewerProps {
 		source: ViewerSource;
 		type: BimFileType;
-		bimConverter?: BimConverter;
 	}
 
 	let {
 		source,
 		type,
-		bimConverter,
 		title = 'BIM model',
 		heightClass = 'h-[70vh]',
 		class: className = '',
 		onload,
 		onerror
 	}: Props = $props();
+
 	let canvasHost = $state<HTMLDivElement>();
-	let viewable = $state<BimViewable>();
 	let loading = $state(true);
-	let message = $state('Preparing model…');
+	let message = $state('Preparing model...');
+	let loadError = $state('');
 	let selectedName = $state('Nothing selected');
 	let selectedDetails = $state('Click an element in the model to inspect it.');
 	let iframeUrl = $state('');
@@ -39,10 +33,12 @@
 	let camera: THREE.PerspectiveCamera | undefined;
 	let controls: OrbitControls | undefined;
 	let model: THREE.Object3D | undefined;
+	let ifcModel: LoadedIfcModel | undefined;
+	let selectionOutline: THREE.BoxHelper | undefined;
 	let animationFrame = 0;
 	let resizeObserver: ResizeObserver | undefined;
 	let ownedUrl: string | undefined;
-	const convertible = new Set<BimFileType>(['dwg', 'dxf', 'ifc', 'rvt', 'nwd', 'nwc']);
+	let pointerStart: THREE.Vector2 | undefined;
 
 	function sourceUrl(value: ViewerSource) {
 		if (typeof value === 'string') return value;
@@ -56,11 +52,11 @@
 		if (box.isEmpty()) return;
 		const size = box.getSize(new THREE.Vector3());
 		const center = box.getCenter(new THREE.Vector3());
-		const distance =
-			Math.max(size.x, size.y, size.z) / Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
+		const maxSize = Math.max(size.x, size.y, size.z, 0.1);
+		const distance = maxSize / Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
 		camera.position
 			.copy(center)
-			.add(new THREE.Vector3(1, 0.8, 1).normalize().multiplyScalar(distance * 0.75));
+			.add(new THREE.Vector3(1, 0.75, 1).normalize().multiplyScalar(distance * 0.72));
 		camera.near = Math.max(distance / 10000, 0.01);
 		camera.far = Math.max(distance * 100, 1000);
 		camera.updateProjectionMatrix();
@@ -68,12 +64,13 @@
 		controls.update();
 	}
 
-	function resetView() {
-		fitModel();
+	function pointerDown(event: PointerEvent) {
+		pointerStart = new THREE.Vector2(event.clientX, event.clientY);
 	}
 
 	function selectElement(event: PointerEvent) {
-		if (!renderer || !camera || !model) return;
+		if (!renderer || !camera || !model || !pointerStart) return;
+		if (pointerStart.distanceTo(new THREE.Vector2(event.clientX, event.clientY)) > 5) return;
 		const rect = renderer.domElement.getBoundingClientRect();
 		const pointer = new THREE.Vector2(
 			((event.clientX - rect.left) / rect.width) * 2 - 1,
@@ -83,43 +80,31 @@
 		raycaster.setFromCamera(pointer, camera);
 		const hit = raycaster.intersectObject(model, true)[0]?.object;
 		if (!hit) return;
+
+		selectionOutline?.removeFromParent();
+		selectionOutline?.geometry.dispose();
+		selectionOutline?.material.dispose();
+		selectionOutline = new THREE.BoxHelper(hit, 0x2563eb);
+		scene?.add(selectionOutline);
+
+		const expressId =
+			typeof hit.userData.expressId === 'number' ? hit.userData.expressId : undefined;
+		const data =
+			expressId !== undefined && ifcModel
+				? Object.entries(ifcModel.properties(expressId))
+				: Object.entries(hit.userData || {}).filter(([, value]) =>
+						['string', 'number', 'boolean'].includes(typeof value)
+					);
 		selectedName = hit.name || hit.parent?.name || 'Unnamed element';
-		const data = Object.entries(hit.userData || {})
-			.filter(([, value]) => ['string', 'number', 'boolean'].includes(typeof value))
-			.slice(0, 6);
 		selectedDetails = data.length
-			? data.map(([key, value]) => `${key}: ${String(value)}`).join(' · ')
+			? data
+					.slice(0, 8)
+					.map(([key, value]) => `${key}: ${String(value)}`)
+					.join(' · ')
 			: `Type: ${hit.type}`;
 	}
 
-	async function prepare() {
-		try {
-			if (convertible.has(type)) {
-				if (!bimConverter) {
-					loading = false;
-					message = `${type.toUpperCase()} requires conversion before browsers can display it.`;
-					return;
-				}
-				message = `Converting ${type.toUpperCase()}…`;
-				viewable = await bimConverter(source, type as Exclude<BimFileType, 'gltf' | 'glb' | 'svg'>);
-			} else {
-				viewable = { source, type: type as 'gltf' | 'glb' | 'svg' };
-			}
-			iframeUrl = sourceUrl(viewable.source);
-			if (viewable.type === 'svg' || viewable.type === 'iframe') {
-				loading = false;
-				onload?.();
-				return;
-			}
-			await loadThreeModel(iframeUrl);
-		} catch (cause) {
-			loading = false;
-			message = 'The BIM model could not be prepared.';
-			onerror?.({ code: 'LOAD_FAILED', message, cause });
-		}
-	}
-
-	async function loadThreeModel(url: string) {
+	function setupScene() {
 		if (!canvasHost) throw new Error('The 3D viewer container is unavailable.');
 		const host = canvasHost;
 		scene = new THREE.Scene();
@@ -131,17 +116,12 @@
 		host.appendChild(renderer.domElement);
 		controls = new OrbitControls(camera, renderer.domElement);
 		controls.enableDamping = true;
-		controls.saveState();
+		controls.screenSpacePanning = true;
 		scene.add(new THREE.HemisphereLight(0xffffff, 0x64748b, 2.6));
 		const sun = new THREE.DirectionalLight(0xffffff, 2.4);
 		sun.position.set(20, 30, 10);
 		scene.add(sun, new THREE.GridHelper(1000, 100, 0x94a3b8, 0xcbd5e1));
-		const loadedModel = await new GLTFLoader().loadAsync(url).then((result) => result.scene);
-		model = loadedModel;
-		scene.add(loadedModel);
-		fitModel();
-		loading = false;
-		onload?.();
+
 		const resize = () => {
 			if (!renderer || !camera) return;
 			const { clientWidth, clientHeight } = host;
@@ -160,22 +140,80 @@
 		animate();
 	}
 
+	async function prepare() {
+		try {
+			if (type === 'svg') {
+				iframeUrl = sourceUrl(source);
+				loading = false;
+				onload?.();
+				return;
+			}
+
+			setupScene();
+			if (type === 'ifc') {
+				message = 'Reading IFC geometry locally...';
+				const { loadIfcModel } = await import('../utils/ifc-loader');
+				ifcModel = await loadIfcModel(source);
+				const loadedModel = ifcModel.group;
+				model = loadedModel;
+				scene?.add(loadedModel);
+			} else {
+				message = 'Loading 3D model...';
+				const loadedModel = await new GLTFLoader()
+					.loadAsync(sourceUrl(source))
+					.then((result) => result.scene);
+				model = loadedModel;
+				scene?.add(loadedModel);
+			}
+			fitModel();
+			loading = false;
+			onload?.();
+		} catch (cause) {
+			loading = false;
+			loadError =
+				type === 'ifc'
+					? 'This IFC file could not be decoded in the browser.'
+					: 'The BIM model could not be loaded.';
+			onerror?.({ code: 'LOAD_FAILED', message: loadError, cause });
+		}
+	}
+
+	function disposeModel() {
+		if (ifcModel) {
+			ifcModel.dispose();
+			return;
+		}
+		model?.traverse((object) => {
+			if (!(object instanceof THREE.Mesh)) return;
+			object.geometry.dispose();
+			const materials = Array.isArray(object.material) ? object.material : [object.material];
+			for (const material of materials) material.dispose();
+		});
+	}
+
 	onMount(() => {
 		prepare();
 		return () => {
 			cancelAnimationFrame(animationFrame);
 			resizeObserver?.disconnect();
 			controls?.dispose();
+			disposeModel();
+			selectionOutline?.geometry.dispose();
+			selectionOutline?.material.dispose();
 			renderer?.dispose();
-			renderer?.domElement.removeEventListener('pointerup', selectElement);
 			if (ownedUrl) URL.revokeObjectURL(ownedUrl);
 		};
 	});
 
 	$effect(() => {
 		if (!renderer) return;
-		renderer.domElement.addEventListener('pointerup', selectElement);
-		return () => renderer?.domElement.removeEventListener('pointerup', selectElement);
+		const canvas = renderer.domElement;
+		canvas.addEventListener('pointerdown', pointerDown);
+		canvas.addEventListener('pointerup', selectElement);
+		return () => {
+			canvas.removeEventListener('pointerdown', pointerDown);
+			canvas.removeEventListener('pointerup', selectElement);
+		};
 	});
 </script>
 
@@ -183,17 +221,13 @@
 	class={`relative min-h-80 overflow-hidden bg-slate-100 ${heightClass} ${className}`}
 	aria-label={title}
 >
-	{#if viewable?.type === 'svg' || viewable?.type === 'iframe'}
+	{#if type === 'svg'}
 		<iframe
 			src={iframeUrl}
 			{title}
 			class="size-full border-0 bg-white"
 			onerror={(cause) =>
-				onerror?.({
-					code: 'LOAD_FAILED',
-					message: 'The converted drawing could not be loaded.',
-					cause
-				})}
+				onerror?.({ code: 'LOAD_FAILED', message: 'The SVG drawing could not be loaded.', cause })}
 		></iframe>
 	{:else}
 		<div
@@ -204,23 +238,17 @@
 		></div>
 	{/if}
 
-	{#if renderer && !loading}
-		<div class="absolute left-3 top-3 flex gap-2">
+	{#if renderer && !loading && !loadError}
+		<div class="absolute left-3 top-3">
 			<button
 				type="button"
 				onclick={fitModel}
 				class="rounded-lg border border-slate-200 bg-white/95 px-3 py-2 text-xs font-semibold text-slate-700 shadow-sm hover:bg-white"
 				>Fit model</button
 			>
-			<button
-				type="button"
-				onclick={resetView}
-				class="rounded-lg border border-slate-200 bg-white/95 px-3 py-2 text-xs font-semibold text-slate-700 shadow-sm hover:bg-white"
-				>Reset view</button
-			>
 		</div>
 		<div
-			class="absolute bottom-3 left-3 right-3 rounded-xl border border-slate-200 bg-white/95 px-4 py-3 shadow-lg backdrop-blur sm:right-auto sm:max-w-md"
+			class="absolute bottom-3 left-3 right-3 rounded-xl border border-slate-200 bg-white/95 px-4 py-3 font-sans shadow-lg backdrop-blur sm:right-auto sm:max-w-lg"
 		>
 			<p class="text-xs font-semibold text-slate-900">{selectedName}</p>
 			<p class="mt-1 text-xs leading-5 text-slate-500">{selectedDetails}</p>
@@ -228,22 +256,28 @@
 	{/if}
 
 	{#if loading}
-		<div class="absolute inset-0 grid place-content-center bg-slate-100/90 text-center">
+		<div class="absolute inset-0 grid place-content-center bg-slate-100/90 text-center font-sans">
 			<div
 				class="mx-auto size-8 animate-spin rounded-full border-2 border-blue-600 border-t-transparent"
 			></div>
 			<p class="mt-3 text-sm font-medium text-slate-600">{message}</p>
 		</div>
-	{:else if !viewable}
-		<div class="absolute inset-0 grid place-content-center p-8 text-center">
-			<div class="mx-auto grid size-12 place-items-center rounded-2xl bg-amber-100 text-amber-700">
-				CAD
+	{:else if loadError}
+		<div class="absolute inset-0 grid place-content-center p-8 text-center font-sans">
+			<div
+				class="mx-auto flex size-12 items-center justify-center rounded-2xl bg-rose-100 text-rose-700"
+			>
+				<svg
+					class="block size-6"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="1.8"
+					aria-hidden="true"><path d="M12 8v5m0 3.5v.1M4.5 19.5h15L12 4z" /></svg
+				>
 			</div>
-			<h3 class="mt-4 font-semibold text-slate-900">Conversion service required</h3>
-			<p class="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-500">
-				{message} Connect the <code class="rounded bg-slate-200 px-1.5 py-0.5">bimConverter</code> adapter
-				to Autodesk APS or your internal conversion server.
-			</p>
+			<h3 class="mt-4 font-semibold text-slate-900">Unable to open model</h3>
+			<p class="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-500">{loadError}</p>
 		</div>
 	{/if}
 </div>

@@ -1,5 +1,6 @@
 export { default as FileViewer } from './components/FileViewer.svelte';
 export { default as BimViewer } from './components/BimViewer.svelte';
+export { default as DwgViewer } from './components/DwgViewer.svelte';
 export { default as ExcelViewer } from './components/ExcelViewer.svelte';
 export { default as PdfViewer } from './components/PdfViewer.svelte';
 export { default as PowerPointViewer } from './components/PowerPointViewer.svelte';
@@ -13,12 +14,12 @@ export {
 } from './utils/file-type';
 export type {
 	BaseViewerProps,
-	BimConverter,
 	BimFileType,
 	BimViewable,
 	FileViewerProps,
 	ViewerContainerProps,
 	ViewerModalProps,
+	ViewerOpenRequest,
 	SupportedFileType,
 	ViewerError,
 	ViewerSource

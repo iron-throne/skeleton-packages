@@ -1,16 +1,11 @@
-export type BimFileType = 'dwg' | 'dxf' | 'ifc' | 'rvt' | 'nwd' | 'nwc' | 'gltf' | 'glb' | 'svg';
-export type SupportedFileType = 'pdf' | 'ppt' | 'pptx' | 'xls' | 'xlsx' | BimFileType;
+export type BimFileType = 'ifc' | 'gltf' | 'glb' | 'svg';
+export type SupportedFileType = 'pdf' | 'ppt' | 'pptx' | 'xls' | 'xlsx' | 'dwg' | BimFileType;
 export type ViewerSource = string | Blob;
 
 export interface BimViewable {
 	source: ViewerSource;
-	type: 'gltf' | 'glb' | 'svg' | 'iframe';
+	type: BimFileType;
 }
-
-export type BimConverter = (
-	source: ViewerSource,
-	type: Exclude<BimFileType, 'gltf' | 'glb' | 'svg'>
-) => Promise<BimViewable>;
 
 export interface ViewerError {
 	code: 'UNSUPPORTED_TYPE' | 'INVALID_SOURCE' | 'LOAD_FAILED';
@@ -26,6 +21,13 @@ export interface BaseViewerProps {
 	onerror?: (error: ViewerError) => void;
 }
 
+export interface ViewerOpenRequest {
+	source: ViewerSource;
+	type: SupportedFileType;
+	fileName?: string;
+	mimeType?: string;
+}
+
 export interface FileViewerProps extends BaseViewerProps {
 	source: ViewerSource;
 	type?: SupportedFileType;
@@ -34,7 +36,7 @@ export interface FileViewerProps extends BaseViewerProps {
 	showToolbar?: boolean;
 	powerPointEmbedUrl?: (source: string) => string;
 	excelEmbedUrl?: (source: string) => string;
-	bimConverter?: BimConverter;
+	onrequestopen?: (request: ViewerOpenRequest) => void;
 }
 
 export interface ViewerContainerProps extends FileViewerProps {

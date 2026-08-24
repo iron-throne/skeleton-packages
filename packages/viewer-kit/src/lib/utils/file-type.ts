@@ -9,7 +9,13 @@ const mimeTypes: Record<string, SupportedFileType> = {
 	'image/svg+xml': 'svg',
 	'model/gltf+json': 'gltf',
 	'model/gltf-binary': 'glb',
-	'application/x-step': 'ifc'
+	'application/x-step': 'ifc',
+	'application/acad': 'dwg',
+	'application/x-acad': 'dwg',
+	'application/dwg': 'dwg',
+	'application/x-dwg': 'dwg',
+	'image/vnd.dwg': 'dwg',
+	'image/x-dwg': 'dwg'
 };
 
 export function detectFileType(
@@ -32,11 +38,7 @@ export function detectFileType(
 		if (path.endsWith('.xlsx')) return 'xlsx';
 		if (path.endsWith('.xls')) return 'xls';
 		if (path.endsWith('.dwg')) return 'dwg';
-		if (path.endsWith('.dxf')) return 'dxf';
 		if (path.endsWith('.ifc')) return 'ifc';
-		if (path.endsWith('.rvt')) return 'rvt';
-		if (path.endsWith('.nwd')) return 'nwd';
-		if (path.endsWith('.nwc')) return 'nwc';
 		if (path.endsWith('.gltf')) return 'gltf';
 		if (path.endsWith('.glb')) return 'glb';
 		if (path.endsWith('.svg')) return 'svg';

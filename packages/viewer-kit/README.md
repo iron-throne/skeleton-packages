@@ -1,6 +1,6 @@
 # @aryagg/viewer-kit
 
-Extensible Svelte 5 file viewing components for documents, Office files, and BIM/CAD models. GLB, glTF, and SVG render directly; DWG, DXF, IFC, RVT, NWD, and NWC connect through a conversion adapter.
+Extensible Svelte 5 file viewing components for documents, Office files, DWG drawings, and open BIM models. DWG, IFC, GLB, glTF, and SVG render locally in the browser without uploading files to a conversion service.
 
 ## Install
 
@@ -19,6 +19,7 @@ npm install @aryagg/viewer-kit
 <FileViewer source="https://files.example.com/slides.pptx" />
 <FileViewer source="https://files.example.com/budget.xlsx" />
 <FileViewer source="/models/building.glb" />
+<FileViewer source={localDwgFile} fileName={localDwgFile.name} />
 ```
 
 The type is detected from the URL, `fileName`, or `mimeType`. It can also be explicit:
@@ -29,35 +30,50 @@ The type is detected from the URL, `fileName`, or `mimeType`. It can also be exp
 
 You may import `PdfViewer`, `PowerPointViewer`, and `ExcelViewer` directly when automatic detection is not needed.
 
-## BIM and CAD viewer
+## Local BIM and DWG viewer
 
-GLB/glTF models include orbit, pan, zoom-to-fit, lighting, a reference grid, element picking, and display of simple metadata from glTF `extras`. SVG drawings open directly:
+IFC is decoded locally with WebAssembly. IFC and GLB/glTF models include orbit, pan, zoom-to-fit, lighting, a reference grid, element picking, and property display. SVG drawings open directly:
 
 ```svelte
 <FileViewer source="/models/coordination.glb" />
 <FileViewer source="/drawings/level-01.svg" />
 ```
 
-Browsers cannot decode native DWG, RVT, or Navisworks files. Provide a converter that uploads the source to Autodesk APS or an internal conversion service and returns a web-viewable result:
+DWG is decoded by local browser workers and rendered as an interactive 2D drawing. It includes pan, zoom, fit, entity selection, measurement, and layer visibility:
+
+```svelte
+<FileViewer source={dwgFile} fileName={dwgFile.name} />
+```
+
+Local files should come from a browser file input. A Windows path such as `C:/Models/building.ifc` is not a browser-readable URL:
 
 ```svelte
 <script lang="ts">
-	import { FileViewer, type BimConverter } from '@aryagg/viewer-kit';
-
-	const bimConverter: BimConverter = async (source, type) => {
-		const body = new FormData();
-		body.append('file', source);
-		body.append('type', type);
-		const response = await fetch('/api/bim/convert', { method: 'POST', body });
-		if (!response.ok) throw new Error('Conversion failed');
-		return response.json();
-	};
+	import { FileViewer } from '@aryagg/viewer-kit';
+	let model = $state<File>();
 </script>
 
-<FileViewer source={dwgFile} fileName={dwgFile.name} {bimConverter} />
+<input
+	type="file"
+	accept=".dwg,.ifc,.glb,.gltf,.svg"
+	onchange={(event) => (model = event.currentTarget.files?.[0])}
+/>
+{#if model}<FileViewer source={model} fileName={model.name} />{/if}
 ```
 
-The converter may return `gltf`, `glb`, `svg`, or `iframe`. Use `iframe` when the backend returns an Autodesk APS Viewer page or another hosted viewer.
+Serve the built app over HTTP or HTTPS (an existing static web server is enough). Browsers do not reliably allow module workers or local-file fetching from an SMB/`file://` page.
+
+The DWG bridge uses the pure-TypeScript `@node-projects/acad-ts` reader inside a terminable browser worker with file-size, output-size, and elapsed-time safety limits. It writes the graphical DXF sections needed for preview while deliberately excluding the non-graphical object dictionary. Generated DXF is displayed only when it parses, contains a complete `ENTITIES` section, ends with `EOF`, and has finite geometry. The viewer reports when model-space entities could not be represented, and no drawing bytes are uploaded.
+
+DWGs up to 64 MiB start automatically. Files from 64 to 192 MiB require an explicit confirmation because local decoding can consume more than 1 GB of memory; larger files are rejected to protect the tab. Selected `File`/`Blob` data is passed directly to the worker so the main page does not make another full-size copy.
+
+AutoCAD Architecture and Civil 3D AEC/custom objects are not ordinary DWG drawing entities. If a drawing contains only those objects, the viewer reports that no browser-renderable model-space geometry exists. Use a matching PDF/DXF export for viewing, or use the authoring application to flatten/export the objects to standard AutoCAD entities first. Merely changing the DWG release number does not convert custom objects into standard geometry.
+
+When a rejected DWG contains an embedded PNG or BMP thumbnail, the error view displays it as a clearly marked, non-interactive reference. `ViewerModal` also offers a companion-PDF picker and switches its header and content to that PDF without closing. The user must select the PDF explicitly: browser file pickers intentionally do not reveal the selected DWG's folder or grant access to sibling files.
+
+This means no backend, cloud converter, hosted SDK, account, or upload is required. It is not literally dependency-free: the viewer embeds open-source parsing and rendering libraries. DWG is presented as 2D CAD geometry; use IFC/GLB for BIM elements and properties. Password-protected, damaged, or application-specific custom objects can still be rejected or omitted.
+
+RVT, NWD, and NWC still require export to IFC or GLB before opening. The DWG reader and 2D renderer are MIT-licensed open-source dependencies; review the [acad-ts source](https://github.com/node-projects/acad-ts) and [CadView core source](https://github.com/wiscaksono/cadview/tree/main/packages/core) when preparing a distribution.
 
 ## Page and popup viewers
 

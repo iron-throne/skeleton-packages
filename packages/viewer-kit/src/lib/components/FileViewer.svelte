@@ -3,6 +3,7 @@
 	import PowerPointViewer from './PowerPointViewer.svelte';
 	import ExcelViewer from './ExcelViewer.svelte';
 	import BimViewer from './BimViewer.svelte';
+	import DwgViewer from './DwgViewer.svelte';
 	import type { FileViewerProps, ViewerError } from '../types';
 	import type { BimFileType, SupportedFileType } from '../types';
 	import { detectFileType } from '../utils/file-type';
@@ -15,26 +16,16 @@
 		showToolbar = true,
 		powerPointEmbedUrl,
 		excelEmbedUrl,
-		bimConverter,
 		title,
 		heightClass = 'h-[70vh]',
 		class: className = '',
 		onload,
-		onerror
+		onerror,
+		onrequestopen
 	}: FileViewerProps = $props();
 
 	let resolvedType = $derived(type || detectFileType(source, fileName, mimeType));
-	const bimTypes: SupportedFileType[] = [
-		'dwg',
-		'dxf',
-		'ifc',
-		'rvt',
-		'nwd',
-		'nwc',
-		'gltf',
-		'glb',
-		'svg'
-	];
+	const bimTypes: SupportedFileType[] = ['ifc', 'gltf', 'glb', 'svg'];
 	function isBimType(value: SupportedFileType | undefined): value is BimFileType {
 		return value !== undefined && bimTypes.includes(value);
 	}
@@ -42,7 +33,12 @@
 		if (!resolvedType) {
 			return { code: 'UNSUPPORTED_TYPE', message: 'This file type is not supported yet.' };
 		}
-		if (resolvedType !== 'pdf' && !isBimType(resolvedType) && typeof source !== 'string') {
+		if (
+			resolvedType !== 'pdf' &&
+			resolvedType !== 'dwg' &&
+			!isBimType(resolvedType) &&
+			typeof source !== 'string'
+		) {
 			return {
 				code: 'INVALID_SOURCE',
 				message: 'Office files require a publicly reachable URL or a custom embed adapter.'
@@ -72,6 +68,18 @@
 	</div>
 {:else if resolvedType === 'pdf'}
 	<PdfViewer {source} {showToolbar} {title} {heightClass} class={className} {onload} {onerror} />
+{:else if resolvedType === 'dwg'}
+	{#key source}
+		<DwgViewer
+			{source}
+			{title}
+			{heightClass}
+			class={className}
+			{onload}
+			{onerror}
+			{onrequestopen}
+		/>
+	{/key}
 {:else if (resolvedType === 'ppt' || resolvedType === 'pptx') && typeof source === 'string'}
 	<PowerPointViewer
 		{source}
@@ -86,7 +94,6 @@
 	<BimViewer
 		{source}
 		type={resolvedType}
-		{bimConverter}
 		{title}
 		{heightClass}
 		class={className}

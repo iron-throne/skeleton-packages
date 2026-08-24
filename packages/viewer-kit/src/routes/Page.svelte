@@ -36,8 +36,8 @@
 		},
 		{
 			name: 'BIM & CAD viewer',
-			format: 'GLB · GLTF · SVG · DWG · IFC · RVT',
-			description: 'Navigate 3D models, inspect elements and preview converted CAD drawings.',
+			format: 'DWG · IFC · GLB · GLTF · SVG · PDF',
+			description: 'Open CAD drawings, BIM models, and exported drawing PDFs locally.',
 			source:
 				'https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Assets/main/Models/DamagedHelmet/glTF-Binary/DamagedHelmet.glb',
 			fileName: 'sample-building.glb',
@@ -47,11 +47,11 @@
 
 	let selected = $state<ViewerDemo>();
 	let open = $state(false);
-	let bimFileInput: HTMLInputElement;
+	let bimFileInput = $state<HTMLInputElement>();
 
 	function preview(viewer: ViewerDemo) {
 		if (viewer.kind === 'bim') {
-			bimFileInput.click();
+			bimFileInput?.click();
 			return;
 		}
 		selected = viewer;
@@ -76,10 +76,10 @@
 	<input
 		bind:this={bimFileInput}
 		type="file"
-		accept=".glb,.gltf,.svg,.dwg,.dxf,.ifc,.rvt,.nwd,.nwc"
+		accept=".dwg,.ifc,.glb,.gltf,.svg,.pdf,application/pdf"
 		class="sr-only"
 		onchange={openBimFile}
-		aria-label="Choose a BIM or CAD file"
+		aria-label="Choose a DWG, IFC, GLB, glTF, SVG, or PDF file"
 	/>
 	<div class="mx-auto max-w-6xl px-5 py-12 sm:px-8 sm:py-16">
 		<section class="max-w-2xl">
@@ -177,13 +177,14 @@
 	<ViewerModal
 		bind:open
 		source={selected.source}
-		fileName={selected.fileName || (selected.kind === 'pdf'
-			? 'sample-document.pdf'
-			: selected.kind === 'presentation'
-				? 'sample-presentation.pptx'
-				: selected.kind === 'spreadsheet'
-					? 'financial-sample.xlsx'
-					: 'sample-building.glb')}
+		fileName={selected.fileName ||
+			(selected.kind === 'pdf'
+				? 'sample-document.pdf'
+				: selected.kind === 'presentation'
+					? 'sample-presentation.pptx'
+					: selected.kind === 'spreadsheet'
+						? 'financial-sample.xlsx'
+						: 'sample-building.glb')}
 		appTitle={selected.name}
 		appSubtitle={`${selected.format} preview`}
 		headerClass="border-slate-200 bg-white text-slate-950"

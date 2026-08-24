@@ -2,6 +2,8 @@ node_modules
 
 # Output
 /dist
+/demo-dist
+/.conversion-work
 
 # OS
 .DS_Store

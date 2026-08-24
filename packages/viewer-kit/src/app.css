@@ -1,4 +1,8 @@
-@import "@aryagg/theme";
+@import 'tailwindcss';
 
-/* The Tailwind import lives inside @aryagg/theme, so register this package explicitly. */
 @source "./";
+
+@theme {
+	--font-sans: 'Segoe UI', 'Helvetica Neue', Arial, ui-sans-serif, system-ui, sans-serif;
+	--font-mono: 'Cascadia Mono', 'Segoe UI Mono', ui-monospace, monospace;
+}
