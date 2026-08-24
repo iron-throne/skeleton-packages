@@ -16,7 +16,6 @@ export const handleResponse = async <T>(
         response.data?.object__ ?? response.data;
 
       if (!responseData.status) {
-        // showError(responseData.message || errorMsg);
         return {
           isSuccess: false,
           message: responseData.message || errorMsg,
@@ -31,7 +30,6 @@ export const handleResponse = async <T>(
       };
     }
 
-    // showError(errorMsg);
     return { isSuccess: false, message: errorMsg, data: null };
 
   } catch (error: unknown) {

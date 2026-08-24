@@ -4,7 +4,7 @@ import { loaderStore } from '$lib/stores/loader.svelte';
 
 {#if loaderStore.isVisible}
 	<div
-		class="fixed inset-0 z-50 flex h-full w-full items-center justify-center rounded-lg bg-accent/50 shadow-md"
+		class="fixed inset-0 z-50 flex h-full w-full items-center justify-center rounded-lg bg-primary/50 shadow-md"
 	>
 		<div role="status">
 			<svg

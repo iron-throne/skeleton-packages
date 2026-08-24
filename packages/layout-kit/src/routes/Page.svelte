@@ -13,6 +13,7 @@
 		ErrorCard,
 		ErrorSplit
 	} from '$lib';
+	import { FooterSimple, FooterColumns, FooterNewsletter, type FooterLinkGroup } from '$lib/footer';
 	import { LoginSimple, LoginSplit, LoginCover, type LoginCredentials } from '$lib/login';
 	import { ESwitchLayout, ETheme, EHttpStatus, type IMenu } from '@aryagg/types';
 	import { errorTitle, errorHint } from '@aryagg/utils';
@@ -29,6 +30,7 @@
 		Window,
 		BoxArrowInRight,
 		ExclamationTriangleFill,
+		LayoutTextSidebarReverse,
 		ArrowLeft,
 		ArrowRight
 	} from 'svelte-bootstrap-icons';
@@ -68,11 +70,23 @@
 			label: 'Error Pages',
 			icon: ExclamationTriangleFill,
 			description: 'Full-page 404 / 403 / 500 states with icon, title, hint and CTAs.'
+		},
+		{
+			id: 'footer',
+			label: 'Footers',
+			icon: LayoutTextSidebarReverse,
+			description: 'Compact, multi-column and newsletter footers with flexible links and branding.'
 		}
 	] as const;
 
 	// null = landing grid; otherwise the id of the component being viewed.
-	let activeComponent = $state<(typeof sections)[number]['id'] | null>(null);
+	type ComponentId = (typeof sections)[number]['id'];
+	const requestedComponent = new URLSearchParams(window.location.search).get('component');
+	let activeComponent = $state<ComponentId | null>(
+		sections.some((section) => section.id === requestedComponent)
+			? (requestedComponent as ComponentId)
+			: null
+	);
 	const activeSection = $derived(sections.find((s) => s.id === activeComponent));
 
 	// ── Topbar demo ─────────────────────────────────────────────
@@ -179,6 +193,55 @@
 	const errorPageHint = $derived(
 		errorHint(errorStatus, 'Please check your request and try again.')
 	);
+
+	const footerVariants = ['simple', 'columns', 'newsletter'] as const;
+	let activeFooterVariant = $state<(typeof footerVariants)[number]>('simple');
+	let footerShowLogo = $state(true);
+	let footerShowSocial = $state(true);
+	let footerShowLegal = $state(true);
+	let footerLoading = $state(false);
+	const footerGroups: FooterLinkGroup[] = [
+		{
+			title: 'Product',
+			links: [
+				{ label: 'Features', href: '#' },
+				{ label: 'Integrations', href: '#' },
+				{ label: 'Pricing', href: '#' }
+			]
+		},
+		{
+			title: 'Company',
+			links: [
+				{ label: 'About', href: '#' },
+				{ label: 'Careers', href: '#' },
+				{ label: 'Contact', href: '#' }
+			]
+		},
+		{
+			title: 'Resources',
+			links: [
+				{ label: 'Help center', href: '#' },
+				{ label: 'Guides', href: '#' },
+				{ label: 'Status', href: '#' }
+			]
+		}
+	];
+	const footerSocialLinks = [
+		{ label: 'LinkedIn', href: '#' },
+		{ label: 'GitHub', href: '#' },
+		{ label: 'X', href: '#' }
+	];
+	const footerLegalLinks = [
+		{ label: 'Privacy', href: '#' },
+		{ label: 'Terms', href: '#' },
+		{ label: 'Cookies', href: '#' }
+	];
+	async function handleSubscribe(email: string) {
+		footerLoading = true;
+		await new Promise((resolve) => setTimeout(resolve, 700));
+		footerLoading = false;
+		console.log('[FooterNewsletter] subscribed', email);
+	}
 </script>
 
 <svelte:head>
@@ -353,7 +416,6 @@
 						</button>
 					{/each}
 				</nav>
-
 				<div class="min-w-0 flex-1">
 					{#if activeComponent === 'topbar'}
 						<!-- TOPBAR -->
@@ -366,7 +428,11 @@
 									<Topbar title="Acme" logoSrc={showTopbarLogo ? demoLogo : ''} />
 								{:else if topbarMode === 'advanced'}
 									<Topbar title="Acme" logoSrc={showTopbarLogo ? demoLogo : ''}>
-										<HeaderNavList items={topbarMenus} activeHref="#" layout={ESwitchLayout.HORIZONTAL} />
+										<HeaderNavList
+											items={topbarMenus}
+											activeHref="#"
+											layout={ESwitchLayout.HORIZONTAL}
+										/>
 										{#if showLanguages}
 											<LanguageSwitcher
 												languages={[
@@ -704,6 +770,65 @@
 							{/snippet}
 							{#snippet errorToggles()}
 								{@render Toggle('hideIcon', errorHideIcon, () => (errorHideIcon = !errorHideIcon))}
+							{/snippet}
+						</div>
+					{:else if activeComponent === 'footer'}
+						<!-- FOOTERS -->
+						<div class="flex flex-col gap-6">
+							{@render OptionsPanel(footerPickers, footerToggles)}
+							<div
+								class="overflow-hidden rounded-xl border border-border-primary bg-surface-tertiary shadow-sm"
+							>
+								<div class="flex min-h-64 items-center justify-center p-8 text-sm text-tertiary">
+									Page content
+								</div>
+								{#if activeFooterVariant === 'simple'}
+									<FooterSimple
+										brand="Acme"
+										logo={footerShowLogo ? demoLogo : undefined}
+										socialLinks={footerShowSocial ? footerSocialLinks : []}
+										legalLinks={footerShowLegal ? footerLegalLinks : []}
+									/>
+								{:else if activeFooterVariant === 'columns'}
+									<FooterColumns
+										brand="Acme"
+										logo={footerShowLogo ? demoLogo : undefined}
+										description="Build better experiences with a flexible foundation for every screen."
+										groups={footerGroups}
+										socialLinks={footerShowSocial ? footerSocialLinks : []}
+										legalLinks={footerShowLegal ? footerLegalLinks : []}
+									/>
+								{:else}
+									<FooterNewsletter
+										brand="Acme"
+										logo={footerShowLogo ? demoLogo : undefined}
+										socialLinks={footerShowSocial ? footerSocialLinks : []}
+										legalLinks={footerShowLegal ? footerLegalLinks : []}
+										bind:loading={footerLoading}
+										onSubscribe={handleSubscribe}
+									/>
+								{/if}
+							</div>
+							{#snippet footerPickers()}
+								{@render PickerField(
+									'variant',
+									footerVariants,
+									activeFooterVariant,
+									(v) => (activeFooterVariant = v)
+								)}
+							{/snippet}
+							{#snippet footerToggles()}
+								{@render Toggle('logo', footerShowLogo, () => (footerShowLogo = !footerShowLogo))}
+								{@render Toggle(
+									'social links',
+									footerShowSocial,
+									() => (footerShowSocial = !footerShowSocial)
+								)}
+								{@render Toggle(
+									'legal links',
+									footerShowLegal,
+									() => (footerShowLegal = !footerShowLegal)
+								)}
 							{/snippet}
 						</div>
 					{/if}

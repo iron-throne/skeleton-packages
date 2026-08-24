@@ -89,7 +89,7 @@
 	<div class="flex w-full flex-wrap items-center gap-3.5 sm:w-auto">
 		{#if showPageSize}
 			<label class="flex items-center gap-1.5 text-[11px] text-tertiary">
-				<span>Rows</span>
+				<!-- <span>Rows</span> -->
 				<select
 					class="h-[30px]! w-14! appearance-auto! rounded-[5px]! bg-surface-primary! px-2! py-0! text-[11px]! leading-none! text-primary!"
 					value={pageSize}
