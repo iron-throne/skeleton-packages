@@ -68,6 +68,7 @@ export enum EInputType {
     COLOR = 'color',
     TEXTAREA = 'textarea',
     CHECKBOX = 'checkbox',
+    SWITCH = 'switch',
     RADIO = 'radio',
     RANGE = 'range',
     HIDDEN = 'hidden',

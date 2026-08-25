@@ -22,6 +22,7 @@
 	import IconPage from './routes/icon/Page.svelte';
 	import ImagePage from './routes/image/Page.svelte';
 	import InputPage from './routes/input/Page.svelte';
+	import InputFieldPage from './routes/input-field/Page.svelte';
 	import LoaderPage from './routes/loader/Page.svelte';
 	import NoDataPage from './routes/no-data/Page.svelte';
 	import OtpInputPage from './routes/otp-input/Page.svelte';
@@ -57,6 +58,7 @@
 		icon: IconPage,
 		image: ImagePage,
 		input: InputPage,
+		'input-field': InputFieldPage,
 		loader: LoaderPage,
 		'no-data': NoDataPage,
 		'otp-input': OtpInputPage,

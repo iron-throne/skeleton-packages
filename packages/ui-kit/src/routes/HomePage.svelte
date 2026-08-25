@@ -63,7 +63,7 @@
 				{
 					name: 'Input Field',
 					description: 'Labeled form controls and field states.',
-					href: '#/input'
+					href: '#/input-field'
 				},
 				{ name: 'No Data', description: 'Empty-state content and actions.', href: '#/no-data' },
 				{

@@ -1,4 +1,5 @@
 export { default as Breadcrumb } from './bread-crumb/Breadcrumb.svelte';
+export { default as Input } from './input/Input.svelte';
 export { default as AdvancedTable } from './advanced-table/AdvancedTable.svelte';
 export { default as AdvancedFolderHierarchy } from './advanced-folder-hierarchy/AdvancedFolderHierarchy.svelte';
 export type {
@@ -25,7 +26,7 @@ export { default as Dialog } from './dialog/Dialog.svelte';
 export type { DialogProps, DialogRadius, DialogVariant } from './dialog/types';
 export { default as Pagination } from './pagination/Pagination.svelte';
 export type { PaginationProps, PaginationVariant } from './pagination/types';
-export { default as RichTextEditor } from './rich-text-editor/RichTextEditor.svelte';
+export { default as RichTextEditor } from '../molecules/rich-text-editor/RichTextEditor.svelte';
 export { default as SearchSuggestions } from './search-suggestions/SearchSuggestions.svelte';
 export type {
 	SearchSuggestionAction,

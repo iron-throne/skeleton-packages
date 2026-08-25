@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { enhance } from '@aryagg/utils';
 	import { Save, ArrowClockwise, X } from 'svelte-bootstrap-icons';
-	import Input from '../../atoms/input/Input.svelte';
+	import Input from '../../organisms/input/Input.svelte';
 	import { loaderStore } from '$lib/stores/loader.svelte';
 	import {
 		type IForm,

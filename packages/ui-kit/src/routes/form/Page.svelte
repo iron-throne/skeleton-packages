@@ -36,6 +36,160 @@
 							{ label: 'Structure', value: 'structure' },
 							{ label: 'MEP', value: 'mep' }
 						]
+					},
+					{
+						key: 'projectId',
+						id: 'project-id',
+						label: 'Project id',
+						type: EInputType.HIDDEN,
+						value: 'CRL2-TCR'
+					}
+				]
+			},
+			{
+				id: 'contact',
+				title: 'Contact & access',
+				fields: [
+					{
+						key: 'phone',
+						id: 'phone',
+						label: 'Site phone',
+						type: EInputType.TEL,
+						value: '+44 20 7946 0958'
+					},
+					{
+						key: 'projectUrl',
+						id: 'project-url',
+						label: 'Project portal',
+						type: EInputType.URL,
+						value: 'https://crossrail2.example.com'
+					},
+					{
+						key: 'accessCode',
+						id: 'access-code',
+						label: 'Access code',
+						type: EInputType.PASSWORD,
+						value: 'CRL2-Secure!'
+					},
+					{
+						key: 'searchDocs',
+						id: 'search-docs',
+						label: 'Search documents',
+						type: EInputType.SEARCH,
+						value: '',
+						placeholder: 'Search drawings, RFIs…'
+					}
+				]
+			},
+			{
+				id: 'scheduling',
+				title: 'Scheduling & metrics',
+				fields: [
+					{
+						key: 'issueDate',
+						id: 'issue-date',
+						label: 'Issue date',
+						type: EInputType.DATE,
+						value: '2026-07-07'
+					},
+					{
+						key: 'reviewTime',
+						id: 'review-time',
+						label: 'Review time',
+						type: EInputType.TIME,
+						value: '09:30'
+					},
+					{
+						key: 'submissionDeadline',
+						id: 'submission-deadline',
+						label: 'Submission deadline',
+						type: EInputType.DATETIME_LOCAL,
+						value: '2026-08-30T17:00'
+					},
+					{
+						key: 'targetMonth',
+						id: 'target-month',
+						label: 'Target completion month',
+						type: EInputType.MONTH,
+						value: '2026-12'
+					},
+					{
+						key: 'sprintWeek',
+						id: 'sprint-week',
+						label: 'Sprint week',
+						type: EInputType.WEEK,
+						value: '2026-W35'
+					},
+					{
+						key: 'floorCount',
+						id: 'floor-count',
+						label: 'Floor count',
+						type: EInputType.NUMBER,
+						value: 6
+					},
+					{
+						key: 'markupColor',
+						id: 'markup-color',
+						label: 'Markup colour',
+						type: EInputType.COLOR,
+						value: '#ca0613'
+					},
+					{
+						key: 'completion',
+						id: 'completion',
+						label: 'Completion',
+						type: EInputType.RANGE,
+						value: 64,
+						attributes: { min: 0, max: 100 }
+					}
+				]
+			},
+			{
+				id: 'attachments',
+				title: 'Attachments',
+				fields: [
+					{
+						key: 'drawingFile',
+						id: 'drawing-file',
+						label: 'Upload drawing',
+						type: EInputType.FILE,
+						value: null,
+						helperText: 'Accepted: PDF, RVT, IFC, DWG',
+						attributes: { accept: '.pdf,.rvt,.ifc,.dwg' }
+					},
+					{
+						key: 'sitePhoto',
+						id: 'site-photo',
+						label: 'Site photo (image submit control)',
+						type: EInputType.IMAGE,
+						klass: 'w-auto! h-auto! border-none! bg-transparent! p-0!',
+						helperText: 'Native <input type="image"> — acts as a submit button.',
+						attributes: {
+							src: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='28' height='28'><rect width='28' height='28' rx='4' fill='%23ca0613'/></svg>",
+							alt: 'Submit with site photo',
+							width: 28,
+							height: 28
+						}
+					}
+				]
+			},
+			{
+				id: 'notes',
+				title: 'Notes',
+				fields: [
+					{
+						key: 'notes',
+						id: 'notes',
+						label: 'Review notes',
+						type: EInputType.TEXTAREA,
+						value: 'Coordinate riser clearance before next review.'
+					},
+					{
+						key: 'minutes',
+						id: 'minutes',
+						label: 'Meeting minutes',
+						type: EInputType.RICHTEXT,
+						value: '<p>Discussed clash detection results.</p>'
 					}
 				]
 			},
@@ -49,6 +203,53 @@
 						label: 'Notify project team on submit',
 						type: EInputType.CHECKBOX,
 						value: true
+					},
+					{
+						key: 'status',
+						id: 'status',
+						label: 'Workflow status',
+						type: EInputType.RADIO,
+						value: 'review',
+						options: [
+							{ label: 'Draft', value: 'draft' },
+							{ label: 'In review', value: 'review' },
+							{ label: 'Approved', value: 'approved' }
+						]
+					},
+					{
+						key: 'building',
+						id: 'building',
+						label: 'Building',
+						type: EInputType.SELECT_ADDNEW,
+						value: 'tower-a',
+						options: [
+							{ label: 'Tower A', value: 'tower-a' },
+							{ label: 'Tower B', value: 'tower-b' }
+						]
+					},
+					{
+						key: 'tags',
+						id: 'tags',
+						label: 'Tags',
+						type: EInputType.MULTISELECT,
+						value: ['structure'],
+						options: [
+							{ label: 'Architecture', value: 'architecture' },
+							{ label: 'Structure', value: 'structure' },
+							{ label: 'MEP', value: 'mep' }
+						]
+					},
+					{
+						key: 'disciplines',
+						id: 'disciplines',
+						label: 'Disciplines involved',
+						type: EInputType.MULTISELECT_ADDNEW,
+						value: ['architecture'],
+						options: [
+							{ label: 'Architecture', value: 'architecture' },
+							{ label: 'Structure', value: 'structure' },
+							{ label: 'MEP', value: 'mep' }
+						]
 					}
 				]
 			}
