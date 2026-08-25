@@ -3,17 +3,8 @@
 	import { onMount } from 'svelte';
 	import { ExclamationCircle } from 'svelte-bootstrap-icons';
 	import { applyDefaultRules } from '$lib/input-shared';
-	import CheckboxInput from '$atoms/input-types/checkbox-input/CheckboxInput.svelte';
-	import FileInput from '$atoms/input-types/file-input/FileInput.svelte';
-	import MultiSelectInput from '$atoms/input-types/multi-select-input/MultiSelectInput.svelte';
-	import PasswordInput from '$atoms/input-types/password-input/PasswordInput.svelte';
-	import RadioInput from '$atoms/input-types/radio-input/RadioInput.svelte';
-	import RangeInput from '$atoms/input-types/range-input/RangeInput.svelte';
-	import SelectInput from '$atoms/input-types/select-input/SelectInput.svelte';
-	import SwitchInput from '$atoms/input-types/switch-input/SwitchInput.svelte';
-	import TextareaInput from '$atoms/input-types/textarea-input/TextareaInput.svelte';
-	import TextInput from '$atoms/input-types/text-input/TextInput.svelte';
 	import RichTextBox from '$molecules/rich-text-box/RichTextBox.svelte';
+	import { TextInput, PasswordInput, TextareaInput, CheckboxInput, SwitchInput, RadioInput, RangeInput, FileInput, SelectInput, MultiSelectInput } from '$lib/atoms';
 
 	let {
 		field = $bindable(),
