@@ -26,5 +26,5 @@ export const INPUT_TYPE_CLASSES: Partial<Record<EInputType, string>> = {
     [EInputType.RICHTEXT]: 'min-h-[8rem] prose prose-sm max-w-none focus:outline-none',
     [EInputType.CHECKBOX]: 'w-4 h-4 rounded accent-accent cursor-pointer bg-surface-primary',
     [EInputType.RANGE]: 'flex-1 accent-accent cursor-pointer',
-    [EInputType.FILE]: 'file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-surface-secondary file:text-content-primary hover:file:bg-accent hover:file:text-surface-primary file:cursor-pointer file:transition disabled:opacity-50',
+    [EInputType.FILE]: 'h-10 py-0 flex items-center file:mr-4 file:py-1.5 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-medium file:bg-surface-secondary file:text-content-primary hover:file:bg-accent hover:file:text-surface-primary file:cursor-pointer file:transition disabled:opacity-50',
 };

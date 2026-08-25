@@ -3,8 +3,8 @@
 	import { onMount } from 'svelte';
 	import { ExclamationCircle } from 'svelte-bootstrap-icons';
 	import { applyDefaultRules } from '$lib/input-shared';
-	import RichTextBox from '$molecules/rich-text-box/RichTextBox.svelte';
 	import { TextInput, PasswordInput, TextareaInput, CheckboxInput, SwitchInput, RadioInput, RangeInput, FileInput, SelectInput, MultiSelectInput } from '$lib/atoms';
+	import { RichTextBox } from '$lib/molecules';
 
 	let {
 		field = $bindable(),
@@ -75,6 +75,6 @@
 			{field.errorMsg}
 		</p>
 	{:else if field.helperText}
-		<p class="text-tertiary text-[11px]">{field.helperText}</p>
+		<p class="text-tertiary text-[11px] pt-0.5">{field.helperText}</p>
 	{/if}
 </div>

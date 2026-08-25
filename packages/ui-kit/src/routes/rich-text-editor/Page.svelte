@@ -1,5 +1,5 @@
 <script lang="ts">
-	import RichTextEditor from '$lib/molecules/rich-text-editor/RichTextEditor.svelte';
+	import { RichTextEditor } from "$lib";
 
 	let content = $state(
 		'<h2>Project update</h2><p>Use the existing editor toolbar to format this content.</p>'

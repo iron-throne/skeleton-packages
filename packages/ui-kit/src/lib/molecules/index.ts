@@ -9,3 +9,4 @@ export { default as OtpInput } from './otp-input/Otp-input.svelte';
 export { default as Rating } from '../molecules/rating/Rating.svelte';
 export type { RatingProps } from '../molecules/rating/types';
 export { default as RichTextBox } from './rich-text-box/RichTextBox.svelte';
+export { default as RichTextEditor } from './rich-text-editor/RichTextEditor.svelte';

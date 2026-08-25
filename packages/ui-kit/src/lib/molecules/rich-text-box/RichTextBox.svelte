@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { IFormField } from '@aryagg/types';
-	import RichTextEditor from '$molecules/rich-text-editor/RichTextEditor.svelte';
 	import { emitValue } from '$lib/input-shared';
+	import RichTextEditor from '../rich-text-editor/RichTextEditor.svelte';
 
 	let { field = $bindable() }: { field: IFormField } = $props();
 

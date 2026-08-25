@@ -26,7 +26,6 @@ export { default as Dialog } from './dialog/Dialog.svelte';
 export type { DialogProps, DialogRadius, DialogVariant } from './dialog/types';
 export { default as Pagination } from './pagination/Pagination.svelte';
 export type { PaginationProps, PaginationVariant } from './pagination/types';
-export { default as RichTextEditor } from '../molecules/rich-text-editor/RichTextEditor.svelte';
 export { default as SearchSuggestions } from './search-suggestions/SearchSuggestions.svelte';
 export type {
 	SearchSuggestionAction,
