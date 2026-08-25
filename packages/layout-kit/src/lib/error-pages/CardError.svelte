@@ -1,12 +1,12 @@
 <script lang="ts">
 	import { ArrowClockwise, ArrowLeft, LightbulbOff } from 'svelte-bootstrap-icons';
 	import { errorTitle, errorHint } from '@aryagg/utils';
-	import type { EHttpStatus, IconType } from '@aryagg/types';
+	import { EHttpStatus, type IconType } from '@aryagg/types';
 	import { Icon } from '@aryagg/ui-kit';
 	import type { Snippet } from 'svelte';
 
 	let {
-		status = $bindable(500),
+		status = $bindable(EHttpStatus.INTERNAL_SERVER_ERROR),
 		message = $bindable('An unexpected error occurred'),
 		title = $bindable(errorTitle(status)),
 		hint = $bindable(errorHint(status, message)),

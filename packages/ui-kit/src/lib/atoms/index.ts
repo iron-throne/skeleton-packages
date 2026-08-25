@@ -37,7 +37,6 @@ export { default as SkeletonLoader } from './skeleton-loader/SkeletonLoader.svel
 export { default as Tooltip } from './tooltip/Tooltip.svelte';
 
 export type {
-	ButtonIconPosition,
 	ButtonProps,
 	ButtonRadius,
 	ButtonSize,
