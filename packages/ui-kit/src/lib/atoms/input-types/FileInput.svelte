@@ -5,7 +5,7 @@
 	let { field = $bindable() }: { field: IFormField } = $props();
 
 	const inputClass = $derived(
-		[inputBaseClass, INPUT_TYPE_CLASSES[EInputType.FILE] ?? '', 'py-1.5!', field.klass ?? '']
+		[inputBaseClass, INPUT_TYPE_CLASSES[EInputType.FILE] ?? '', field.klass ?? '']
 			.filter(Boolean)
 			.join(' ')
 	);
