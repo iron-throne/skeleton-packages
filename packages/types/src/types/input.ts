@@ -37,6 +37,7 @@ export interface IFormField {
     onFocus?: () => void;
     onInput?: () => void;
     onKeydown?: (e: KeyboardEvent) => void;
+    onAddOption?: (option: ISelectOption) => void;
 }
 
 export interface ISelectOption {

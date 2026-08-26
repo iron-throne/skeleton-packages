@@ -24,7 +24,9 @@
 			(o) => String(o.value).toLowerCase() === label.toLowerCase()
 		);
 		if (!existing) {
-			field.options = [...(field.options ?? []), { label, value: label }];
+			const newOption = { label, value: label };
+			field.options = [...(field.options ?? []), newOption];
+			field.onAddOption?.(newOption);
 		}
 		newOptionLabel = '';
 		return existing ? String(existing.value) : label;

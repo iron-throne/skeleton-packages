@@ -16,6 +16,12 @@ export const formatFileSize = (bytes: number): string => {
 export const isImageFile = (filename: string): boolean =>
     /\.(jpe?g|png|gif|webp|svg|bmp|ico|avif)$/i.test(filename);
 
+export const isVideoFile = (filename: string): boolean =>
+    /\.(mp4|webm|ogg|mov|avi|mkv|m4v|wmv|flv)$/i.test(filename);
+
+export const isIframeSupported = (filename: string): boolean =>
+    /\.(pdf|html?|txt)$/i.test(filename);
+
 export const isValidFileType = (file: File, allowedTypes: string[]): boolean =>
     allowedTypes.some((type) =>
         type.startsWith('.') ? file.name.toLowerCase().endsWith(type.toLowerCase()) : file.type === type
