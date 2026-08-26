@@ -46,9 +46,12 @@
 			(o) => String(o.label).toLowerCase() === label.toLowerCase()
 		);
 		if (!existing) {
-			const newOption = { label, value: label };
-			field.options = [...(field.options ?? []), newOption];
-			field.onAddOption?.(newOption);
+			if (field.onAddOption) {
+				field.onAddOption?.(label);
+			} else {
+				const newOption = { label, value: label };
+				field.options = [...(field.options ?? []), newOption];
+			}
 		}
 		toggleMultiValue(existing ? String(existing.value) : label, true);
 	}

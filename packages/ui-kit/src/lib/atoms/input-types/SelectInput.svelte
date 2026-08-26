@@ -1,7 +1,12 @@
 <script lang="ts">
 	import { EInputType, INPUT_TYPE_CLASSES, type IFormField } from '@aryagg/types';
 	import { ChevronDown, PlusLg } from 'svelte-bootstrap-icons';
-	import { buildAttributes, createDebouncedEmit, emitValue, inputBaseClass } from '$lib/input-shared';
+	import {
+		buildAttributes,
+		createDebouncedEmit,
+		emitValue,
+		inputBaseClass
+	} from '$lib/input-shared';
 
 	let { field = $bindable() }: { field: IFormField } = $props();
 
@@ -24,9 +29,12 @@
 			(o) => String(o.value).toLowerCase() === label.toLowerCase()
 		);
 		if (!existing) {
-			const newOption = { label, value: label };
-			field.options = [...(field.options ?? []), newOption];
-			field.onAddOption?.(newOption);
+			if (field.onAddOption) {
+				field.onAddOption?.(label);
+			} else {
+				const newOption = { label, value: label };
+				field.options = [...(field.options ?? []), newOption];
+			}
 		}
 		newOptionLabel = '';
 		return existing ? String(existing.value) : label;
@@ -34,12 +42,18 @@
 </script>
 
 <div class="relative">
-	<select id={field.id} {...attrs} onchange={(e) => emitValue(field, (e.target as HTMLSelectElement).value)}>
+	<select
+		id={field.id}
+		{...attrs}
+		onchange={(e) => emitValue(field, (e.target as HTMLSelectElement).value)}
+	>
 		{#if field.placeholder}
 			<option value="" disabled selected class="text-content-secondary">{field.placeholder}</option>
 		{/if}
 		{#each field.options ?? [] as opt (opt.value)}
-			<option value={opt.value} class="bg-surface-primary text-content-secondary">{opt.label}</option>
+			<option value={opt.value} class="bg-surface-primary text-content-secondary"
+				>{opt.label}</option
+			>
 		{/each}
 	</select>
 	<ChevronDown
