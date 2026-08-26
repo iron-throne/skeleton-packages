@@ -1,4 +1,5 @@
 import * as acad from '@node-projects/acad-ts';
+import { computeEntitiesBounds } from '@cadview/core';
 import { describeError, validateDxf } from './dwg-validation.js';
 
 const STANDARD_OUTPUT_CHARACTERS = 64 * 1024 * 1024;
@@ -80,7 +81,10 @@ function extractEmbeddedPreview(buffer) {
 	}
 }
 
-/** @param {unknown} value */
+/**
+ * @param {unknown} value
+ * @returns {value is number}
+ */
 function isFiniteNumber(value) {
 	return typeof value === 'number' && Number.isFinite(value);
 }
@@ -107,21 +111,45 @@ function parsedHandle(entity) {
 	return entity.handle?.toUpperCase() ?? '';
 }
 
-/** @param {import('@node-projects/acad-ts').Layout} layout */
-function layoutBounds(layout) {
-	const min = layout.minExtents;
-	const max = layout.maxExtents;
+/**
+ * @param {unknown} min
+ * @param {unknown} max
+ */
+function finiteBounds(min, max) {
+	if (min === null || typeof min !== 'object' || max === null || typeof max !== 'object') {
+		return undefined;
+	}
+	if (!('x' in min) || !('y' in min) || !('x' in max) || !('y' in max)) return undefined;
+	const minX = min.x;
+	const minY = min.y;
+	const maxX = max.x;
+	const maxY = max.y;
 	if (
-		min &&
-		max &&
-		isFiniteNumber(min.x) &&
-		isFiniteNumber(min.y) &&
-		isFiniteNumber(max.x) &&
-		isFiniteNumber(max.y) &&
-		max.x > min.x &&
-		max.y > min.y
+		isFiniteNumber(minX) &&
+		isFiniteNumber(minY) &&
+		isFiniteNumber(maxX) &&
+		isFiniteNumber(maxY) &&
+		maxX - minX > EPSILON &&
+		maxY - minY > EPSILON
 	) {
-		return { minX: min.x, minY: min.y, maxX: max.x, maxY: max.y };
+		return { minX, minY, maxX, maxY };
+	}
+	return undefined;
+}
+
+/**
+ * @param {import('@node-projects/acad-ts').Layout} layout
+ * @param {import('@node-projects/acad-ts').CadDocument} document
+ */
+function layoutBounds(layout, document) {
+	const savedBounds = finiteBounds(layout.minExtents, layout.maxExtents);
+	if (savedBounds) return savedBounds;
+	const activePaperSpace = document.paperSpace;
+	if (
+		layout === activePaperSpace?.layout ||
+		(layout.associatedBlock && layout.associatedBlock === activePaperSpace)
+	) {
+		return finiteBounds(document.header?.paperSpaceExtMin, document.header?.paperSpaceExtMax);
 	}
 	return undefined;
 }
@@ -227,13 +255,125 @@ function writeDxfWithHiddenCollection(document, collection, outputBudget, maxOut
 	}
 }
 
+/** @param {Iterable<unknown>} entities */
+function collectSourceHandles(entities) {
+	const handles = new Set();
+	let renderableCount = 0;
+	let missingHandleCount = 0;
+	let duplicateHandleCount = 0;
+	for (const entity of entities) {
+		if (!isRenderableEntity(entity)) continue;
+		renderableCount += 1;
+		const handle = sourceHandle(entity);
+		if (!handle) {
+			missingHandleCount += 1;
+			continue;
+		}
+		if (handles.has(handle)) {
+			duplicateHandleCount += 1;
+			continue;
+		}
+		handles.add(handle);
+	}
+	return { handles, renderableCount, missingHandleCount, duplicateHandleCount };
+}
+
+/**
+ * @param {import('@cadview/core').DxfDocument} combinedDocument
+ * @param {Iterable<unknown>} modelSourceEntities
+ * @param {Iterable<unknown>} paperSourceEntities
+ */
+function partitionCombinedDocument(combinedDocument, modelSourceEntities, paperSourceEntities) {
+	const modelSource = collectSourceHandles(modelSourceEntities);
+	const paperSource = collectSourceHandles(paperSourceEntities);
+	let intersectingSourceHandleCount = 0;
+	for (const handle of modelSource.handles) {
+		if (paperSource.handles.has(handle)) intersectingSourceHandleCount += 1;
+	}
+
+	const modelEntities = [];
+	const paperEntities = [];
+	const seenParsedHandles = new Set();
+	let missingParsedHandleCount = 0;
+	let duplicateParsedHandleCount = 0;
+	let unassignedParsedEntityCount = 0;
+	let ambiguousParsedEntityCount = 0;
+	for (const entity of combinedDocument.entities) {
+		const handle = parsedHandle(entity);
+		if (!handle) {
+			missingParsedHandleCount += 1;
+			continue;
+		}
+		if (seenParsedHandles.has(handle)) {
+			duplicateParsedHandleCount += 1;
+			continue;
+		}
+		seenParsedHandles.add(handle);
+		const inModel = modelSource.handles.has(handle);
+		const inPaper = paperSource.handles.has(handle);
+		if (inModel && inPaper) {
+			ambiguousParsedEntityCount += 1;
+		} else if (inModel) {
+			modelEntities.push(entity);
+		} else if (inPaper) {
+			paperEntities.push(entity);
+		} else {
+			unassignedParsedEntityCount += 1;
+		}
+	}
+
+	return {
+		modelEntities,
+		paperEntities,
+		modelSource,
+		paperSource,
+		missingParsedHandleCount,
+		duplicateParsedHandleCount,
+		unassignedParsedEntityCount,
+		ambiguousParsedEntityCount,
+		intersectingSourceHandleCount,
+		ambiguous:
+			modelSource.duplicateHandleCount > 0 ||
+			paperSource.duplicateHandleCount > 0 ||
+			intersectingSourceHandleCount > 0 ||
+			duplicateParsedHandleCount > 0 ||
+			ambiguousParsedEntityCount > 0
+	};
+}
+
+/**
+ * @param {import('@cadview/core').DxfDocument} combinedDocument
+ * @param {import('@cadview/core').DxfEntity[]} entities
+ * @param {string} decoder
+ * @param {boolean} requireEntities
+ */
+function documentPartition(combinedDocument, entities, decoder, requireEntities) {
+	if (requireEntities && entities.length === 0) {
+		throw new Error(`${decoder} found no renderable model-space entities.`);
+	}
+	const partition = {
+		...combinedDocument,
+		header: { ...combinedDocument.header },
+		entities
+	};
+	const bounds = computeEntitiesBounds(entities, partition);
+	if (bounds && ![bounds.minX, bounds.minY, bounds.maxX, bounds.maxY].every(Number.isFinite)) {
+		throw new Error(`${decoder} produced drawing geometry with invalid coordinates.`);
+	}
+	if (bounds) {
+		partition.header.extMin = { x: bounds.minX, y: bounds.minY, z: 0 };
+		partition.header.extMax = { x: bounds.maxX, y: bounds.maxY, z: 0 };
+	}
+	return partition;
+}
+
 /**
  * @param {import('@node-projects/acad-ts').Layout} layout
  * @param {import('@cadview/core').DxfDocument} modelDocument
+ * @param {{ minX: number, minY: number, maxX: number, maxY: number }} bounds
  */
-function buildLayoutPresentation(layout, modelDocument) {
-	const bounds = layoutBounds(layout);
-	if (!bounds || !layout.associatedBlock) {
+function buildLayoutPresentation(layout, modelDocument, bounds) {
+	if (!layout.associatedBlock) {
 		throw new Error('The saved paper layout has invalid drawing extents.');
 	}
 	const modelIndexByHandle = new Map(
@@ -278,6 +418,33 @@ function buildLayoutPresentation(layout, modelDocument) {
 			skippedViewportCount += 1;
 			continue;
 		}
+		const rawRectangle = {
+			minX: viewport.center.x - viewport.width / 2,
+			minY: viewport.center.y - viewport.height / 2,
+			maxX: viewport.center.x + viewport.width / 2,
+			maxY: viewport.center.y + viewport.height / 2
+		};
+		const sheetWidth = bounds.maxX - bounds.minX;
+		const sheetHeight = bounds.maxY - bounds.minY;
+		const coversSheet = viewport.width >= sheetWidth * 0.9 && viewport.height >= sheetHeight * 0.9;
+		const usesPaperCamera =
+			Math.abs(viewport.center.x - viewport.viewCenter.x) <= sheetWidth * 0.02 &&
+			Math.abs(viewport.center.y - viewport.viewCenter.y) <= sheetHeight * 0.02;
+		// acad-ts recomputes viewport ids and can mark a real floating viewport as the
+		// Paper viewport. The actual sheet camera covers the sheet and uses paper coords.
+		if (coversSheet && usesPaperCamera) continue;
+		const clipRectangle = {
+			minX: Math.max(rawRectangle.minX, bounds.minX),
+			minY: Math.max(rawRectangle.minY, bounds.minY),
+			maxX: Math.min(rawRectangle.maxX, bounds.maxX),
+			maxY: Math.min(rawRectangle.maxY, bounds.maxY)
+		};
+		if (
+			clipRectangle.maxX - clipRectangle.minX <= EPSILON ||
+			clipRectangle.maxY - clipRectangle.minY <= EPSILON
+		) {
+			continue;
+		}
 		let selected;
 		try {
 			selected = viewport.selectEntities();
@@ -314,10 +481,10 @@ function buildLayoutPresentation(layout, modelDocument) {
 		}
 		viewports.push({
 			id: sourceHandle(viewport) || `viewport-${viewportOrdinal}`,
-			minX: viewport.center.x - viewport.width / 2,
-			minY: viewport.center.y - viewport.height / 2,
-			maxX: viewport.center.x + viewport.width / 2,
-			maxY: viewport.center.y + viewport.height / 2,
+			minX: clipRectangle.minX,
+			minY: clipRectangle.minY,
+			maxX: clipRectangle.maxX,
+			maxY: clipRectangle.maxY,
 			centerX: viewport.center.x,
 			centerY: viewport.center.y,
 			viewCenterX: viewport.viewCenter.x,
@@ -349,7 +516,8 @@ function convertWithTypescript(buffer, maxOutputCharacters, presentationRequest)
 	});
 	const modelSpace = document.modelSpace;
 	if (!modelSpace) throw new Error('The TypeScript DWG decoder found no model space.');
-	if (modelSpace.entities.count === 0) {
+	const modelEntities = modelSpace.entities;
+	if (modelEntities.count === 0) {
 		if (aecObjectNotices > 0 || unsupportedObjectNotices > 0) {
 			throw new Error(
 				`This drawing contains no browser-renderable model-space entities. It relies on AutoCAD Architecture or Civil 3D AEC/custom objects (${aecObjectNotices} AEC and ${unsupportedObjectNotices} unsupported-object notices). Use its PDF/DXF export or flatten those objects to standard AutoCAD entities first.`
@@ -357,9 +525,9 @@ function convertWithTypescript(buffer, maxOutputCharacters, presentationRequest)
 		}
 		throw new Error('The TypeScript DWG decoder found no renderable model-space entities.');
 	}
-	if (modelSpace.entities.count > MAX_MODEL_ENTITIES) {
+	if (modelEntities.count > MAX_MODEL_ENTITIES) {
 		throw new Error(
-			`This drawing contains ${modelSpace.entities.count.toLocaleString('en-US')} model-space entities, exceeding the browser rendering safety limit of ${MAX_MODEL_ENTITIES.toLocaleString('en-US')}.`
+			`This drawing contains ${modelEntities.count.toLocaleString('en-US')} model-space entities, exceeding the browser rendering safety limit of ${MAX_MODEL_ENTITIES.toLocaleString('en-US')}.`
 		);
 	}
 
@@ -369,61 +537,179 @@ function convertWithTypescript(buffer, maxOutputCharacters, presentationRequest)
 		layoutAvailable &&
 		(presentationRequest === 'layout' ||
 			(presentationRequest === 'auto' && document.header?.showModelSpace === false));
-	const outputBudget = { characters: 0 };
-	const modelOutput = writeDxfWithHiddenCollection(
-		document,
-		document.paperSpace?.entities,
-		outputBudget,
-		maxOutputCharacters
-	);
-	const modelDocument = validateDxf(modelOutput.dxf, 'The TypeScript DWG decoder', true);
-	const warnings = [];
-	if (modelSpace.entities.count > modelDocument.entities.length) {
-		const omitted = modelSpace.entities.count - modelDocument.entities.length;
-		warnings.push(
-			`${omitted} model-space ${omitted === 1 ? 'entity was' : 'entities were'} omitted during conversion.`
-		);
-	}
+	const baseWarnings = [];
 	if (recoverableReadErrors > 0) {
-		warnings.push(
+		baseWarnings.push(
 			`The decoder recovered from ${recoverableReadErrors} ${recoverableReadErrors === 1 ? 'issue' : 'issues'}; verify this preview before relying on it.`
 		);
 	}
 
-	if (!useLayout || !layout) {
-		if (presentationRequest === 'layout' && !layoutAvailable) {
-			warnings.push('This drawing does not contain a populated browser-renderable paper layout.');
+	/**
+	 * @param {import('@cadview/core').DxfDocument} modelDocument
+	 * @param {string[]} warnings
+	 * @param {boolean} [verifiedLayoutAvailable]
+	 */
+	function modelResult(modelDocument, warnings, verifiedLayoutAvailable = layoutAvailable) {
+		const resultWarnings = [...warnings];
+		if (modelEntities.count > modelDocument.entities.length) {
+			const omitted = modelEntities.count - modelDocument.entities.length;
+			resultWarnings.push(
+				`${omitted} model-space ${omitted === 1 ? 'entity was' : 'entities were'} omitted during conversion.`
+			);
 		}
 		return {
 			document: modelDocument,
 			entityCount: modelDocument.entities.length,
 			decoder: 'typescript',
 			warningCode: 0,
-			warnings,
+			warnings: resultWarnings,
 			presentation: {
 				mode: 'model',
-				layoutAvailable,
+				layoutAvailable: verifiedLayoutAvailable,
 				layoutName: layout?.name
 			}
 		};
 	}
 
-	const paperOutput = writeDxfWithHiddenCollection(
-		document,
-		document.modelSpace?.entities,
-		outputBudget,
-		maxOutputCharacters
+	/**
+	 * @param {string[]} warnings
+	 * @param {boolean} [verifiedLayoutAvailable]
+	 */
+	function convertModelOnly(warnings, verifiedLayoutAvailable = layoutAvailable) {
+		const output = writeDxfWithHiddenCollection(
+			document,
+			document.paperSpace?.entities,
+			{ characters: 0 },
+			maxOutputCharacters
+		);
+		const modelDocument = validateDxf(output.dxf, 'The TypeScript DWG decoder', true);
+		output.dxf = '';
+		return modelResult(modelDocument, warnings, verifiedLayoutAvailable);
+	}
+
+	if (!useLayout || !layout) {
+		const warnings = [...baseWarnings];
+		if (presentationRequest === 'layout' && !layoutAvailable) {
+			warnings.push('This drawing does not contain a populated browser-renderable paper layout.');
+		}
+		return convertModelOnly(warnings);
+	}
+
+	const activePaperSpace = document.paperSpace;
+	if (!activePaperSpace || layout.associatedBlock !== activePaperSpace) {
+		const message = `Paper layout “${layout.name}” is not the active serializable paper space.`;
+		if (presentationRequest === 'layout') throw new Error(message);
+		return convertModelOnly([...baseWarnings, `${message} Showing Model space instead.`], false);
+	}
+	const bounds = layoutBounds(layout, document);
+	if (!bounds) {
+		const message = `Paper layout “${layout.name}” has invalid saved sheet bounds.`;
+		if (presentationRequest === 'layout') throw new Error(message);
+		return convertModelOnly([...baseWarnings, `${message} Showing Model space instead.`], false);
+	}
+
+	let combinedDocument;
+	try {
+		const combinedOutput = writeDxf(document, { characters: 0 }, maxOutputCharacters);
+		combinedDocument = validateDxf(combinedOutput.dxf, 'The TypeScript DWG decoder', true);
+		combinedOutput.dxf = '';
+	} catch (cause) {
+		if (presentationRequest === 'layout') throw cause;
+		return convertModelOnly(
+			[
+				...baseWarnings,
+				`Paper layout “${layout.name}” could not be serialized locally; showing Model space instead. ${describeError(cause)}`
+			],
+			false
+		);
+	}
+
+	const partition = partitionCombinedDocument(
+		combinedDocument,
+		modelEntities,
+		layout.associatedBlock.entities
 	);
-	const paperDocument = validateDxf(paperOutput.dxf, 'The paper-space DWG decoder', false);
-	const layoutPresentation = buildLayoutPresentation(layout, modelDocument);
+	if (partition.ambiguous) {
+		const message = `Paper layout “${layout.name}” has ambiguous entity handles and cannot be separated safely.`;
+		if (presentationRequest === 'layout') throw new Error(message);
+		return convertModelOnly([...baseWarnings, `${message} Showing Model space instead.`], false);
+	}
+
+	let modelDocument;
+	let paperDocument;
+	let layoutPresentation;
+	try {
+		modelDocument = documentPartition(
+			combinedDocument,
+			partition.modelEntities,
+			'The TypeScript DWG decoder',
+			true
+		);
+		paperDocument = documentPartition(
+			combinedDocument,
+			partition.paperEntities,
+			'The paper-space DWG decoder',
+			false
+		);
+		layoutPresentation = buildLayoutPresentation(layout, modelDocument, bounds);
+	} catch (cause) {
+		if (presentationRequest === 'layout') throw cause;
+		if (partition.modelEntities.length === 0) throw cause;
+		const fallbackDocument = documentPartition(
+			combinedDocument,
+			partition.modelEntities,
+			'The TypeScript DWG decoder',
+			true
+		);
+		return modelResult(
+			fallbackDocument,
+			[
+				...baseWarnings,
+				`Paper layout “${layout.name}” could not be composed locally; showing Model space instead. ${describeError(cause)}`
+			],
+			false
+		);
+	}
+
+	const warnings = [...baseWarnings];
+	if (modelEntities.count > modelDocument.entities.length) {
+		const omitted = modelEntities.count - modelDocument.entities.length;
+		warnings.push(
+			`${omitted} model-space ${omitted === 1 ? 'entity was' : 'entities were'} omitted during conversion.`
+		);
+	}
+	const omittedRenderablePaperEntities = Math.max(
+		0,
+		partition.paperSource.renderableCount - paperDocument.entities.length
+	);
+	if (omittedRenderablePaperEntities > 0) {
+		warnings.push(
+			`${omittedRenderablePaperEntities} renderable paper-space ${omittedRenderablePaperEntities === 1 ? 'entity was' : 'entities were'} omitted during conversion.`
+		);
+	}
+	const unassignedConvertedEntities =
+		partition.missingParsedHandleCount + partition.unassignedParsedEntityCount;
+	if (unassignedConvertedEntities > 0) {
+		warnings.push(
+			`${unassignedConvertedEntities} converted ${unassignedConvertedEntities === 1 ? 'entity could' : 'entities could'} not be assigned to Model or Paper space.`
+		);
+	}
+	const missingSourceHandles =
+		partition.modelSource.missingHandleCount + partition.paperSource.missingHandleCount;
+	if (missingSourceHandles > 0) {
+		warnings.push(
+			`${missingSourceHandles} source ${missingSourceHandles === 1 ? 'entity had' : 'entities had'} no stable handle and could not be placed reliably.`
+		);
+	}
+
 	paperDocument.header.extMin = {
-		x: layoutPresentation.bounds.minX,
-		y: layoutPresentation.bounds.minY,
+		x: bounds.minX,
+		y: bounds.minY,
 		z: 0
 	};
 	paperDocument.header.extMax = {
-		x: layoutPresentation.bounds.maxX,
-		y: layoutPresentation.bounds.maxY,
+		x: bounds.maxX,
+		y: bounds.maxY,
 		z: 0
 	};
 	const unsupportedPaperEntities = [...(layout.associatedBlock?.entities ?? [])].filter(

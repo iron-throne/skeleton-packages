@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import {
 		CadViewer,
+		type DxfEntity,
 		type DxfLayer,
 		type MeasureEvent,
 		type SelectEvent,
@@ -17,7 +18,11 @@
 		type DwgPresentation,
 		type DwgPresentationRequest
 	} from '../utils/dwg-converter';
-	import { DwgLayoutViewer } from '../utils/dwg-layout-viewer';
+	import {
+		DwgLayoutViewer,
+		type DwgLayoutMeasureEvent,
+		type DwgLayoutSelection
+	} from '../utils/dwg-layout-viewer';
 
 	type LoadStage = 'source' | 'validation' | 'conversion' | 'rendering';
 
@@ -58,14 +63,18 @@
 	let errorDetails = $state('');
 	let status = $state('Reading drawing...');
 	let warningMessage = $state('');
+	let warningDismissed = $state(false);
 	let embeddedPreviewUrl = $state('');
 	let replacementError = $state('');
 	let tool = $state<Tool>('pan');
 	let layers = $state<DxfLayer[]>([]);
 	let layerVisibility = $state<Record<string, boolean>>({});
 	let layersOpen = $state(false);
+	let viewsOpen = $state(false);
+	let propertiesOpen = $state(false);
 	let selectedTitle = $state('Nothing selected');
 	let selectedDetails = $state('Choose Select, then click an entity in the drawing.');
+	let selectedProperties = $state<Array<{ label: string; value: string }>>([]);
 	let largeFilePrompt = $state(false);
 	let largeFileSize = $state(0);
 	let largeFileName = $state('large drawing.dwg');
@@ -203,6 +212,8 @@
 		viewer?.off('measure', measured);
 		viewer?.destroy();
 		viewer = undefined;
+		layoutViewer?.off('select', layoutEntitySelected);
+		layoutViewer?.off('measure', layoutMeasured);
 		layoutViewer?.destroy();
 		layoutViewer = undefined;
 	}
@@ -212,13 +223,141 @@
 		layoutViewer?.fitToView();
 	}
 
+	function zoomDrawing(factor: number) {
+		if (viewer) {
+			viewer.zoomTo(viewer.getViewTransform().scale * factor);
+		}
+		layoutViewer?.zoomBy(factor);
+	}
+
 	function setDrawingLayerVisible(name: string, visible: boolean) {
 		viewer?.setLayerVisible(name, visible);
 		layoutViewer?.setLayerVisible(name, visible);
 	}
 
+	function pointValue(point: { x: number; y: number; z?: number }) {
+		return `${point.x.toFixed(3)}, ${point.y.toFixed(3)}${point.z ? `, ${point.z.toFixed(3)}` : ''}`;
+	}
+
+	function entityPropertyRows(entity: DxfEntity): Array<{ label: string; value: string }> {
+		const common = [
+			{ label: 'Linetype', value: entity.lineType || 'BYLAYER' },
+			{ label: 'Lineweight', value: String(entity.lineWeight) },
+			{
+				label: 'Color',
+				value:
+					entity.trueColor === undefined
+						? `ACI ${entity.color}`
+						: `#${entity.trueColor.toString(16).padStart(6, '0').toUpperCase()}`
+			}
+		];
+		switch (entity.type) {
+			case 'LINE':
+				return [
+					...common,
+					{ label: 'Start', value: pointValue(entity.start) },
+					{ label: 'End', value: pointValue(entity.end) },
+					{
+						label: 'Length',
+						value: Math.hypot(entity.end.x - entity.start.x, entity.end.y - entity.start.y).toFixed(
+							3
+						)
+					}
+				];
+			case 'CIRCLE':
+				return [
+					...common,
+					{ label: 'Center', value: pointValue(entity.center) },
+					{ label: 'Radius', value: entity.radius.toFixed(3) }
+				];
+			case 'ARC':
+				return [
+					...common,
+					{ label: 'Center', value: pointValue(entity.center) },
+					{ label: 'Radius', value: entity.radius.toFixed(3) },
+					{ label: 'Start angle', value: `${entity.startAngle.toFixed(2)}°` },
+					{ label: 'End angle', value: `${entity.endAngle.toFixed(2)}°` }
+				];
+			case 'LWPOLYLINE':
+			case 'POLYLINE':
+				return [
+					...common,
+					{ label: 'Vertices', value: entity.vertices.length.toLocaleString('en-US') },
+					{ label: 'Closed', value: entity.closed ? 'Yes' : 'No' }
+				];
+			case 'ELLIPSE':
+				return [
+					...common,
+					{ label: 'Center', value: pointValue(entity.center) },
+					{ label: 'Minor ratio', value: entity.minorRatio.toFixed(5) }
+				];
+			case 'SPLINE':
+				return [
+					...common,
+					{ label: 'Degree', value: String(entity.degree) },
+					{ label: 'Control points', value: entity.controlPoints.length.toLocaleString('en-US') }
+				];
+			case 'TEXT':
+			case 'MTEXT':
+				return [
+					...common,
+					{ label: 'Text', value: entity.text || '—' },
+					{ label: 'Insertion', value: pointValue(entity.insertionPoint) },
+					{ label: 'Height', value: entity.height.toFixed(3) },
+					{ label: 'Style', value: entity.style || 'Standard' }
+				];
+			case 'INSERT':
+				return [
+					...common,
+					{ label: 'Block', value: entity.blockName },
+					{ label: 'Insertion', value: pointValue(entity.insertionPoint) },
+					{
+						label: 'Scale',
+						value: `${entity.scaleX.toFixed(4)}, ${entity.scaleY.toFixed(4)}, ${entity.scaleZ.toFixed(4)}`
+					},
+					{ label: 'Rotation', value: `${entity.rotation.toFixed(2)}°` },
+					...(entity.attribs.length
+						? [
+								{
+									label: 'Attributes',
+									value: entity.attribs
+										.slice(0, 12)
+										.map((attribute) => `${attribute.tag}=${attribute.text}`)
+										.join(' · ')
+								}
+							]
+						: [])
+				];
+			case 'DIMENSION':
+				return [
+					...common,
+					{ label: 'Style', value: entity.dimStyle || 'Standard' },
+					{ label: 'Definition', value: pointValue(entity.defPoint) },
+					{ label: 'Text', value: entity.textOverride || '<>' }
+				];
+			case 'HATCH':
+				return [
+					...common,
+					{ label: 'Pattern', value: entity.patternName },
+					{ label: 'Solid fill', value: entity.solidFill ? 'Yes' : 'No' },
+					{ label: 'Boundaries', value: entity.boundaryPaths.length.toLocaleString('en-US') }
+				];
+			case 'POINT':
+				return [...common, { label: 'Position', value: pointValue(entity.position) }];
+		}
+	}
+
 	function entitySelected(event: SelectEvent) {
 		selectedTitle = event.entity.type;
+		selectedProperties = [
+			{ label: 'Space', value: 'Model' },
+			{ label: 'Type', value: event.entity.type },
+			{ label: 'Layer', value: event.entity.layer || '0' },
+			...(event.entity.handle ? [{ label: 'Handle', value: event.entity.handle }] : []),
+			...entityPropertyRows(event.entity),
+			{ label: 'X', value: event.worldPoint.x.toFixed(3) },
+			{ label: 'Y', value: event.worldPoint.y.toFixed(3) }
+		];
 		selectedDetails = [
 			`Layer: ${event.entity.layer || '0'}`,
 			event.entity.handle ? `Handle: ${event.entity.handle}` : '',
@@ -230,7 +369,81 @@
 
 	function measured(event: MeasureEvent) {
 		selectedTitle = 'Measurement';
+		selectedProperties = [
+			{ label: 'Distance', value: event.distance.toFixed(3) },
+			{ label: 'Angle', value: `${event.angle.toFixed(2)}°` },
+			{ label: 'ΔX', value: event.deltaX.toFixed(3) },
+			{ label: 'ΔY', value: event.deltaY.toFixed(3) }
+		];
 		selectedDetails = `Distance: ${event.distance.toFixed(3)} · Angle: ${event.angle.toFixed(2)}° · ΔX: ${event.deltaX.toFixed(3)} · ΔY: ${event.deltaY.toFixed(3)}`;
+	}
+
+	function layoutEntitySelected(selection: DwgLayoutSelection | null) {
+		if (!selection) {
+			selectedTitle = 'Nothing selected';
+			selectedDetails = 'Choose Select, then click an entity or viewport in the sheet.';
+			selectedProperties = [];
+			return;
+		}
+		if (selection.kind === 'viewport') {
+			selectedTitle = 'VIEWPORT';
+			selectedDetails = `Paper viewport ${selection.viewportId} · Scale 1:${(1 / selection.viewportScale).toFixed(2)}`;
+			selectedProperties = [
+				{ label: 'Space', value: 'Paper' },
+				{ label: 'Type', value: 'VIEWPORT' },
+				{ label: 'Viewport', value: selection.viewportId },
+				{ label: 'Scale', value: `1:${(1 / selection.viewportScale).toFixed(2)}` },
+				{ label: 'Paper X', value: selection.paperPoint.x.toFixed(3) },
+				{ label: 'Paper Y', value: selection.paperPoint.y.toFixed(3) }
+			];
+			return;
+		}
+
+		const entity = selection.entity;
+		selectedTitle = entity.type;
+		selectedProperties = [
+			{ label: 'Space', value: selection.space === 'model' ? 'Model through viewport' : 'Paper' },
+			{ label: 'Type', value: entity.type },
+			{ label: 'Layer', value: entity.layer || '0' },
+			...(entity.handle ? [{ label: 'Handle', value: entity.handle }] : []),
+			...entityPropertyRows(entity),
+			...(selection.viewportId ? [{ label: 'Viewport', value: selection.viewportId }] : []),
+			...(selection.viewportScale
+				? [{ label: 'Viewport scale', value: `1:${(1 / selection.viewportScale).toFixed(2)}` }]
+				: []),
+			{ label: 'Paper X', value: selection.paperPoint.x.toFixed(3) },
+			{ label: 'Paper Y', value: selection.paperPoint.y.toFixed(3) },
+			...(selection.modelPoint
+				? [
+						{ label: 'Model X', value: selection.modelPoint.x.toFixed(3) },
+						{ label: 'Model Y', value: selection.modelPoint.y.toFixed(3) }
+					]
+				: [])
+		];
+		selectedDetails = [
+			`Space: ${selection.space === 'model' ? 'Model' : 'Paper'}`,
+			`Layer: ${entity.layer || '0'}`,
+			entity.handle ? `Handle: ${entity.handle}` : '',
+			selection.viewportId ? `Viewport: ${selection.viewportId}` : ''
+		]
+			.filter(Boolean)
+			.join(' · ');
+	}
+
+	function layoutMeasured(event: DwgLayoutMeasureEvent) {
+		measured(event);
+		selectedProperties = [
+			{ label: 'Space', value: event.space === 'model' ? 'Model' : 'Paper' },
+			...(event.viewportId ? [{ label: 'Viewport', value: event.viewportId }] : []),
+			...selectedProperties
+		];
+		selectedDetails = `${event.space === 'model' ? 'Model' : 'Paper'}${event.viewportId ? ` · Viewport ${event.viewportId}` : ''} · ${selectedDetails}`;
+	}
+
+	function togglePanel(panel: 'views' | 'layers' | 'properties') {
+		viewsOpen = panel === 'views' ? !viewsOpen : false;
+		layersOpen = panel === 'layers' ? !layersOpen : false;
+		propertiesOpen = panel === 'properties' ? !propertiesOpen : false;
 	}
 
 	async function prepare(
@@ -253,12 +466,14 @@
 		errorDetails = '';
 		status = 'Reading drawing...';
 		warningMessage = '';
+		warningDismissed = false;
 		presentation = undefined;
 		replacementError = '';
 		clearEmbeddedPreview();
 		largeFilePrompt = false;
 		layers = [];
 		layerVisibility = {};
+		selectedProperties = [];
 		try {
 			if (!allowLargeFile && typeof candidate !== 'string') {
 				if (candidate.size > LARGE_DWG_INPUT_BYTES) {
@@ -335,6 +550,8 @@
 					conversion.paperDocument,
 					conversion.presentation
 				);
+				layoutViewer.on('select', layoutEntitySelected);
+				layoutViewer.on('measure', layoutMeasured);
 				if (layoutViewer.omittedPaperEntityCount > 0) {
 					warningMessage = [
 						warningMessage,
@@ -346,7 +563,7 @@
 				layers = layoutViewer.getLayers();
 				selectedTitle = `Sheet: ${conversion.presentation.layoutName || 'Paper layout'}`;
 				selectedDetails =
-					'Pan or zoom the composed sheet. Switch to Model for entity selection and measurements.';
+					'Use Select to inspect paper or viewport entities, or Measure within one viewport.';
 			} else {
 				viewer = new CadViewer(canvas, {
 					theme: 'dark',
@@ -452,9 +669,9 @@
 	}
 
 	function setTool(nextTool: Tool) {
-		if (presentation?.mode === 'layout' && nextTool !== 'pan') return;
 		tool = nextTool;
 		viewer?.setTool(nextTool);
+		layoutViewer?.setTool(nextTool);
 	}
 
 	function switchPresentation(next: 'model' | 'layout') {
@@ -506,6 +723,12 @@
 		<div
 			class="absolute left-3 top-3 flex flex-wrap gap-1.5 rounded-xl border border-white/10 bg-slate-950/85 p-1.5 shadow-xl backdrop-blur"
 		>
+			<button
+				type="button"
+				onclick={() => togglePanel('views')}
+				class={`rounded-lg px-3 py-2 text-xs font-semibold ${viewsOpen ? 'bg-blue-600 text-white' : 'text-slate-300 hover:bg-white/10'}`}
+				>Views</button
+			>
 			{#if presentation?.layoutAvailable}
 				<button
 					type="button"
@@ -528,7 +751,21 @@
 				class="rounded-lg px-3 py-2 text-xs font-semibold text-slate-200 hover:bg-white/10"
 				>Fit</button
 			>
-			{#each presentation?.mode === 'layout' ? ['pan'] : ['pan', 'select', 'measure'] as mode (mode)}
+			<button
+				type="button"
+				onclick={() => zoomDrawing(0.8)}
+				aria-label="Zoom out"
+				class="rounded-lg px-2.5 py-2 text-xs font-semibold text-slate-200 hover:bg-white/10"
+				>−</button
+			>
+			<button
+				type="button"
+				onclick={() => zoomDrawing(1.25)}
+				aria-label="Zoom in"
+				class="rounded-lg px-2.5 py-2 text-xs font-semibold text-slate-200 hover:bg-white/10"
+				>+</button
+			>
+			{#each ['pan', 'select', 'measure'] as mode (mode)}
 				<button
 					type="button"
 					onclick={() => setTool(mode as Tool)}
@@ -538,15 +775,51 @@
 			{/each}
 			<button
 				type="button"
-				onclick={() => (layersOpen = !layersOpen)}
+				onclick={() => togglePanel('layers')}
 				class={`rounded-lg px-3 py-2 text-xs font-semibold ${layersOpen ? 'bg-blue-600 text-white' : 'text-slate-300 hover:bg-white/10'}`}
 				>Layers</button
 			>
+			<button
+				type="button"
+				onclick={() => togglePanel('properties')}
+				class={`rounded-lg px-3 py-2 text-xs font-semibold ${propertiesOpen ? 'bg-blue-600 text-white' : 'text-slate-300 hover:bg-white/10'}`}
+				>Properties</button
+			>
 		</div>
+
+		{#if viewsOpen}
+			<aside
+				class="absolute bottom-16 left-3 top-16 flex w-72 flex-col overflow-hidden rounded-xl border border-white/10 bg-slate-950/92 text-slate-200 shadow-2xl backdrop-blur"
+			>
+				<div class="border-b border-white/10 px-4 py-3">
+					<p class="text-xs font-semibold">Views</p>
+					<p class="mt-0.5 text-[11px] text-slate-400">Model and drawing sheets</p>
+				</div>
+				<div class="space-y-1 p-2">
+					<button
+						type="button"
+						onclick={() => switchPresentation('model')}
+						class={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-xs ${presentation?.mode === 'model' ? 'bg-blue-600 text-white' : 'hover:bg-white/5'}`}
+					>
+						<span>2D Model</span><span class="text-[10px] opacity-70">Model</span>
+					</button>
+					{#if presentation?.layoutAvailable}
+						<button
+							type="button"
+							onclick={() => switchPresentation('layout')}
+							class={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-xs ${presentation?.mode === 'layout' ? 'bg-blue-600 text-white' : 'hover:bg-white/5'}`}
+						>
+							<span>{presentation.layoutName || 'Paper layout'}</span>
+							<span class="text-[10px] opacity-70">Sheet</span>
+						</button>
+					{/if}
+				</div>
+			</aside>
+		{/if}
 
 		{#if layersOpen}
 			<aside
-				class="absolute bottom-16 right-3 top-16 flex w-64 flex-col overflow-hidden rounded-xl border border-white/10 bg-slate-950/92 text-slate-200 shadow-2xl backdrop-blur"
+				class="absolute bottom-16 left-3 top-16 flex w-72 flex-col overflow-hidden rounded-xl border border-white/10 bg-slate-950/92 text-slate-200 shadow-2xl backdrop-blur"
 			>
 				<div class="border-b border-white/10 px-4 py-3">
 					<p class="text-xs font-semibold">Drawing layers</p>
@@ -570,6 +843,35 @@
 			</aside>
 		{/if}
 
+		{#if propertiesOpen}
+			<aside
+				class="absolute bottom-16 left-3 top-16 flex w-80 flex-col overflow-hidden rounded-xl border border-white/10 bg-slate-950/92 text-slate-200 shadow-2xl backdrop-blur"
+			>
+				<div class="border-b border-white/10 px-4 py-3">
+					<p class="text-xs font-semibold">Properties</p>
+					<p class="mt-0.5 truncate text-[11px] text-slate-400">{selectedTitle}</p>
+				</div>
+				<div class="min-h-0 flex-1 overflow-y-auto p-3">
+					{#if selectedProperties.length}
+						<dl class="space-y-1.5">
+							{#each selectedProperties as property (`${property.label}:${property.value}`)}
+								<div
+									class="grid grid-cols-[7rem_1fr] gap-2 rounded-lg bg-white/[0.04] px-3 py-2 text-xs"
+								>
+									<dt class="text-slate-400">{property.label}</dt>
+									<dd class="min-w-0 break-words text-slate-100">{property.value}</dd>
+								</div>
+							{/each}
+						</dl>
+					{:else}
+						<p class="text-xs leading-5 text-slate-400">
+							Choose Select, then click a rendered entity or viewport to inspect it.
+						</p>
+					{/if}
+				</div>
+			</aside>
+		{/if}
+
 		<div
 			class="absolute bottom-3 left-3 right-3 rounded-xl border border-white/10 bg-slate-950/85 px-4 py-3 text-slate-200 shadow-xl backdrop-blur sm:right-auto sm:max-w-xl"
 		>
@@ -578,11 +880,17 @@
 		</div>
 	{/if}
 
-	{#if !loading && !errorMessage && warningMessage}
+	{#if !loading && !errorMessage && warningMessage && !warningDismissed}
 		<div
-			class="absolute right-3 top-3 max-w-md rounded-xl border border-amber-300/30 bg-amber-950/90 px-4 py-3 text-left text-amber-100 shadow-xl backdrop-blur"
+			class="absolute right-3 top-3 max-h-36 max-w-sm overflow-y-auto rounded-xl border border-amber-300/30 bg-amber-950/90 px-4 py-3 pr-10 text-left text-amber-100 shadow-xl backdrop-blur"
 			role="status"
 		>
+			<button
+				type="button"
+				onclick={() => (warningDismissed = true)}
+				class="absolute right-2 top-2 grid size-6 place-items-center rounded-md text-amber-200/70 hover:bg-white/10 hover:text-white"
+				aria-label="Dismiss DWG warning">×</button
+			>
 			<p class="text-xs font-semibold">DWG opened with a warning</p>
 			<p class="mt-1 text-xs leading-5 text-amber-200/80">{warningMessage}</p>
 		</div>
