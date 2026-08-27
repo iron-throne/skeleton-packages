@@ -40,7 +40,7 @@
 
 <div class="flex flex-col gap-1 {parentKlass}">
 	<!-- Label (types that render their own label inline, after their peer input, are excluded here) -->
-	{#if !field.hideLabel && field.type !== EInputType.HIDDEN && field.type !== EInputType.PASSWORD}
+	{#if !field.hideLabel && field.type !== EInputType.HIDDEN}
 		{@render labelBlock()}
 	{/if}
 
