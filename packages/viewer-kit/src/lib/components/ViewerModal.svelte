@@ -39,6 +39,7 @@
 		if (event.target === event.currentTarget) close();
 	}
 	function keydown(event: KeyboardEvent) {
+		if (event.defaultPrevented) return;
 		if (event.key === 'Escape') close();
 	}
 </script>

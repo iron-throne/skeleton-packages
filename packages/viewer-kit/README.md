@@ -45,6 +45,8 @@ DWG is decoded by local browser workers and rendered as an interactive 2D drawin
 <FileViewer source={dwgFile} fileName={dwgFile.name} />
 ```
 
+The DWG toolbar also includes a browser-local review layer. Reviewers can draw freehand strokes, arrows, and rectangles; place text and comment pins; resolve or reopen comments; delete marks; and use undo/redo. Markups are stored in drawing coordinates, so they remain aligned while panning, zooming, or switching between Model and the saved Sheet. Completed edits are saved automatically in this browser, while **Save** writes immediately. **Export** creates a validated `*.dwg-review.json` sidecar for sharing or backup, and **Import** restores a matching review. This never writes into or changes the source DWG, and local saves do not synchronize between devices without exporting the JSON or adding a backend.
+
 Local files should come from a browser file input. A Windows path such as `C:/Models/building.ifc` is not a browser-readable URL:
 
 ```svelte

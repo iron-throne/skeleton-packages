@@ -6,8 +6,10 @@
 		type DxfLayer,
 		type MeasureEvent,
 		type SelectEvent,
-		type Tool
+		type Tool,
+		type ViewTransform
 	} from '@cadview/core';
+	import DwgMarkupOverlay, { type DwgMarkupTool } from './DwgMarkupOverlay.svelte';
 	import type { BaseViewerProps, ViewerOpenRequest, ViewerSource } from '../types';
 	import {
 		DwgConversionError,
@@ -23,7 +25,19 @@
 		type DwgLayoutMeasureEvent,
 		type DwgLayoutSelection
 	} from '../utils/dwg-layout-viewer';
-
+	import {
+		DWG_REVIEW_LIMITS,
+		createDwgDrawingIdentity,
+		createDwgReviewDocument,
+		dwgReviewExportFileName,
+		loadDwgReviewDocument,
+		parseDwgReviewDocumentJson,
+		saveDwgReviewDocument,
+		type DwgDrawingIdentity,
+		type DwgMarkup,
+		type DwgReviewDocumentV1,
+		type DwgReviewPresentation
+	} from '../utils/dwg-markup';
 	type LoadStage = 'source' | 'validation' | 'conversion' | 'rendering';
 
 	interface Props extends BaseViewerProps {
@@ -56,6 +70,7 @@
 	let canvas: HTMLCanvasElement;
 	let fileInput: HTMLInputElement;
 	let pdfInput: HTMLInputElement;
+	let reviewInput: HTMLInputElement;
 	let viewer: CadViewer | undefined;
 	let layoutViewer: DwgLayoutViewer | undefined;
 	let loading = $state(true);
@@ -72,6 +87,19 @@
 	let layersOpen = $state(false);
 	let viewsOpen = $state(false);
 	let propertiesOpen = $state(false);
+	let markupOpen = $state(false);
+	let markupTool = $state<DwgMarkupTool>('navigate');
+	let markupColor = $state('#ef4444');
+	let markupStrokeWidth = $state(3);
+	let markupDraftText = $state('');
+	let selectedMarkupId = $state<string>();
+	let reviewDocument = $state<DwgReviewDocumentV1>();
+	let reviewIdentity = $state<DwgDrawingIdentity>();
+	let reviewUndo = $state<DwgMarkup[][]>([]);
+	let reviewRedo = $state<DwgMarkup[][]>([]);
+	let reviewMessage = $state('');
+	let reviewError = $state('');
+	let viewTransform = $state<ViewTransform>({ scale: 1, offsetX: 0, offsetY: 0 });
 	let selectedTitle = $state('Nothing selected');
 	let selectedDetails = $state('Choose Select, then click an entity in the drawing.');
 	let selectedProperties = $state<Array<{ label: string; value: string }>>([]);
@@ -85,6 +113,18 @@
 	let disposed = false;
 	let loadGeneration = 0;
 	let loadController: AbortController | undefined;
+	let activePresentationId = $derived(reviewPresentationId(presentation));
+	let currentReviewMarkups = $derived(
+		(reviewDocument?.markups ?? []).filter(
+			(markup) => markup.presentationId === activePresentationId
+		)
+	);
+	let currentReviewComments = $derived(
+		currentReviewMarkups.filter((markup) => markup.type === 'comment')
+	);
+	let selectedMarkup = $derived(
+		reviewDocument?.markups.find((markup) => markup.id === selectedMarkupId)
+	);
 
 	function isLocalPath(value: string) {
 		return /^(?:[a-zA-Z]:[\\/]|file:\/\/|\\\\)/.test(value.trim());
@@ -138,6 +178,254 @@
 		}
 		const clean = candidate.split(/[?#]/, 1)[0];
 		return decodeURIComponent(clean.split('/').pop() || title);
+	}
+
+	function shortHash(value: string) {
+		let hash = 0x811c9dc5;
+		for (let index = 0; index < value.length; index += 1) {
+			hash ^= value.charCodeAt(index);
+			hash = Math.imul(hash, 0x01000193);
+		}
+		return (hash >>> 0).toString(16).padStart(8, '0');
+	}
+
+	function reviewPresentationId(value: DwgPresentation | undefined) {
+		if (value?.mode !== 'layout') return 'model';
+		return `layout:${shortHash(value.layoutName || 'Paper layout')}`;
+	}
+
+	function reviewPresentation(value: DwgPresentation): DwgReviewPresentation {
+		if (value.mode === 'model') return { id: 'model', mode: 'model', label: 'Model' };
+		const layoutName = value.layoutName || 'Paper layout';
+		return {
+			id: reviewPresentationId(value),
+			mode: 'layout',
+			layoutName,
+			label: layoutName
+		};
+	}
+
+	function drawingReviewIdentity(candidate: ViewerSource, drawing: Blob) {
+		if (typeof candidate === 'string') return createDwgDrawingIdentity(candidate);
+		if (candidate instanceof File) return createDwgDrawingIdentity(candidate);
+		return createDwgDrawingIdentity({ fileName: getSourceName(candidate), size: drawing.size });
+	}
+
+	function initializeReview(candidate: ViewerSource, drawing: Blob) {
+		const identity = drawingReviewIdentity(candidate, drawing);
+		if (reviewIdentity?.id === identity.id && reviewDocument) return;
+		reviewIdentity = identity;
+		reviewUndo = [];
+		reviewRedo = [];
+		selectedMarkupId = undefined;
+		reviewError = '';
+		const loaded = loadDwgReviewDocument(identity);
+		if (!loaded.ok) {
+			reviewDocument = createDwgReviewDocument(identity);
+			reviewMessage = '';
+			reviewError = `The previous local review could not be loaded. ${loaded.error.message}`;
+			return;
+		}
+		reviewDocument = loaded.value ?? createDwgReviewDocument(identity);
+		reviewMessage = loaded.value
+			? `Loaded ${loaded.value.markups.length.toLocaleString('en-US')} saved markup${loaded.value.markups.length === 1 ? '' : 's'}.`
+			: 'No saved review yet.';
+	}
+
+	function nextReviewTimestamp(document: DwgReviewDocumentV1) {
+		return new Date(
+			Math.max(Date.now(), Date.parse(document.createdAt), Date.parse(document.updatedAt))
+		).toISOString();
+	}
+
+	function persistReview(document: DwgReviewDocumentV1, message = 'Review saved on this device.') {
+		const result = saveDwgReviewDocument(document);
+		if (!result.ok) {
+			reviewMessage = '';
+			reviewError = result.error.message;
+			return false;
+		}
+		reviewError = '';
+		reviewMessage = message;
+		return true;
+	}
+
+	function ensureReviewPresentation(value: DwgPresentation) {
+		const document = reviewDocument;
+		if (!document) return;
+		const entry = reviewPresentation(value);
+		if (document.presentations.some((candidate) => candidate.id === entry.id)) return;
+		const next = {
+			...document,
+			updatedAt: nextReviewTimestamp(document),
+			presentations: [...document.presentations, entry]
+		};
+		reviewDocument = next;
+		persistReview(next, 'Review ready for this view.');
+	}
+
+	function commitReviewMarkups(markups: DwgMarkup[], selectId?: string) {
+		const document = reviewDocument;
+		if (!document) return;
+		reviewUndo = [...reviewUndo.slice(-49), document.markups];
+		reviewRedo = [];
+		const next = {
+			...document,
+			updatedAt: nextReviewTimestamp(document),
+			markups
+		};
+		reviewDocument = next;
+		selectedMarkupId = selectId;
+		persistReview(next);
+	}
+
+	function createMarkup(markup: DwgMarkup) {
+		if (!presentation || !reviewDocument) return;
+		ensureReviewPresentation(presentation);
+		const document = reviewDocument;
+		if (!document) return;
+		commitReviewMarkups([...document.markups, markup], markup.id);
+		if (markup.type === 'comment' || markup.type === 'text') markupDraftText = '';
+	}
+
+	function selectReviewMarkup(id?: string) {
+		selectedMarkupId = id;
+		const markup = reviewDocument?.markups.find((candidate) => candidate.id === id);
+		if (markup?.type === 'comment') markupDraftText = markup.comment;
+		else if (markup?.type === 'text') markupDraftText = markup.text;
+	}
+
+	function deleteSelectedMarkup() {
+		const document = reviewDocument;
+		if (!document || !selectedMarkupId) return;
+		commitReviewMarkups(
+			document.markups.filter((markup) => markup.id !== selectedMarkupId),
+			undefined
+		);
+	}
+
+	function undoReview() {
+		const document = reviewDocument;
+		const previous = reviewUndo.at(-1);
+		if (!document || !previous) return;
+		reviewUndo = reviewUndo.slice(0, -1);
+		reviewRedo = [...reviewRedo.slice(-49), document.markups];
+		const next = {
+			...document,
+			updatedAt: nextReviewTimestamp(document),
+			markups: previous
+		};
+		reviewDocument = next;
+		selectedMarkupId = undefined;
+		persistReview(next, 'Undo saved on this device.');
+	}
+
+	function redoReview() {
+		const document = reviewDocument;
+		const nextMarkups = reviewRedo.at(-1);
+		if (!document || !nextMarkups) return;
+		reviewRedo = reviewRedo.slice(0, -1);
+		reviewUndo = [...reviewUndo.slice(-49), document.markups];
+		const next = {
+			...document,
+			updatedAt: nextReviewTimestamp(document),
+			markups: nextMarkups
+		};
+		reviewDocument = next;
+		selectedMarkupId = undefined;
+		persistReview(next, 'Redo saved on this device.');
+	}
+
+	function updateSelectedReviewText() {
+		const document = reviewDocument;
+		const selected = selectedMarkup;
+		const text = markupDraftText.trim();
+		if (!document || !selected || !text) return;
+		if (selected.type !== 'comment' && selected.type !== 'text') return;
+		const updated: DwgMarkup =
+			selected.type === 'comment'
+				? { ...selected, comment: text, updatedAt: nextReviewTimestamp(document) }
+				: { ...selected, text, updatedAt: nextReviewTimestamp(document) };
+		commitReviewMarkups(
+			document.markups.map((markup) => (markup.id === updated.id ? updated : markup)),
+			updated.id
+		);
+	}
+
+	function toggleCommentResolved(markup: Extract<DwgMarkup, { type: 'comment' }>) {
+		const document = reviewDocument;
+		if (!document) return;
+		const updated: DwgMarkup = {
+			...markup,
+			resolved: !markup.resolved,
+			updatedAt: nextReviewTimestamp(document)
+		};
+		commitReviewMarkups(
+			document.markups.map((candidate) => (candidate.id === markup.id ? updated : candidate)),
+			markup.id
+		);
+	}
+
+	function saveReview() {
+		if (!reviewDocument) return;
+		persistReview(reviewDocument);
+	}
+
+	function exportReview() {
+		const review = reviewDocument;
+		if (!review) return;
+		const json = JSON.stringify(review, null, 2);
+		const url = URL.createObjectURL(new Blob([json], { type: 'application/json' }));
+		const anchor = document.createElement('a');
+		anchor.href = url;
+		anchor.download = dwgReviewExportFileName(review);
+		anchor.click();
+		setTimeout(() => URL.revokeObjectURL(url), 0);
+		reviewMessage = 'Review JSON exported.';
+		reviewError = '';
+	}
+
+	async function importReview(event: Event) {
+		const input = event.currentTarget as HTMLInputElement;
+		const file = input.files?.[0];
+		input.value = '';
+		if (!file || !reviewIdentity) return;
+		if (file.size > DWG_REVIEW_LIMITS.maxJsonCharacters * 4) {
+			reviewError = 'The selected review file is too large.';
+			return;
+		}
+		let json: string;
+		try {
+			json = await file.text();
+		} catch {
+			reviewError = 'The selected review file could not be read.';
+			return;
+		}
+		const parsed = parseDwgReviewDocumentJson(json);
+		if (!parsed.ok) {
+			reviewError = `${parsed.error.message}${parsed.error.path ? ` (${parsed.error.path})` : ''}`;
+			return;
+		}
+		if (parsed.value.drawing.id !== reviewIdentity.id) {
+			reviewError = `This review belongs to ${parsed.value.drawing.fileName}, not ${reviewIdentity.fileName}.`;
+			return;
+		}
+		reviewDocument = parsed.value;
+		reviewUndo = [];
+		reviewRedo = [];
+		selectedMarkupId = undefined;
+		if (presentation) ensureReviewPresentation(presentation);
+		if (reviewDocument) persistReview(reviewDocument, 'Review imported and saved on this device.');
+	}
+
+	function clearCurrentReview() {
+		const document = reviewDocument;
+		if (!document || !currentReviewMarkups.length) return;
+		if (!confirm('Clear all markups and comments from this view? You can still use Undo.')) return;
+		commitReviewMarkups(
+			document.markups.filter((markup) => markup.presentationId !== activePresentationId),
+			undefined
+		);
 	}
 
 	function suggestedPreviewName() {
@@ -210,12 +498,18 @@
 	function destroyViewer() {
 		viewer?.off('select', entitySelected);
 		viewer?.off('measure', measured);
+		viewer?.off('viewchange', drawingViewChanged);
 		viewer?.destroy();
 		viewer = undefined;
 		layoutViewer?.off('select', layoutEntitySelected);
 		layoutViewer?.off('measure', layoutMeasured);
+		layoutViewer?.off('viewchange', drawingViewChanged);
 		layoutViewer?.destroy();
 		layoutViewer = undefined;
+	}
+
+	function drawingViewChanged(next: ViewTransform) {
+		viewTransform = { ...next };
 	}
 
 	function fitDrawing() {
@@ -440,10 +734,12 @@
 		selectedDetails = `${event.space === 'model' ? 'Model' : 'Paper'}${event.viewportId ? ` · Viewport ${event.viewportId}` : ''} · ${selectedDetails}`;
 	}
 
-	function togglePanel(panel: 'views' | 'layers' | 'properties') {
+	function togglePanel(panel: 'views' | 'layers' | 'properties' | 'markup') {
 		viewsOpen = panel === 'views' ? !viewsOpen : false;
 		layersOpen = panel === 'layers' ? !layersOpen : false;
 		propertiesOpen = panel === 'properties' ? !propertiesOpen : false;
+		markupOpen = panel === 'markup' ? !markupOpen : false;
+		if (markupOpen && markupTool === 'navigate') setMarkupTool('select');
 	}
 
 	async function prepare(
@@ -489,7 +785,12 @@
 			}
 			const drawingSource = await readSource(candidate, controller.signal);
 			if (disposed || generation !== loadGeneration) return;
+			const preserveReview =
+				presentationRequest !== 'auto' &&
+				activeDrawingSource === drawingSource &&
+				Boolean(reviewDocument);
 			activeDrawingSource = drawingSource;
+			if (!preserveReview) initializeReview(candidate, drawingSource);
 			activeAllowLargeFile = allowLargeFile;
 			const fileSize = drawingSource.size;
 			if (fileSize > LARGE_DWG_INPUT_BYTES) {
@@ -532,6 +833,8 @@
 			if (disposed || generation !== loadGeneration) return;
 			warningMessage = conversion.warnings.join(' ');
 			presentation = conversion.presentation;
+			ensureReviewPresentation(conversion.presentation);
+			selectedMarkupId = undefined;
 
 			stage = 'rendering';
 			status =
@@ -552,6 +855,8 @@
 				);
 				layoutViewer.on('select', layoutEntitySelected);
 				layoutViewer.on('measure', layoutMeasured);
+				layoutViewer.on('viewchange', drawingViewChanged);
+				drawingViewChanged(layoutViewer.getViewTransform());
 				if (layoutViewer.omittedPaperEntityCount > 0) {
 					warningMessage = [
 						warningMessage,
@@ -572,7 +877,9 @@
 				});
 				viewer.on('select', entitySelected);
 				viewer.on('measure', measured);
+				viewer.on('viewchange', drawingViewChanged);
 				viewer.loadDocument(conversion.document);
+				drawingViewChanged(viewer.getViewTransform());
 				layers = viewer.getLayers();
 				selectedTitle = 'Nothing selected';
 				selectedDetails = 'Choose Select, then click an entity in the drawing.';
@@ -669,13 +976,26 @@
 	}
 
 	function setTool(nextTool: Tool) {
+		markupTool = 'navigate';
 		tool = nextTool;
 		viewer?.setTool(nextTool);
 		layoutViewer?.setTool(nextTool);
 	}
 
+	function setMarkupTool(nextTool: DwgMarkupTool) {
+		markupTool = nextTool;
+		if (nextTool === 'navigate') {
+			setTool('pan');
+			return;
+		}
+		tool = 'pan';
+		viewer?.setTool('pan');
+		layoutViewer?.setTool('pan');
+	}
+
 	function switchPresentation(next: 'model' | 'layout') {
 		if (!activeDrawingSource || presentation?.mode === next || loading) return;
+		selectedMarkupId = undefined;
 		prepare(activeDrawingSource, activeAllowLargeFile, next);
 	}
 
@@ -683,6 +1003,13 @@
 		const visible = (event.currentTarget as HTMLInputElement).checked;
 		layerVisibility[layer.name] = visible;
 		setDrawingLayerVisible(layer.name, visible);
+	}
+
+	function viewerKeydown(event: KeyboardEvent) {
+		if (event.defaultPrevented || event.key !== 'Escape' || !markupOpen) return;
+		event.preventDefault();
+		markupOpen = false;
+		markupTool = 'navigate';
 	}
 
 	onMount(() => {
@@ -697,9 +1024,12 @@
 	});
 </script>
 
+<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 <div
 	class={`relative min-h-80 overflow-hidden bg-[#111827] font-sans ${heightClass} ${className}`}
+	role="region"
 	aria-label={title}
+	onkeydown={viewerKeydown}
 >
 	<input
 		bind:this={fileInput}
@@ -717,11 +1047,38 @@
 		onchange={choosePdf}
 		aria-label="Choose an exported PDF"
 	/>
+	<input
+		bind:this={reviewInput}
+		type="file"
+		accept=".json,application/json"
+		class="sr-only"
+		onchange={importReview}
+		aria-label="Import a DWG review file"
+	/>
 	<canvas bind:this={canvas} class="block size-full"></canvas>
+	{#if !loading && !errorMessage && reviewDocument}
+		<DwgMarkupOverlay
+			enabled={markupOpen && markupTool !== 'navigate'}
+			tool={markupTool}
+			view={viewTransform}
+			presentationId={activePresentationId}
+			markups={reviewDocument.markups}
+			selectedId={selectedMarkupId}
+			color={markupColor}
+			strokeWidth={markupStrokeWidth}
+			draftText={markupDraftText}
+			oncreate={createMarkup}
+			onselect={selectReviewMarkup}
+			ondelete={deleteSelectedMarkup}
+			onundo={undoReview}
+			onredo={redoReview}
+			onzoom={zoomDrawing}
+		/>
+	{/if}
 
 	{#if !loading && !errorMessage}
 		<div
-			class="absolute left-3 top-3 flex flex-wrap gap-1.5 rounded-xl border border-white/10 bg-slate-950/85 p-1.5 shadow-xl backdrop-blur"
+			class="absolute left-3 top-3 z-30 flex flex-wrap gap-1.5 rounded-xl border border-white/10 bg-slate-950/85 p-1.5 shadow-xl backdrop-blur"
 		>
 			<button
 				type="button"
@@ -785,11 +1142,24 @@
 				class={`rounded-lg px-3 py-2 text-xs font-semibold ${propertiesOpen ? 'bg-blue-600 text-white' : 'text-slate-300 hover:bg-white/10'}`}
 				>Properties</button
 			>
+			<button
+				type="button"
+				onclick={() => togglePanel('markup')}
+				class={`flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold ${markupOpen ? 'bg-amber-500 text-slate-950' : 'text-slate-300 hover:bg-white/10'}`}
+			>
+				<span>Markup</span>
+				{#if currentReviewMarkups.length}
+					<span
+						class={`rounded-full px-1.5 py-0.5 text-[10px] ${markupOpen ? 'bg-slate-950/15' : 'bg-amber-400/20 text-amber-200'}`}
+						>{currentReviewMarkups.length}</span
+					>
+				{/if}
+			</button>
 		</div>
 
 		{#if viewsOpen}
 			<aside
-				class="absolute bottom-16 left-3 top-16 flex w-72 flex-col overflow-hidden rounded-xl border border-white/10 bg-slate-950/92 text-slate-200 shadow-2xl backdrop-blur"
+				class="absolute bottom-16 left-3 top-16 z-30 flex w-72 flex-col overflow-hidden rounded-xl border border-white/10 bg-slate-950/92 text-slate-200 shadow-2xl backdrop-blur"
 			>
 				<div class="border-b border-white/10 px-4 py-3">
 					<p class="text-xs font-semibold">Views</p>
@@ -819,7 +1189,7 @@
 
 		{#if layersOpen}
 			<aside
-				class="absolute bottom-16 left-3 top-16 flex w-72 flex-col overflow-hidden rounded-xl border border-white/10 bg-slate-950/92 text-slate-200 shadow-2xl backdrop-blur"
+				class="absolute bottom-16 left-3 top-16 z-30 flex w-72 flex-col overflow-hidden rounded-xl border border-white/10 bg-slate-950/92 text-slate-200 shadow-2xl backdrop-blur"
 			>
 				<div class="border-b border-white/10 px-4 py-3">
 					<p class="text-xs font-semibold">Drawing layers</p>
@@ -845,7 +1215,7 @@
 
 		{#if propertiesOpen}
 			<aside
-				class="absolute bottom-16 left-3 top-16 flex w-80 flex-col overflow-hidden rounded-xl border border-white/10 bg-slate-950/92 text-slate-200 shadow-2xl backdrop-blur"
+				class="absolute bottom-16 left-3 top-16 z-30 flex w-80 flex-col overflow-hidden rounded-xl border border-white/10 bg-slate-950/92 text-slate-200 shadow-2xl backdrop-blur"
 			>
 				<div class="border-b border-white/10 px-4 py-3">
 					<p class="text-xs font-semibold">Properties</p>
@@ -872,8 +1242,244 @@
 			</aside>
 		{/if}
 
+		{#if markupOpen}
+			<aside
+				class="absolute bottom-3 left-3 right-3 z-30 flex max-h-[70dvh] flex-col overflow-hidden rounded-xl border border-white/10 bg-slate-950/95 text-slate-200 shadow-2xl backdrop-blur sm:bottom-16 sm:right-auto sm:top-16 sm:max-h-none sm:w-80"
+				aria-label="Markup and comments"
+			>
+				<div class="flex items-start justify-between gap-3 border-b border-white/10 px-4 py-3">
+					<div>
+						<p class="text-xs font-semibold">Markup &amp; comments</p>
+						<p class="mt-0.5 text-[11px] text-slate-400">
+							{currentReviewMarkups.length} on this {presentation?.mode === 'layout'
+								? 'sheet'
+								: 'model'}
+						</p>
+					</div>
+					<button
+						type="button"
+						onclick={() => togglePanel('markup')}
+						class="grid size-8 shrink-0 place-items-center rounded-lg text-slate-400 hover:bg-white/10 hover:text-white"
+						aria-label="Close markup panel">&times;</button
+					>
+				</div>
+
+				<div class="min-h-0 flex-1 space-y-4 overflow-y-auto p-3">
+					<section>
+						<p class="mb-2 text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+							Tool
+						</p>
+						<div class="grid grid-cols-4 gap-1.5">
+							{#each [{ id: 'navigate', label: 'Pan' }, { id: 'select', label: 'Select' }, { id: 'freehand', label: 'Pen' }, { id: 'arrow', label: 'Arrow' }, { id: 'rectangle', label: 'Box' }, { id: 'text', label: 'Text' }, { id: 'comment', label: 'Comment' }] as option (option.id)}
+								<button
+									type="button"
+									onclick={() => setMarkupTool(option.id as DwgMarkupTool)}
+									aria-pressed={markupTool === option.id}
+									class={`min-h-10 rounded-lg px-2 py-2 text-[11px] font-semibold ${markupTool === option.id ? 'bg-amber-500 text-slate-950' : 'bg-white/5 text-slate-300 hover:bg-white/10'}`}
+									>{option.label}</button
+								>
+							{/each}
+						</div>
+						<p class="mt-2 text-[11px] leading-4 text-slate-500">
+							{#if markupTool === 'navigate'}
+								Pan and zoom the drawing without editing markups.
+							{:else if markupTool === 'select'}
+								Click a markup to edit or delete it.
+							{:else if markupTool === 'comment' || markupTool === 'text'}
+								Enter text below, then click its location in the drawing.
+							{:else}
+								Drag on the drawing to create the markup.
+							{/if}
+						</p>
+					</section>
+
+					<section class="grid grid-cols-[1fr_auto] items-end gap-3">
+						<label class="block text-[11px] text-slate-400">
+							<span class="mb-1 block">Color</span>
+							<input
+								type="color"
+								bind:value={markupColor}
+								class="h-9 w-full cursor-pointer rounded-lg border border-white/10 bg-white/5 p-1"
+								aria-label="Markup color"
+							/>
+						</label>
+						<label class="block text-[11px] text-slate-400">
+							<span class="mb-1 block">Width</span>
+							<select
+								bind:value={markupStrokeWidth}
+								class="h-9 rounded-lg border border-white/10 bg-slate-900 px-2 text-xs text-slate-200"
+								aria-label="Markup line width"
+							>
+								<option value={2}>2 px</option>
+								<option value={3}>3 px</option>
+								<option value={5}>5 px</option>
+								<option value={8}>8 px</option>
+							</select>
+						</label>
+					</section>
+
+					{#if markupTool === 'comment' || markupTool === 'text' || selectedMarkup?.type === 'comment' || selectedMarkup?.type === 'text'}
+						<section>
+							<label
+								for="dwg-review-text"
+								class="mb-1.5 block text-[11px] font-medium text-slate-400"
+							>
+								{selectedMarkup?.type === 'comment'
+									? 'Edit comment'
+									: selectedMarkup?.type === 'text'
+										? 'Edit text'
+										: markupTool === 'comment'
+											? 'New comment'
+											: 'New text'}
+							</label>
+							<textarea
+								id="dwg-review-text"
+								bind:value={markupDraftText}
+								maxlength={selectedMarkup?.type === 'comment' || markupTool === 'comment'
+									? 32768
+									: 8192}
+								rows="3"
+								placeholder={markupTool === 'comment'
+									? 'Write your review comment...'
+									: 'Enter annotation text...'}
+								class="w-full resize-y rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs leading-5 text-white outline-none placeholder:text-slate-600 focus:border-blue-500"
+							></textarea>
+							{#if selectedMarkup?.type === 'comment' || selectedMarkup?.type === 'text'}
+								<button
+									type="button"
+									onclick={updateSelectedReviewText}
+									disabled={!markupDraftText.trim()}
+									class="mt-2 rounded-lg bg-blue-600 px-3 py-2 text-xs font-semibold text-white hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-40"
+									>Update</button
+								>
+							{/if}
+						</section>
+					{/if}
+
+					<section>
+						<div class="mb-2 flex items-center justify-between gap-2">
+							<p class="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+								Comments ({currentReviewComments.length})
+							</p>
+							<div class="flex gap-1">
+								<button
+									type="button"
+									onclick={undoReview}
+									disabled={!reviewUndo.length}
+									class="rounded-md px-2 py-1 text-[10px] text-slate-400 hover:bg-white/10 disabled:opacity-30"
+									>Undo</button
+								>
+								<button
+									type="button"
+									onclick={redoReview}
+									disabled={!reviewRedo.length}
+									class="rounded-md px-2 py-1 text-[10px] text-slate-400 hover:bg-white/10 disabled:opacity-30"
+									>Redo</button
+								>
+							</div>
+						</div>
+						{#if currentReviewComments.length}
+							<div class="space-y-2">
+								{#each currentReviewComments as comment (comment.id)}
+									<div
+										class={`rounded-lg border p-2 ${selectedMarkupId === comment.id ? 'border-blue-400/60 bg-blue-500/10' : 'border-white/10 bg-white/[0.03]'}`}
+									>
+										<button
+											type="button"
+											onclick={() => selectReviewMarkup(comment.id)}
+											class="w-full text-left"
+										>
+											<p
+												class={`line-clamp-3 text-xs leading-5 ${comment.resolved ? 'text-slate-500 line-through' : 'text-slate-200'}`}
+											>
+												{comment.comment}
+											</p>
+											<p class="mt-1 text-[10px] text-slate-600">
+												{new Date(comment.updatedAt).toLocaleString()}
+											</p>
+										</button>
+										<div class="mt-2 flex gap-1">
+											<button
+												type="button"
+												onclick={() => toggleCommentResolved(comment)}
+												class="rounded-md bg-white/5 px-2 py-1 text-[10px] text-slate-400 hover:bg-white/10"
+												>{comment.resolved ? 'Reopen' : 'Resolve'}</button
+											>
+											<button
+												type="button"
+												onclick={() => {
+													selectedMarkupId = comment.id;
+													deleteSelectedMarkup();
+												}}
+												class="rounded-md bg-rose-500/10 px-2 py-1 text-[10px] text-rose-300 hover:bg-rose-500/20"
+												>Delete</button
+											>
+										</div>
+									</div>
+								{/each}
+							</div>
+						{:else}
+							<p
+								class="rounded-lg border border-dashed border-white/10 px-3 py-4 text-center text-[11px] leading-5 text-slate-500"
+							>
+								Choose Comment, write a note, then click the drawing.
+							</p>
+						{/if}
+					</section>
+				</div>
+
+				<div class="border-t border-white/10 p-3">
+					<div class="grid grid-cols-3 gap-1.5">
+						<button
+							type="button"
+							onclick={saveReview}
+							class="rounded-lg bg-blue-600 px-2 py-2 text-[11px] font-semibold text-white hover:bg-blue-500"
+							>Save</button
+						>
+						<button
+							type="button"
+							onclick={exportReview}
+							class="rounded-lg bg-white/5 px-2 py-2 text-[11px] font-semibold text-slate-300 hover:bg-white/10"
+							>Export</button
+						>
+						<button
+							type="button"
+							onclick={() => reviewInput?.click()}
+							class="rounded-lg bg-white/5 px-2 py-2 text-[11px] font-semibold text-slate-300 hover:bg-white/10"
+							>Import</button
+						>
+					</div>
+					<div class="mt-2 flex items-center justify-between gap-2">
+						<button
+							type="button"
+							onclick={deleteSelectedMarkup}
+							disabled={!selectedMarkupId}
+							class="text-[10px] text-rose-300 hover:text-rose-200 disabled:opacity-30"
+							>Delete selected</button
+						>
+						<button
+							type="button"
+							onclick={clearCurrentReview}
+							disabled={!currentReviewMarkups.length}
+							class="text-[10px] text-slate-500 hover:text-slate-300 disabled:opacity-30"
+							>Clear this view</button
+						>
+					</div>
+					{#if reviewError}
+						<p class="mt-2 text-[10px] leading-4 text-rose-300" role="alert">{reviewError}</p>
+					{:else if reviewMessage}
+						<p class="mt-2 text-[10px] leading-4 text-emerald-300" role="status">{reviewMessage}</p>
+					{/if}
+					<p class="mt-2 text-[10px] leading-4 text-slate-600">
+						Saved only in this browser. Export the JSON review to share it. The DWG is never
+						modified.
+					</p>
+				</div>
+			</aside>
+		{/if}
+
 		<div
-			class="absolute bottom-3 left-3 right-3 rounded-xl border border-white/10 bg-slate-950/85 px-4 py-3 text-slate-200 shadow-xl backdrop-blur sm:right-auto sm:max-w-xl"
+			class="absolute bottom-3 left-3 right-3 z-20 rounded-xl border border-white/10 bg-slate-950/85 px-4 py-3 text-slate-200 shadow-xl backdrop-blur sm:right-auto sm:max-w-xl"
 		>
 			<p class="text-xs font-semibold">{selectedTitle}</p>
 			<p class="mt-1 text-xs leading-5 text-slate-400">{selectedDetails}</p>
