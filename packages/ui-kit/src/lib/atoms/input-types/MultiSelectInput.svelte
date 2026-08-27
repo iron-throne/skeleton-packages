@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { EInputType, type IFormField, type InputValue } from '@aryagg/types';
-	import { clickOutside } from '@aryagg/utils';
+	import { clickOutside, portal } from '@aryagg/utils';
 	import { Check, ChevronDown, PlusLg } from 'svelte-bootstrap-icons';
 	import { emitValue, inputBaseClass } from '$lib/input-shared';
 
@@ -9,6 +9,34 @@
 	let showMultiDropdown = $state(false);
 	let comboQuery = $state('');
 	let comboActiveIndex = $state(-1);
+	let wrapperEl = $state<HTMLDivElement>();
+	let panelStyle = $state('');
+
+	// The panel is portaled to <body> and positioned with `fixed` + these inline coordinates
+	// (computed from the wrapper's own screen position) instead of `absolute` inside the
+	// wrapper, so it isn't clipped by a scrollable/overflow-hidden ancestor (e.g. a modal).
+	function positionPanel() {
+		if (!wrapperEl) return;
+		const rect = wrapperEl.getBoundingClientRect();
+		panelStyle = `position:fixed; top:${rect.bottom + 6}px; left:${rect.left}px; width:${rect.width}px;`;
+	}
+
+	function openDropdown() {
+		positionPanel();
+		showMultiDropdown = true;
+	}
+
+	// A `fixed` position won't follow the trigger on its own if a scrollable ancestor
+	// scrolls or the viewport resizes, so keep it in sync while the panel is open.
+	$effect(() => {
+		if (!showMultiDropdown) return;
+		window.addEventListener('scroll', positionPanel, true);
+		window.addEventListener('resize', positionPanel);
+		return () => {
+			window.removeEventListener('scroll', positionPanel, true);
+			window.removeEventListener('resize', positionPanel);
+		};
+	});
 
 	const isAddNew = $derived(field.type === EInputType.MULTISELECT_ADDNEW);
 
@@ -60,7 +88,7 @@
 		const total = multiFilteredOptions.length + (multiShowAddRow ? 1 : 0);
 		if (e.key === 'ArrowDown') {
 			e.preventDefault();
-			showMultiDropdown = true;
+			openDropdown();
 			comboActiveIndex = total ? (comboActiveIndex + 1) % total : -1;
 		} else if (e.key === 'ArrowUp') {
 			e.preventDefault();
@@ -85,7 +113,11 @@
 	}
 </script>
 
-<div class="relative flex flex-col gap-2" use:clickOutside={() => (showMultiDropdown = false)}>
+<div
+	bind:this={wrapperEl}
+	class="relative flex flex-col gap-2"
+	use:clickOutside={() => (showMultiDropdown = false)}
+>
 	{#if multiSelectedValues.length}
 		<div class="flex flex-wrap gap-1.5">
 			{#each multiSelectedValues as val (val)}
@@ -118,14 +150,14 @@
 			oninput={(e) => {
 				comboQuery = (e.target as HTMLInputElement).value;
 				comboActiveIndex = -1;
-				showMultiDropdown = true;
+				openDropdown();
 			}}
-			onfocus={() => (showMultiDropdown = true)}
+			onfocus={openDropdown}
 			onkeydown={handleMultiKeydown}
 		/>
 		<button
 			type="button"
-			onclick={() => (showMultiDropdown = !showMultiDropdown)}
+			onclick={() => (showMultiDropdown ? (showMultiDropdown = false) : openDropdown())}
 			class="text-secondary absolute top-1/2 right-3 -translate-y-1/2 border-0 bg-transparent! transition"
 			aria-label="Toggle options"
 		>
@@ -134,8 +166,13 @@
 	</div>
 
 	{#if showMultiDropdown}
+		<!-- z-[2010]: must clear Dialog's z-2000 backdrop, since the portal makes this
+		     panel a sibling of the dialog at the <body> level rather than a descendant. -->
 		<div
-			class="bg-surface-primary absolute top-full z-20 mt-1.5 flex max-h-60 w-full flex-col gap-1 overflow-y-auto rounded-lg border p-1.5 shadow-lg"
+			use:portal
+			data-dropdown-menu
+			style={panelStyle}
+			class="bg-surface-primary fixed z-[2010] flex max-h-60 flex-col gap-1 overflow-y-auto rounded-lg border p-1.5 shadow-lg"
 		>
 			{#each multiFilteredOptions as opt, i (opt.value)}
 				{@const isSelected = multiSelectedValues.includes(String(opt.value))}
