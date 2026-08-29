@@ -87,7 +87,7 @@
 			aria-modal="true"
 			aria-labelledby={title ? titleId : undefined}
 			aria-describedby={description ? descriptionId : undefined}
-			class="relative flex max-h-[90vh] w-full flex-col overflow-hidden border border-border-primary bg-surface-primary text-primary shadow-2xl {sizeClass[
+			class="relative flex max-h-[75vh] md:max-h-[80vh] lg:max-h-[90vh] w-full flex-col overflow-hidden border border-border-primary bg-surface-primary text-primary shadow-2xl {sizeClass[
 				size
 			] ?? sizeClass[ESize.MD]} {radiusClass[radius]} {panelClass}"
 			transition:scale={{ duration: 180, start: 0.96, easing: cubicOut }}

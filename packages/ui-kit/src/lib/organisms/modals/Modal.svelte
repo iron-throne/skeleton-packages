@@ -78,7 +78,7 @@
 		<div
 			class="relative w-full {SIZE_CLASS[
 				size
-			]} bg-surface-primary rounded-2xl shadow-2xl border border-border-primary flex flex-col max-h-[90vh] {panelKlass}"
+			]} bg-surface-primary rounded-2xl shadow-2xl border border-border-primary flex flex-col max-h-[75vh] md:max-h-[80vh] lg:max-h-[90vh] {panelKlass}"
 			transition:scale={{ duration: 220, easing: cubicOut, start: 0.95 }}
 		>
 			<!-- Header -->
