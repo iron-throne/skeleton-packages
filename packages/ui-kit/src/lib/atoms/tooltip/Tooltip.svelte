@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { fade } from 'svelte/transition';
+	import { portal } from '@aryagg/utils';
 	import type { Snippet } from 'svelte';
 
 	type Position = 'top' | 'bottom' | 'left' | 'right';
@@ -6,31 +8,82 @@
 	let {
 		text,
 		position = 'top',
-		children,
+		children
 	}: {
 		text: string;
 		position?: Position;
 		children: Snippet;
 	} = $props();
 
-	const positionClasses: Record<Position, string> = {
-		top: 'bottom-full left-1/2 -translate-x-1/2 mb-2',
-		bottom: 'top-full left-1/2 -translate-x-1/2 mt-2',
-		left: 'right-full top-1/2 -translate-y-1/2 mr-2',
-		right: 'left-full top-1/2 -translate-y-1/2 ml-2',
-	};
+	const gap = 8;
+
+	let wrapperEl = $state<HTMLDivElement>();
+	let show = $state(false);
+	let panelStyle = $state('');
+
+	// The tooltip is portaled to <body> and positioned with `fixed` coordinates computed
+	// from the wrapper's own screen position, instead of `absolute` inside the wrapper -
+	// so it isn't clipped by a scrollable/overflow-hidden ancestor (e.g. a modal or table cell).
+	function positionTooltip() {
+		if (!wrapperEl) return;
+		const rect = wrapperEl.getBoundingClientRect();
+
+		if (position === 'top') {
+			panelStyle = `position:fixed; bottom:${window.innerHeight - rect.top + gap}px; left:${rect.left + rect.width / 2}px; transform:translateX(-50%);`;
+		} else if (position === 'bottom') {
+			panelStyle = `position:fixed; top:${rect.bottom + gap}px; left:${rect.left + rect.width / 2}px; transform:translateX(-50%);`;
+		} else if (position === 'left') {
+			panelStyle = `position:fixed; top:${rect.top + rect.height / 2}px; right:${window.innerWidth - rect.left + gap}px; transform:translateY(-50%);`;
+		} else {
+			panelStyle = `position:fixed; top:${rect.top + rect.height / 2}px; left:${rect.right + gap}px; transform:translateY(-50%);`;
+		}
+	}
+
+	function open() {
+		positionTooltip();
+		show = true;
+	}
+
+	function close() {
+		show = false;
+	}
+
+	// A `fixed` position won't follow the trigger on its own if a scrollable ancestor
+	// scrolls or the viewport resizes, so keep it in sync while the tooltip is shown.
+	$effect(() => {
+		if (!show) return;
+		window.addEventListener('scroll', positionTooltip, true);
+		window.addEventListener('resize', positionTooltip);
+		return () => {
+			window.removeEventListener('scroll', positionTooltip, true);
+			window.removeEventListener('resize', positionTooltip);
+		};
+	});
 </script>
 
-<div class="group relative inline-flex">
+<div
+	bind:this={wrapperEl}
+	role="presentation"
+	class="relative inline-flex"
+	onmouseenter={open}
+	onmouseleave={close}
+	onfocusin={open}
+	onfocusout={close}
+>
 	{@render children()}
+</div>
+
+{#if show}
 	<div
+		use:portal
 		role="tooltip"
-		class="bg-surface-primary text-content-secondary pointer-events-none absolute z-50
+		style={panelStyle}
+		transition:fade={{ duration: 100 }}
+		class="bg-surface-primary text-content-secondary pointer-events-none fixed z-60
                rounded-md border
-               px-2.5 py-1.5 text-xs whitespace-nowrap opacity-0
-               shadow-md transition-opacity duration-150 group-hover:opacity-100
-               {positionClasses[position]}"
+               px-2.5 py-1.5 text-xs whitespace-nowrap
+               shadow-md"
 	>
 		{text}
 	</div>
-</div>
+{/if}
