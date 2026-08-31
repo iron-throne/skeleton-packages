@@ -15,7 +15,7 @@
 		children: Snippet;
 	} = $props();
 
-	const gap = 8;
+	const gap = 12;
 
 	let wrapperEl = $state<HTMLDivElement>();
 	let show = $state(false);
@@ -29,13 +29,13 @@
 		const rect = wrapperEl.getBoundingClientRect();
 
 		if (position === 'top') {
-			panelStyle = `position:fixed; bottom:${window.innerHeight - rect.top + gap}px; left:${rect.left + rect.width / 2}px; transform:translateX(-50%);`;
+			panelStyle = `bottom:${window.innerHeight - rect.top + gap}px; left:${rect.left + rect.width / 2}px; transform:translateX(-50%);`;
 		} else if (position === 'bottom') {
-			panelStyle = `position:fixed; top:${rect.bottom + gap}px; left:${rect.left + rect.width / 2}px; transform:translateX(-50%);`;
+			panelStyle = `top:${rect.bottom + gap}px; left:${rect.left + rect.width / 2}px; transform:translateX(-50%);`;
 		} else if (position === 'left') {
-			panelStyle = `position:fixed; top:${rect.top + rect.height / 2}px; right:${window.innerWidth - rect.left + gap}px; transform:translateY(-50%);`;
+			panelStyle = `top:${rect.top + rect.height / 2}px; right:${window.innerWidth - rect.left + gap}px; transform:translateY(-50%);`;
 		} else {
-			panelStyle = `position:fixed; top:${rect.top + rect.height / 2}px; left:${rect.right + gap}px; transform:translateY(-50%);`;
+			panelStyle = `top:${rect.top + rect.height / 2}px; left:${rect.right + gap}px; transform:translateY(-50%);`;
 		}
 	}
 

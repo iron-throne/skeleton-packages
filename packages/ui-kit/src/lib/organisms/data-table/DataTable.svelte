@@ -94,14 +94,15 @@
 
 	const totalPages = $derived(Math.max(1, Math.ceil(sorted.length / pageSize)));
 	const paginated = $derived(sorted.slice((currentPage - 1) * pageSize, currentPage * pageSize));
+	const visibleColumns = $derived(columns?.filter(c=>!c.hide));
 
 	function cellValue(col: TableColumn, row: any) {
 		return parseInputValue(row[col.key], col.type) ?? '';
 	}
 </script>
 
-<div class={embedded ? '' : 'flex flex-col gap-3'}>
-	<div class="flex justify-between gap-2 items-baseline">
+<div class={embedded ? '' : 'flex flex-col gap-3 size-full overflow-auto'}>
+	<div class="flex justify-between gap-2 items-baseline flex-none">
 		<!-- Search bar -->
 		{#if searchable}
 			<div class="relative w-full max-w-xs h-fit">
@@ -134,11 +135,11 @@
 	</div>
 
 	<!-- Table -->
-	<div class={embedded ? 'w-full' : 'w-full overflow-auto rounded-xl border'}>
+	<div class="w-full overflow-auto {embedded ? '' : 'rounded-xl border flex-auto'}">
 		<table class="w-full text-sm">
 			<thead>
-				<tr class="bg-surface-secondary text-secondary">
-					{#each columns as col, ind (ind)}
+				<tr class="bg-surface-secondary text-secondary sticky top-0 z-10">
+					{#each visibleColumns as col, ind (ind)}
 						<th
 							scope="col"
 							class="px-4 py-3 text-left text-xs font-semibold whitespace-nowrap uppercase {col.class}
@@ -184,7 +185,7 @@
 					{#each Array(pageSize) as _, i (i)}
 						<tr>
 							<!-- eslint-disable-next-line @typescript-eslint/no-unused-vars -->
-							{#each columns as _c, cInd (cInd)}
+							{#each visibleColumns as _c, cInd (cInd)}
 								<td class="px-4 py-3">
 									<SkeletonLoader lines={1} height="0.85rem" />
 								</td>
@@ -194,14 +195,14 @@
 					{/each}
 				{:else if paginated.length === 0}
 					<tr>
-						<td colspan={columns.length + (actions ? 1 : 0)} class="px-4 py-10">
+						<td colspan={visibleColumns.length + (actions ? 1 : 0)} class="px-4 py-10">
 							<NoData text={emptyText} />
 						</td>
 					</tr>
 				{:else}
 					{#each paginated as row, rowInd (rowInd)}
 						<tr class="hover:bg-surface-secondary/50 transition-colors {rowClass?.(row) ?? ''}">
-							{#each columns as col, colInd (colInd)}
+							{#each visibleColumns as col, colInd (colInd)}
 								<td class="text-primary/80 text-sm px-4 py-3 whitespace-nowrap {col.class}">
 									{#if CustomCell}
 										{@render CustomCell(row, col)}
