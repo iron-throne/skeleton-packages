@@ -40,11 +40,15 @@ export interface ProfileConfig {
 	klass?: string;
 }
 
+export type TopbarVariant = 'inline' | 'stacked';
+
 export interface TopbarProps {
 	title?: string;
 	logoSrc?: string;
 	logoAlt?: string;
 	href?: string;
+
+	variant?: TopbarVariant;
 
 	klass?: string;
 

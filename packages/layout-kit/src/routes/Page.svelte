@@ -92,6 +92,8 @@
 	// ── Topbar demo ─────────────────────────────────────────────
 	const topbarModes = ['simple', 'advanced', 'config props'] as const;
 	let topbarMode = $state<(typeof topbarModes)[number]>('simple');
+	const topbarVariants = ['inline', 'stacked'] as const;
+	let topbarVariant = $state<(typeof topbarVariants)[number]>('inline');
 	let topbarTheme = $state<ETheme>(ETheme.LIGHT);
 	let showLanguages = $state(true);
 	let showProfileMenu = $state(true);
@@ -458,6 +460,7 @@
 									<Topbar
 										title="Acme"
 										logoSrc={showTopbarLogo ? demoLogo : ''}
+										variant={topbarVariant}
 										nav={{ items: topbarMenus, activeHref: '#', layout: ESwitchLayout.HORIZONTAL }}
 										languageSwitch={showLanguages
 											? {
@@ -486,6 +489,14 @@
 
 							{#snippet topbarPickers()}
 								{@render PickerField('mode', topbarModes, topbarMode, (v) => (topbarMode = v))}
+								{#if topbarMode === 'config props'}
+									{@render PickerField(
+										'variant',
+										topbarVariants,
+										topbarVariant,
+										(v) => (topbarVariant = v)
+									)}
+								{/if}
 							{/snippet}
 							{#snippet topbarToggles()}
 								{@render Toggle(
