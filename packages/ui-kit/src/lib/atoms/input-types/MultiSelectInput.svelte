@@ -11,6 +11,9 @@
 	let comboActiveIndex = $state(-1);
 	let wrapperEl = $state<HTMLDivElement>();
 	let panelStyle = $state('');
+	let showAllChips = $state(false);
+
+	const CHIP_COLLAPSE_THRESHOLD = 5;
 
 	// The panel is portaled to <body> and positioned with `fixed` + these inline coordinates
 	// (computed from the wrapper's own screen position) instead of `absolute` inside the
@@ -119,8 +122,13 @@
 	use:clickOutside={() => (showMultiDropdown = false)}
 >
 	{#if multiSelectedValues.length}
+		{@const isCollapsible = multiSelectedValues.length > CHIP_COLLAPSE_THRESHOLD}
+		{@const visibleValues =
+			isCollapsible && !showAllChips
+				? multiSelectedValues.slice(0, CHIP_COLLAPSE_THRESHOLD)
+				: multiSelectedValues}
 		<div class="flex flex-wrap gap-1.5">
-			{#each multiSelectedValues as val (val)}
+			{#each visibleValues as val (val)}
 				{@const opt = (field.options ?? []).find((o) => String(o.value) === val)}
 				<span
 					class="text-content-primary border-border-primary rounded-sm rounded-full border px-2 py-0.5 text-xs font-medium"
@@ -136,6 +144,15 @@
 					</button>
 				</span>
 			{/each}
+			{#if isCollapsible}
+				<button
+					type="button"
+					onclick={() => (showAllChips = !showAllChips)}
+					class="text-content-secondary hover:text-content-primary border-border-primary rounded-sm rounded-full border px-2 py-0.5 text-xs font-medium transition"
+				>
+					{showAllChips ? 'Show less' : `+${multiSelectedValues.length - CHIP_COLLAPSE_THRESHOLD} more`}
+				</button>
+			{/if}
 		</div>
 	{/if}
 
