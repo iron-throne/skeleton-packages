@@ -89,16 +89,16 @@
 	);
 	const dataTableColumns = $derived<TableColumn[]>([
 		...(selectable
-			? [{ key: '__selection', label: '', class: 'advanced-table__select-cell' }]
+			? [{ key: '__selection', label: '', class: 'w-10 py-3 pr-1.5 pl-3 text-center' }]
 			: []),
 		...visibleColumns.map((column) => ({
 			key: column.key,
 			label: column.label,
 			class:
 				column.align === 'center'
-					? 'advanced-table__align-center'
+					? 'text-center'
 					: column.align === 'right'
-						? 'advanced-table__align-right'
+						? 'text-right'
 						: undefined
 		}))
 	]);
@@ -267,14 +267,22 @@
 	}
 </script>
 
-<div class="advanced-table {filtersCollapsed ? 'advanced-table--collapsed' : ''} {className}">
+<div class="flex flex-col text-primary md:flex-row {className}">
 	{#if filterGroups.length}
-		<aside class="advanced-table__filters">
-			<div class="advanced-table__filter-header">
+		<aside
+			class="w-full flex-none overflow-hidden rounded-t-lg border border-border-primary bg-surface-primary transition-all duration-200 md:rounded-t-none md:rounded-l-lg md:border-r-0 {filtersCollapsed
+				? 'md:w-[46px]'
+				: 'md:w-[218px]'}"
+		>
+			<div
+				class="flex min-h-[43px] items-center justify-between border-b border-border-primary pr-2.5 pl-3.5 text-xs uppercase tracking-[0.06em] {filtersCollapsed
+					? 'justify-center px-0'
+					: ''}"
+			>
 				{#if !filtersCollapsed}<strong>{filterTitle}</strong>{/if}
 				<Button
 					type="button"
-					klass="advanced-table__icon-button"
+					klass="inline-flex size-[26px] items-center justify-center rounded-[5px] border border-border-primary bg-surface-primary p-0 text-secondary"
 					variant="ghost"
 					aria-label={filtersCollapsed ? 'Expand filters' : 'Collapse filters'}
 					onclick={() => (filtersCollapsed = !filtersCollapsed)}
@@ -287,7 +295,7 @@
 			</div>
 
 			{#if !filtersCollapsed}
-				<div class="advanced-table__group-control">
+				<div class="px-2.5 pt-2 pb-[7px]">
 					<Autocomplete
 						id="advanced-filter-group"
 						value={activeGroupKey}
@@ -296,68 +304,83 @@
 						searchable={false}
 						showSearchIcon={false}
 						density={ESize.SM}
-						class="advanced-table__group-select-control"
+						class="!h-[28px] !min-h-[28px] !rounded-md !bg-surface-primary !px-2 !py-0.5 !shadow-[0_1px_2px_rgba(15,23,42,0.04)] [&_input]:!h-auto [&_input]:!border-0 [&_input]:!bg-transparent [&_input]:!p-0 [&_input]:!text-[11px] [&_input]:!shadow-none"
 						onChange={changeGroup}
 					/>
 				</div>
 
-				<div class="advanced-table__filter-list">
+				<div class="grid grid-cols-2 px-2 pb-2.5 md:block">
 					{#each activeGroup?.options ?? [] as option (option.value)}
 						{@const active = (activeFilters[activeGroupKey] ?? []).includes(option.value)}
 						<Button
 							type="button"
-							klass="advanced-table__filter-item {active
-								? 'advanced-table__filter-item--active'
+							klass="grid min-h-[30px] w-full grid-cols-[28px_minmax(0,1fr)_auto] items-center rounded-[5px] border-0 bg-transparent px-[7px] py-[3px] text-left text-xs text-secondary hover:bg-surface-secondary {active
+								? 'bg-accent/10 font-semibold text-accent'
 								: ''}"
 							variant="ghost"
 							aria-pressed={active}
 							onclick={() => toggleFilter(activeGroupKey, option.value)}
 						>
 							{#if option.badge}
-								<span class="advanced-table__file-badge">{option.badge}</span>
+								<span
+									class="inline-flex h-4 w-[26px] items-center justify-center rounded-[3px] bg-surface-tertiary font-mono text-[9px] font-bold"
+									>{option.badge}</span
+								>
 							{:else if option.color}
-								<span class="advanced-table__filter-dot" style:background-color={option.color}
+								<span
+									class="ml-2 size-2 rounded-full"
+									style:background-color={option.color}
 								></span>
 							{/if}
 							<span>{option.label}</span>
 							{#if option.count !== undefined}
-								<span class="advanced-table__filter-count">{option.count}</span>
+								<span class="font-mono text-[10px] text-tertiary">{option.count}</span>
 							{/if}
 						</Button>
 					{/each}
 				</div>
 
 				{#if selectedFilterGroups.length}
-					<div class="advanced-table__filter-summary">
-						<div class="advanced-table__filter-summary-header">
+					<div class="border-t border-border-primary bg-surface-secondary px-[9px] pt-2 pb-[9px]">
+						<div
+							class="mb-[5px] flex min-h-[22px] items-center justify-between text-[9px] font-bold uppercase tracking-[0.06em] text-tertiary"
+						>
 							<span>Applied filters</span>
 							<Button
 								type="button"
-								klass="advanced-table__clear"
+								klass="min-h-[22px] border-0 bg-transparent px-[3px] py-0 text-[9px] font-bold normal-case tracking-normal text-accent"
 								variant="ghost"
 								onclick={clearFilters}>Clear all</Button
 							>
 						</div>
-						<div class="advanced-table__selected-groups">
+						<div class="grid gap-[5px]">
 							{#each selectedFilterGroups as selectedGroup (selectedGroup.group.key)}
 								<div
-									class="advanced-table__selected-group"
-									style={`--filter-color: ${selectedGroup.group.color ?? 'var(--color-primary)'}`}
+									class="overflow-hidden rounded-[7px] border border-border-primary bg-surface-primary shadow-[0_1px_2px_rgba(15,23,42,0.03)] [border-left:3px_solid_var(--filter-color)]"
+									style={`--filter-color: ${selectedGroup.group.color ?? 'var(--semantic-accent)'}`}
 								>
-									<div class="advanced-table__selected-group-header">
-										<span class="advanced-table__selected-group-label">
-											<span class="advanced-table__selected-group-dot"></span>
+									<div
+										class="flex min-h-[25px] items-center justify-between border-b border-border-primary px-[7px] py-1 [background:color-mix(in_srgb,var(--filter-color)_8%,var(--surface-primary))]"
+									>
+										<span
+											class="inline-flex items-center gap-[5px] text-[9px] font-bold uppercase tracking-[0.05em] text-secondary"
+										>
+											<span
+												class="size-1.5 rounded-full [background-color:var(--filter-color)]"
+											></span>
 											{selectedGroup.group.label}
 										</span>
-										<span class="advanced-table__selected-group-count">
+										<span
+											class="grid h-[17px] min-w-[17px] place-items-center rounded-full font-mono text-[9px] font-bold [background:color-mix(in_srgb,var(--filter-color)_16%,var(--surface-primary))] [color:var(--filter-color)]"
+										>
 											{selectedGroup.options.length}
 										</span>
 									</div>
-									<div class="advanced-table__filter-chips">
+									<div class="flex min-w-0 flex-1 flex-wrap gap-1 p-1.5">
 										{#each selectedGroup.options as option (option.value)}
 											<Button
 												type="button"
-												klass="advanced-table__filter-chip"
+												klass="inline-flex min-h-[21px] items-center gap-[5px] rounded-full border py-0.5 pr-1.5 pl-[7px] text-[10px] font-semibold whitespace-nowrap text-secondary [background:color-mix(in_srgb,var(--filter-color)_12%,var(--surface-primary))] [border-color:color-mix(in_srgb,var(--filter-color)_22%,transparent)]"
 												variant="ghost"
 												onclick={() => toggleFilter(selectedGroup.group.key, option.value)}
 											>
@@ -374,9 +397,11 @@
 		</aside>
 	{/if}
 
-	<section class="advanced-table__main">
-		<div class="advanced-table__toolbar">
-			<div class="advanced-table__search">
+	<section class="flex min-w-0 flex-1 flex-col">
+		<div
+			class="flex min-h-[52px] flex-wrap items-center justify-between gap-2.5 border border-b-0 border-border-primary bg-surface-primary px-3 py-[9px] md:flex-nowrap"
+		>
+			<div class="relative flex w-full items-center text-tertiary md:w-[310px]">
 				<InputField
 					type="search"
 					bind:value={query}
@@ -385,11 +410,11 @@
 				/>
 			</div>
 
-			<div class="advanced-table__toolbar-actions">
-				<div class="advanced-table__popover-wrap">
+			<div class="flex flex-wrap items-center gap-[7px]">
+				<div class="relative">
 					<Button
 						type="button"
-						klass="advanced-table__toolbar-button"
+						klass="inline-flex h-8 items-center gap-1.5 rounded-md border border-border-primary bg-surface-primary px-2.5 text-[12.5px] whitespace-nowrap text-secondary"
 						variant="outline"
 						aria-expanded={columnsOpen}
 						onclick={() => {
@@ -400,14 +425,18 @@
 						<Columns width={14} height={14} /> Columns <ChevronDown width={11} height={11} />
 					</Button>
 					{#if columnsOpen}
-						<div class="advanced-table__popover advanced-table__columns-popover">
-							<p>Visible columns</p>
-							<div class="advanced-table__column-options">
+						<div
+							class="absolute top-[calc(100%+5px)] right-0 z-30 w-[280px] rounded-[7px] border border-border-primary bg-surface-primary p-2.5 shadow-lg"
+						>
+							<p class="mb-2 text-[10px] font-bold text-tertiary uppercase">Visible columns</p>
+							<div class="flex flex-wrap gap-[5px]">
 								{#each columns as column (column.key)}
 									<Button
 										type="button"
-										klass="advanced-table__column-chip {visibleColumnKeys.includes(column.key)
-											? 'advanced-table__column-chip--active'
+										klass="min-h-[26px] rounded-full border border-border-primary bg-surface-secondary px-[9px] py-[3px] text-[11px] text-secondary {visibleColumnKeys.includes(
+											column.key
+										)
+											? 'border-accent bg-accent/10 text-accent'
 											: ''}"
 										variant="ghost"
 										aria-pressed={visibleColumnKeys.includes(column.key)}
@@ -420,10 +449,10 @@
 				</div>
 
 				{#if views.length}
-					<div class="advanced-table__popover-wrap">
+					<div class="relative">
 						<Button
 							type="button"
-							klass="advanced-table__toolbar-button"
+							klass="inline-flex h-8 items-center gap-1.5 rounded-md border border-border-primary bg-surface-primary px-2.5 text-[12.5px] whitespace-nowrap text-secondary"
 							variant="outline"
 							aria-expanded={viewsOpen}
 							onclick={() => {
@@ -434,20 +463,27 @@
 							View <ChevronDown width={11} height={11} />
 						</Button>
 						{#if viewsOpen}
-							<div class="advanced-table__popover advanced-table__views-popover">
-								<p>Saved views</p>
+							<div
+								class="absolute top-[calc(100%+5px)] right-0 z-30 w-[230px] rounded-[7px] border border-border-primary bg-surface-primary p-2.5 shadow-lg"
+							>
+								<p class="mb-2 text-[10px] font-bold text-tertiary uppercase">Saved views</p>
 								{#each views as view (view.id)}
 									<Button
 										type="button"
-										klass="advanced-table__view {activeViewId === view.id
-											? 'advanced-table__view--active'
+										klass="flex min-h-[31px] w-full items-center rounded-[5px] border-0 bg-transparent px-[7px] py-[5px] text-left text-xs text-secondary hover:bg-accent/10 hover:text-accent {activeViewId ===
+										view.id
+											? 'bg-accent/10 text-accent'
 											: ''}"
 										variant="ghost"
 										onclick={() => applyView(view)}
 									>
 										<span>{view.name}</span>
-										{#if view.default}<small>Default</small>{/if}
-										{#if view.personal}<small>Personal</small>{/if}
+										{#if view.default}<small class="ml-auto text-[9px] text-tertiary uppercase"
+												>Default</small
+											>{/if}
+										{#if view.personal}<small class="ml-auto text-[9px] text-tertiary uppercase"
+												>Personal</small
+											>{/if}
 									</Button>
 								{/each}
 							</div>
@@ -455,12 +491,18 @@
 					</div>
 				{/if}
 
-				<span class="advanced-table__result-count">{sortedRows.length.toLocaleString()} items</span>
+				<span class="font-mono text-[11px] whitespace-nowrap text-tertiary"
+					>{sortedRows.length.toLocaleString()} items</span
+				>
 			</div>
 		</div>
 
-		<div class="advanced-table__card">
-			<div class="advanced-table__scroll">
+		<div
+			class="flex min-h-0 flex-1 flex-col overflow-hidden rounded-br-lg border border-border-primary bg-surface-primary shadow-sm"
+		>
+			<div
+				class="min-h-0 flex-1 overflow-x-auto [scrollbar-color:var(--text-tertiary)_var(--surface-tertiary)] [scrollbar-width:auto] [&::-webkit-scrollbar]:h-2.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:border-2 [&::-webkit-scrollbar-thumb]:border-surface-tertiary [&::-webkit-scrollbar-thumb]:bg-tertiary [&::-webkit-scrollbar-thumb:hover]:bg-secondary [&::-webkit-scrollbar-track]:border-t [&::-webkit-scrollbar-track]:border-border-primary [&::-webkit-scrollbar-track]:bg-surface-tertiary"
+			>
 				<DataTable
 					columns={dataTableColumns}
 					rows={pageRows}
@@ -471,27 +513,33 @@
 					actions={RowActions}
 					CustomHeader={AdvancedHeader}
 					CustomCell={AdvancedCell}
-					rowClass={(row) => (selectedIds.includes(row.id) ? 'advanced-table__row--selected' : '')}
+					rowClass={(row) => (selectedIds.includes(row.id) ? 'bg-accent/10' : '')}
 				/>
 			</div>
 
-			<div class="advanced-table__pagination">
+			<div
+				class="mt-auto flex min-h-[45px] items-center justify-end gap-[18px] border-t border-border-primary px-3 py-[7px] text-[11px] text-tertiary"
+			>
 				<span>
 					{sortedRows.length
 						? `${(currentPage - 1) * pageSize + 1}-${Math.min(currentPage * pageSize, sortedRows.length)}`
 						: '0'} of {sortedRows.length.toLocaleString()}
 				</span>
-				<label>
+				<label class="flex items-center gap-[7px]">
 					Rows
-					<select bind:value={pageSize}>
+					<select
+						bind:value={pageSize}
+						class="h-7 rounded-[5px] border border-border-primary bg-surface-primary px-[7px] text-secondary"
+					>
 						{#each pageSizeOptions as size (size)}
 							<option value={size}>{size}</option>
 						{/each}
 					</select>
 				</label>
-				<div class="advanced-table__page-buttons">
+				<div class="flex items-center gap-[7px]">
 					<Button
 						type="button"
+						klass="size-7 rounded-[5px] border border-border-primary bg-surface-primary p-0 text-secondary disabled:opacity-40"
 						variant="ghost"
 						aria-label="Previous page"
 						disabled={currentPage === 1}
@@ -500,6 +548,7 @@
 					<span>{currentPage} / {totalPages}</span>
 					<Button
 						type="button"
+						klass="size-7 rounded-[5px] border border-border-primary bg-surface-primary p-0 text-secondary disabled:opacity-40"
 						variant="ghost"
 						aria-label="Next page"
 						disabled={currentPage === totalPages}
@@ -524,8 +573,8 @@
 		{#if advancedColumn}
 			<Button
 				type="button"
-				klass="advanced-table__column-header {advancedColumn.sortable
-					? 'advanced-table__sortable'
+				klass="inline-flex items-center gap-[5px] border-0 bg-transparent p-0 [color:inherit] [font:inherit] [letter-spacing:inherit] [text-transform:inherit] {advancedColumn.sortable
+					? 'cursor-pointer select-none'
 					: ''}"
 				variant="ghost"
 				onclick={() => toggleSort(advancedColumn)}
