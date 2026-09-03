@@ -18,6 +18,7 @@
 		emptyText = 'No data found.',
 		hidePagination = false,
 		paginationKlass = '',
+		actionColKlass = '',
 		embedded = false,
 		rowClass,
 		actions,
@@ -33,6 +34,7 @@
 		pageSizeOptions?: number[];
 		emptyText?: string;
 		paginationKlass?: string;
+		actionColKlass?: string;
 		hidePagination?: boolean;
 		embedded?: boolean;
 		rowClass?: (row: any) => string;
@@ -171,7 +173,7 @@
 					{#if actions}
 						<th
 							scope="col"
-							class="px-4 py-3 text-right text-xs font-semibold tracking-wide uppercase"
+							class="px-4 py-3 text-right text-xs font-semibold tracking-wide uppercase {actionColKlass}"
 						>
 							Actions
 						</th>
@@ -212,7 +214,7 @@
 								</td>
 							{/each}
 							{#if actions}
-								<td class="px-4 py-3 text-right">
+								<td class="px-4 py-3 text-right {actionColKlass}">
 									{@render actions(row)}
 								</td>
 							{/if}

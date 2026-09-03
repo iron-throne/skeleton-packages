@@ -1,5 +1,5 @@
 import type { Snippet } from 'svelte';
-import { ESwitchLayout, type ETheme, type IMenu } from '@aryagg/types';
+import { ESwitchLayout, type ETheme, type IGenericObject, type IMenu } from '@aryagg/types';
 
 export type SwitchDisplay = 'icon' | 'label' | 'both';
 export type SwitchLayout = ESwitchLayout;
@@ -51,6 +51,7 @@ export interface TopbarProps {
 	variant?: TopbarVariant;
 
 	klass?: string;
+	classes?:IGenericObject;
 
 	leftSlot?: Snippet;
 	midSlot?: Snippet;

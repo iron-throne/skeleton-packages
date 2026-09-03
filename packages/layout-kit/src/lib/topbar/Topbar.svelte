@@ -14,6 +14,7 @@
 		variant = 'inline',
 
 		klass = '',
+		classes = {},
 
 		leftSlot,
 		midSlot,
@@ -31,7 +32,7 @@
 	<div
 		class="flex w-full items-center gap-4 px-4 {variant === 'stacked'
 			? 'py-2'
-			: ''}"
+			: ''} {classes.main}"
 	>
 		{#if leftSlot}
 			<div class="flex shrink-0 items-center gap-2">{@render leftSlot()}</div>
@@ -73,7 +74,7 @@
 	</div>
 
 	{#if nav && variant === 'stacked'}
-		<div class="flex w-full items-center border-b border-border-primary px-4 py-1.5">
+		<div class="flex w-full items-center border-y border-border-primary px-4 py-1.5 {classes.nav}">
 			<HeaderNavList {...nav} />
 		</div>
 	{/if}
