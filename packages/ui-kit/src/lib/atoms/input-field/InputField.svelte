@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { Eye, EyeSlash } from 'svelte-bootstrap-icons';
 	import { ESize } from '@aryagg/types';
+	import { uniqId } from '@aryagg/utils';
+
 	import {
 		INPUT_FIELD_BASE_CLASS,
 		INPUT_FIELD_HELPER_CLASS,
@@ -17,7 +19,7 @@
 	} from './types';
 
 	let {
-		id = crypto.randomUUID(),
+		id = uniqId(),
 		label = '',
 		type = 'text',
 		value = $bindable<InputFieldValue>(''),
@@ -142,7 +144,7 @@
 			{#if placeholder}
 				<option value="" disabled>{placeholder}</option>
 			{/if}
-			{#each options as option}
+			{#each options as option, oInd (oInd)}
 				<option value={option.value} disabled={option.disabled}>{option.label}</option>
 			{/each}
 		</select>
@@ -170,7 +172,7 @@
 				<legend class="section-label">{label}</legend>
 			{/if}
 			<div class="flex flex-wrap gap-3">
-				{#each options as option}
+			{#each options as option, oInd (oInd)}
 					<label class="m-0 flex cursor-pointer items-center gap-2 normal-case tracking-normal">
 						<input
 							type="radio"

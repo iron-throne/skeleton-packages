@@ -5,6 +5,7 @@
 	import { fade, fly } from 'svelte/transition';
 	import { XLg } from 'svelte-bootstrap-icons';
 	import type { DrawerPosition, DrawerProps, DrawerVariant } from './types';
+	import { uniqId } from '@aryagg/utils';
 
 	let {
 		open = $bindable(false),
@@ -29,8 +30,8 @@
 		onClose
 	}: DrawerProps = $props();
 
-	const titleId = crypto.randomUUID();
-	const descriptionId = crypto.randomUUID();
+	const titleId = uniqId();
+	const descriptionId = uniqId();
 
 	const sizeClass: Partial<Record<ESize, string>> = {
 		[ESize.XS]: 'max-w-xs',

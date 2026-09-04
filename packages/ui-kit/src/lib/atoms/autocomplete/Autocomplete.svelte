@@ -10,9 +10,10 @@
 		AUTOCOMPLETE_STATE_CLASS
 	} from './constants';
 	import type { AutocompleteOption, AutocompleteProps, AutocompleteValue } from './types';
+	import { uniqId } from '@aryagg/utils';
 
 	let {
-		id = crypto.randomUUID(),
+		id = uniqId(),
 		label = '',
 		value = $bindable<AutocompleteValue>(null),
 		options = [],

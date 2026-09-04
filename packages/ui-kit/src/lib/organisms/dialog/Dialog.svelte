@@ -5,6 +5,7 @@
 	import { fade, scale } from 'svelte/transition';
 	import { XLg } from 'svelte-bootstrap-icons';
 	import type { DialogProps, DialogRadius, DialogVariant } from './types';
+	import { uniqId } from '@aryagg/utils';
 
 	let {
 		open = $bindable(false),
@@ -29,8 +30,8 @@
 		onClose
 	}: DialogProps = $props();
 
-	const titleId = crypto.randomUUID();
-	const descriptionId = crypto.randomUUID();
+	const titleId = uniqId();
+	const descriptionId = uniqId();
 
 	const sizeClass: Partial<Record<ESize, string>> = {
 		[ESize.XS]: 'max-w-xs',

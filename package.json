@@ -4,5 +4,8 @@
   "workspaces": [
     "packages/*"
   ],
-  "version": "0.0.1"
+  "version": "0.0.1",
+  "dependencies": {
+    "@aryagg/theme": "^0.0.4"
+  }
 }
