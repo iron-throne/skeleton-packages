@@ -187,7 +187,7 @@
 				{@render panelSlot()}
 			{:else}
 				<h2 class="text-3xl font-bold lg:text-4xl text-on-accent {classes.panelHeading}">{panelHeading}</h2>
-				<p class="text-on-accent/80 mt-4 text-lg text-on-accent {classes.panelDescription}">{panelDescription}</p>
+				<p class="mt-4 text-lg text-on-accent {classes.panelDescription}">{panelDescription}</p>
 			{/if}
 		</div>
 	</div>

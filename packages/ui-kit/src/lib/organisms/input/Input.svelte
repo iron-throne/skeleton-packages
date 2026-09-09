@@ -2,9 +2,20 @@
 	import { type IFormField, EInputType, EPosition, NATIVE_TEXT_TYPES } from '@aryagg/types';
 	import { onMount } from 'svelte';
 	import { ExclamationCircle } from 'svelte-bootstrap-icons';
-	import { applyDefaultRules } from '$lib/input-shared';
-	import { TextInput, PasswordInput, TextareaInput, CheckboxInput, SwitchInput, RadioInput, RangeInput, FileInput, SelectInput, MultiSelectInput } from '$lib/atoms';
-	import { RichTextBox } from '$lib/molecules';
+	import { applyDefaultRules, emitValue } from '$lib/input-shared';
+	import {
+		TextInput,
+		PasswordInput,
+		TextareaInput,
+		CheckboxInput,
+		SwitchInput,
+		RadioInput,
+		RangeInput,
+		FileInput,
+		SelectInput,
+		MultiSelectInput
+	} from '$lib/atoms';
+	import { RichTextBox, DatePicker } from '$lib/molecules';
 
 	let {
 		field = $bindable(),
@@ -44,7 +55,16 @@
 		{@render labelBlock()}
 	{/if}
 
-	{#if NATIVE_TEXT_TYPES.has(field.type)}
+	{#if field.type === EInputType.DATE}
+		<DatePicker
+			{field}
+			placeholder={field.placeholder ?? ''}
+			selected={field.value as string}
+			minDate={field.attributes?.min as string}
+			maxDate={field.attributes?.max as string}
+			onUpdateValue={(val: string) => emitValue(field, val)}
+		/>
+	{:else if NATIVE_TEXT_TYPES.has(field.type)}
 		<TextInput bind:field {icon} {iconPosition} />
 	{:else if field.type === EInputType.PASSWORD}
 		<PasswordInput bind:field {icon} {iconPosition} {labelBlock} />

@@ -2,6 +2,7 @@
 <script lang="ts">
 	import { clickOutside as useClickOutside, isValidDateString } from '@aryagg/utils';
 	import { type IFormField, MONTHS, DAYS, type ICalendarOption, type ICalendarDate } from '@aryagg/types';
+	import { SvelteDate } from 'svelte/reactivity';
 
 	let {
 		onUpdateValue,
@@ -224,7 +225,7 @@
 	}
 
 	function handleYMChange(selector: ICalendarOption) {
-		const currSelectedDate = new Date(selectedMonthYear || today);
+		const currSelectedDate = new SvelteDate(selectedMonthYear || today);
 		if (selector.key === 'month') {
 			const monthInd = MONTHS.indexOf(selector.value as string);
 			if (monthInd > -1) {
