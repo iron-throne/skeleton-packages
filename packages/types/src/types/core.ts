@@ -33,6 +33,7 @@ export interface TableColumn {
   sortable?: boolean;
   class?: string;
   type?: EDataType;
+  hide?:boolean;
 }
 
 export interface IMenu {
