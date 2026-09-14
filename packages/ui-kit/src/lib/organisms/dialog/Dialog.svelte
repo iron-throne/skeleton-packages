@@ -6,6 +6,7 @@
 	import { XLg } from 'svelte-bootstrap-icons';
 	import type { DialogProps, DialogRadius, DialogVariant } from './types';
 	import { uniqId } from '@aryagg/utils';
+	import { SIZE_CLASS } from '$lib/constants';
 
 	let {
 		open = $bindable(false),
@@ -33,17 +34,6 @@
 	const titleId = uniqId();
 	const descriptionId = uniqId();
 
-	const sizeClass: Partial<Record<ESize, string>> = {
-		[ESize.XS]: 'max-w-xs',
-		[ESize.SM]: 'max-w-sm',
-		[ESize.MD]: 'max-w-lg',
-		[ESize.LG]: 'max-w-2xl',
-		[ESize.XL]: 'max-w-4xl',
-		[ESize.XL2]: 'max-w-5xl',
-		[ESize.XL3]: 'max-w-6xl',
-		[ESize.XL4]: 'max-w-7xl',
-		[ESize.FULL]: 'max-w-[calc(100vw-2rem)]'
-	};
 	const radiusClass: Record<DialogRadius, string> = {
 		none: 'rounded-none',
 		sm: 'rounded-md',
@@ -88,9 +78,9 @@
 			aria-modal="true"
 			aria-labelledby={title ? titleId : undefined}
 			aria-describedby={description ? descriptionId : undefined}
-			class="relative flex max-h-[75vh] md:max-h-[80vh] lg:max-h-[90vh] w-full flex-col overflow-hidden border border-border-primary bg-surface-primary text-primary shadow-2xl {sizeClass[
+			class="relative flex max-h-[75vh] md:max-h-[80vh] lg:max-h-[90vh] w-full flex-col overflow-hidden border border-border-primary bg-surface-primary text-primary shadow-2xl {SIZE_CLASS[
 				size
-			] ?? sizeClass[ESize.MD]} {radiusClass[radius]} {panelClass}"
+			] ?? SIZE_CLASS[ESize.MD]} {radiusClass[radius]} {panelClass}"
 			transition:scale={{ duration: 180, start: 0.96, easing: cubicOut }}
 		>
 			{#if header}

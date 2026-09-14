@@ -24,7 +24,8 @@
 		onRowClick,
 		actions,
 		CustomHeader,
-		CustomCell
+		CustomCell,
+		topMidSlot
 	}: {
 		columns: TableColumn[];
 		rows: any[];
@@ -43,6 +44,7 @@
 		actions?: Snippet<[any]>;
 		CustomHeader?: Snippet<[TableColumn, number]>;
 		CustomCell?: Snippet<[any, TableColumn]>;
+		topMidSlot?: Snippet;
 	} = $props();
 
 	// ── Sort state ────────────────────────────────────────────────
@@ -134,6 +136,9 @@
 			</div>
 		{/if}
 
+		{#if topMidSlot}
+			{@render topMidSlot()}
+		{/if}
 		<!-- Pagination -->
 		{#if !hidePagination}
 			<div class="px-2 {paginationKlass}">
@@ -219,7 +224,10 @@
 							class="hover:bg-surface-secondary/50 transition-colors {onRowClick
 								? 'cursor-pointer'
 								: ''} {rowClass?.(row) ?? ''}"
-							onclick={() => onRowClick?.(row)}
+							onclick={(e) => {
+								e?.stopPropagation();
+								onRowClick?.(row);
+							}}
 						>
 							{#each visibleColumns as col, colInd (colInd)}
 								<td class="text-primary/80 text-sm px-4 py-3 whitespace-nowrap {col.class}">

@@ -1,6 +1,6 @@
 {
     "name": "@aryagg/ui-kit",
-    "version": "0.2.8",
+    "version": "0.2.9",
     "scripts": {
         "dev": "vite dev",
         "build": "npm run prepack",
