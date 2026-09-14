@@ -63,6 +63,12 @@
 
 	// ── Search ────────────────────────────────────────────────────
 	let query = $state('');
+	let columnQueries = $state<Record<string, string>>({});
+
+	function setColumnQuery(key: string, value: string) {
+		columnQueries[key] = value;
+		currentPage = 1;
+	}
 
 	// ── Pagination ────────────────────────────────────────────────
 	let currentPage = $state(1);
@@ -76,15 +82,37 @@
 	// ── Derived: filter → sort → paginate ─────────────────────────
 
 	const filtered = $derived.by(() => {
-		if (!query.trim()) return rows;
-		const q = query.toLowerCase();
-		return rows.filter((row) =>
-			columns.some((col) =>
-				String(row[col.key] ?? '')
-					.toLowerCase()
-					.includes(q)
-			)
-		);
+		let result = rows;
+
+		if (query.trim()) {
+			const q = query.toLowerCase();
+			result = result.filter((row) =>
+				columns.some((col) =>
+					String(row[col.key] ?? '')
+						.toLowerCase()
+						.includes(q)
+				)
+			);
+		}
+
+		const columnFilters = columns.filter((col) => col.searchable && columnQueries[col.key]?.trim());
+		for (const col of columnFilters) {
+			const q = columnQueries[col.key].toLowerCase();
+			const fields = col.searchKey
+				? Array.isArray(col.searchKey)
+					? col.searchKey
+					: [col.searchKey]
+				: [col.key];
+			result = result.filter((row) =>
+				fields.some((field) =>
+					String(row[field] ?? '')
+						.toLowerCase()
+						.includes(q)
+				)
+			);
+		}
+
+		return result;
 	});
 
 	const sortFields = $derived.by(() => {
@@ -110,7 +138,8 @@
 
 	const totalPages = $derived(Math.max(1, Math.ceil(sorted.length / pageSize)));
 	const paginated = $derived(sorted.slice((currentPage - 1) * pageSize, currentPage * pageSize));
-	const visibleColumns = $derived(columns?.filter(c=>!c.hide));
+	const visibleColumns = $derived(columns?.filter((c) => !c.hide));
+	const hasColumnSearch = $derived(visibleColumns.some((c) => c.searchable));
 
 	function cellValue(col: TableColumn, row: any) {
 		return parseInputValue(row[col.key], col.type) ?? '';
@@ -167,24 +196,40 @@
 								: ''}"
 							onclick={() => col.sortable && toggleSort(col)}
 						>
-							<span class="inline-flex items-center gap-1.5">
-								{#if CustomHeader}
-									{@render CustomHeader(col, ind)}
-								{:else}
-									{col.label}
-									{#if col.sortable}
-										{#if sortColKey === col.key}
-											{#if sortDir === 'asc'}
-												<SortAlphaDown width={13} height={13} class="text-accent" />
+							<div class="flex flex-col gap-1">
+								<span class="inline-flex items-center gap-1.5">
+									{#if CustomHeader}
+										{@render CustomHeader(col, ind)}
+									{:else}
+										{col.label}
+										{#if col.sortable}
+											{#if sortColKey === col.key}
+												{#if sortDir === 'asc'}
+													<SortAlphaDown width={13} height={13} class="text-accent" />
+												{:else}
+													<SortAlphaUp width={13} height={13} class="text-accent" />
+												{/if}
 											{:else}
-												<SortAlphaUp width={13} height={13} class="text-accent" />
+												<ArrowDownUp width={11} height={11} class="opacity-30" />
 											{/if}
-										{:else}
-											<ArrowDownUp width={11} height={11} class="opacity-30" />
 										{/if}
 									{/if}
+								</span>
+								{#if col.searchable}
+									<input
+										type="search"
+										placeholder="Search…"
+										value={columnQueries[col.key] ?? ''}
+										oninput={(e) =>
+											setColumnQuery(col.key, (e.currentTarget as HTMLInputElement).value)}
+										onclick={(e) => e.stopPropagation()}
+										class="bg-surface-primary text-primary placeholder:text-tertiary focus:border-accent focus:ring-accent w-full rounded-md
+										   border px-2 py-1 text-xs font-normal normal-case transition focus:ring-1 focus:outline-none"
+									/>
+								{:else if hasColumnSearch}
+									<div class="invisible border px-2 py-1 text-xs" aria-hidden="true">&nbsp;</div>
 								{/if}
-							</span>
+							</div>
 						</th>
 					{/each}
 					{#if actions}
@@ -192,7 +237,12 @@
 							scope="col"
 							class="px-4 py-3 text-right text-xs font-semibold tracking-wide uppercase {actionColKlass}"
 						>
-							Actions
+							<div class="flex flex-col gap-1">
+								<span>Actions</span>
+								{#if hasColumnSearch}
+									<div class="invisible border px-2 py-1 text-xs" aria-hidden="true">&nbsp;</div>
+								{/if}
+							</div>
 						</th>
 					{/if}
 				</tr>
