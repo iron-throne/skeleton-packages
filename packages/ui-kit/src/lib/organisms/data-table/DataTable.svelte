@@ -21,6 +21,7 @@
 		actionColKlass = '',
 		embedded = false,
 		rowClass,
+		onRowClick,
 		actions,
 		CustomHeader,
 		CustomCell
@@ -38,20 +39,21 @@
 		hidePagination?: boolean;
 		embedded?: boolean;
 		rowClass?: (row: any) => string;
+		onRowClick?: (row: any) => void;
 		actions?: Snippet<[any]>;
 		CustomHeader?: Snippet<[TableColumn, number]>;
 		CustomCell?: Snippet<[any, TableColumn]>;
 	} = $props();
 
 	// ── Sort state ────────────────────────────────────────────────
-	let sortKey = $state<string | null>(null);
+	let sortColKey = $state<string | null>(null);
 	let sortDir = $state<'asc' | 'desc'>('asc');
 
-	function toggleSort(key: string) {
-		if (sortKey === key) {
+	function toggleSort(col: TableColumn) {
+		if (sortColKey === col.key) {
 			sortDir = sortDir === 'asc' ? 'desc' : 'asc';
 		} else {
-			sortKey = key;
+			sortColKey = col.key;
 			sortDir = 'asc';
 		}
 		currentPage = 1;
@@ -83,14 +85,24 @@
 		);
 	});
 
+	const sortFields = $derived.by(() => {
+		if (!sortColKey) return null;
+		const col = columns.find((c) => c.key === sortColKey);
+		if (!col) return null;
+		return col.sortKey ? (Array.isArray(col.sortKey) ? col.sortKey : [col.sortKey]) : [col.key];
+	});
+
 	const sorted = $derived.by(() => {
-		if (!sortKey) return filtered;
-		const key = sortKey;
+		if (!sortFields) return filtered;
+		const fields = sortFields;
 		return [...filtered].sort((a, b) => {
-			const av = String(a[key] ?? '');
-			const bv = String(b[key] ?? '');
-			const cmp = av.localeCompare(bv, undefined, { numeric: true, sensitivity: 'base' });
-			return sortDir === 'asc' ? cmp : -cmp;
+			for (const field of fields) {
+				const av = String(a[field] ?? '');
+				const bv = String(b[field] ?? '');
+				const cmp = av.localeCompare(bv, undefined, { numeric: true, sensitivity: 'base' });
+				if (cmp !== 0) return sortDir === 'asc' ? cmp : -cmp;
+			}
+			return 0;
 		});
 	});
 
@@ -148,7 +160,7 @@
                                    {col.sortable
 								? 'hover:text-primary cursor-pointer transition-colors select-none'
 								: ''}"
-							onclick={() => col.sortable && toggleSort(col.key)}
+							onclick={() => col.sortable && toggleSort(col)}
 						>
 							<span class="inline-flex items-center gap-1.5">
 								{#if CustomHeader}
@@ -156,7 +168,7 @@
 								{:else}
 									{col.label}
 									{#if col.sortable}
-										{#if sortKey === col.key}
+										{#if sortColKey === col.key}
 											{#if sortDir === 'asc'}
 												<SortAlphaDown width={13} height={13} class="text-accent" />
 											{:else}
@@ -203,7 +215,12 @@
 					</tr>
 				{:else}
 					{#each paginated as row, rowInd (rowInd)}
-						<tr class="hover:bg-surface-secondary/50 transition-colors {rowClass?.(row) ?? ''}">
+						<tr
+							class="hover:bg-surface-secondary/50 transition-colors {onRowClick
+								? 'cursor-pointer'
+								: ''} {rowClass?.(row) ?? ''}"
+							onclick={() => onRowClick?.(row)}
+						>
 							{#each visibleColumns as col, colInd (colInd)}
 								<td class="text-primary/80 text-sm px-4 py-3 whitespace-nowrap {col.class}">
 									{#if CustomCell}

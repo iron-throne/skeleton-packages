@@ -31,6 +31,7 @@ export interface TableColumn {
   key: string;
   label: string;
   sortable?: boolean;
+  sortKey?: string | string[];
   class?: string;
   type?: EDataType;
   hide?:boolean;
