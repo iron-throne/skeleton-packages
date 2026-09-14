@@ -8,6 +8,7 @@
 		type ICalendarDate
 	} from '@aryagg/types';
 	import { SvelteDate } from 'svelte/reactivity';
+	import { ChevronLeft, ChevronRight } from 'svelte-bootstrap-icons';
 
 	let {
 		onUpdateValue,
@@ -49,14 +50,32 @@
 		panelStyle: string = $state('');
 
 	const panelGap = 8;
+	const panelWidthPreset = 288; // 18rem
+	const viewportMargin = 8;
+	const estimatedPanelHeight = 380;
 
 	// Panel is portaled to <body>, so it's positioned with `fixed` + coordinates computed from
 	// the trigger's own screen position instead of `absolute` inside the wrapper - `absolute`
 	// would get clipped by any `overflow: hidden/auto/scroll` ancestor the trigger sits in.
+	// Also clamps to the viewport and flips upward when there isn't room below, so it stays
+	// fully visible and usable on small/mobile screens.
 	function positionPanel() {
 		if (!wrapperEl) return;
 		const rect = wrapperEl.getBoundingClientRect();
-		panelStyle = `top:${rect.bottom + panelGap}px; right:${window.innerWidth - rect.right}px;`;
+		const panelWidth = Math.min(panelWidthPreset, window.innerWidth - viewportMargin * 2);
+
+		let left = rect.right - panelWidth;
+		left = Math.min(
+			Math.max(left, viewportMargin),
+			window.innerWidth - panelWidth - viewportMargin
+		);
+
+		const spaceBelow = window.innerHeight - rect.bottom;
+		const openUpward = spaceBelow < estimatedPanelHeight && rect.top > spaceBelow;
+
+		panelStyle = openUpward
+			? `left:${left}px; width:${panelWidth}px; bottom:${window.innerHeight - rect.top + panelGap}px;`
+			: `left:${left}px; width:${panelWidth}px; top:${rect.bottom + panelGap}px;`;
 	}
 
 	// Initialize with field value if it exists
@@ -115,9 +134,10 @@
 			});
 		}
 
-		// Add days from next month to fill 42-day grid (6 weeks × 7 days)
+		// Add days from next month to complete the last row (round up to a full week)
+		const gridSize = Math.ceil(dates.length / 7) * 7;
 		let nextMonthDay = 1;
-		while (dates.length < 42) {
+		while (dates.length < gridSize) {
 			const calendarDate = getDate(nextMonthDay, 'next');
 			dates.push({
 				day: nextMonthDay,
@@ -225,7 +245,9 @@
 	}
 
 	// Keeps the portaled panel aligned with its trigger while open - a `fixed` position won't
-	// follow it on its own if a scrollable ancestor scrolls or the viewport resizes.
+	// follow it on its own if a scrollable ancestor scrolls or the viewport resizes. Also closes
+	// on Escape, since the panel is portaled out of this wrapper and wouldn't otherwise bubble
+	// a keydown back up to a handler here.
 	$effect(() => {
 		if (!isCalendarOpen) return;
 
@@ -237,12 +259,17 @@
 			}
 			positionPanel();
 		}
+		function handleKeydown(e: KeyboardEvent) {
+			if (e.key === 'Escape') close();
+		}
 
 		window.addEventListener('scroll', reposition, true);
 		window.addEventListener('resize', reposition);
+		document.addEventListener('keydown', handleKeydown);
 		return () => {
 			window.removeEventListener('scroll', reposition, true);
 			window.removeEventListener('resize', reposition);
+			document.removeEventListener('keydown', handleKeydown);
 		};
 	});
 
@@ -289,7 +316,9 @@
 >
 	<!-- Date Input Field -->
 	<button
+		type="button"
 		aria-label="Toggle Calendar"
+		aria-haspopup="dialog"
 		aria-expanded={isCalendarOpen}
 		disabled={field.disabled}
 		onclick={toggleCalendar}
@@ -299,15 +328,9 @@
 	>
 		<i class="bi bi-calendar3 text-base text-tertiary group-hover:text-secondary"></i>
 
-		<input
-			type="text"
-			readonly
-			disabled={field.disabled}
-			placeholder={placeholder ?? 'Select date'}
-			bind:value={date}
-			class="w-full cursor-pointer border-0 bg-transparent p-0! text-primary placeholder:text-tertiary"
-			autocomplete="off"
-		/>
+		<span class="min-w-0 flex-1 truncate">
+			{date || placeholder || 'Select date'}
+		</span>
 	</button>
 	<!-- Calendar Dropdown: portaled to <body> so it escapes any ancestor's overflow clipping -->
 	{#if isCalendarOpen}
@@ -315,16 +338,17 @@
 			use:portal
 			data-dropdown-menu
 			style={panelStyle}
-			class="fixed z-50 w-72 rounded-xl border border-border-primary bg-surface-primary p-4 shadow-2xl"
+			class="fixed z-[2010] max-h-[min(28rem,calc(100vh-1rem))] overflow-y-auto rounded-xl border border-border-primary bg-surface-primary p-4 shadow-2xl"
 		>
 			<!-- Calendar Header -->
 			<div class="flex items-center justify-between gap-1 border-b border-border-primary py-1">
 				<button
+					type="button"
 					onclick={getPrevMonth}
 					aria-label="Previous month"
-					class="flex h-8 w-8 items-center justify-center rounded-lg bg-surface-secondary text-secondary transition-all duration-200 hover:scale-110 hover:bg-accent/10! hover:text-accent"
+					class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border-0! bg-surface-secondary p-0! text-secondary transition-all duration-200 hover:scale-110 hover:bg-accent/10! hover:text-accent"
 				>
-					<i class="bi bi-chevron-left text-sm font-bold"></i>
+					<ChevronLeft width={13} height={13} />
 				</button>
 
 				<div
@@ -345,7 +369,11 @@
 							</select>
 						{/each}
 					{:else}
-						<button class="text-center text-base font-bold" onclick={() => (displayYMEdit = true)}>
+						<button
+							type="button"
+							class="text-center text-base font-bold"
+							onclick={() => (displayYMEdit = true)}
+						>
 							{(selectedMonthYear || today)?.toLocaleDateString('en-US', {
 								year: 'numeric',
 								month: 'long'
@@ -355,11 +383,12 @@
 				</div>
 
 				<button
+					type="button"
 					onclick={getNextMonth}
 					aria-label="Next Month"
-					class="flex h-8 w-8 items-center justify-center rounded-lg bg-surface-secondary text-secondary transition-all duration-200 hover:scale-110 hover:bg-accent/10! hover:text-accent"
+					class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border-0! bg-surface-secondary p-0! text-secondary transition-all duration-200 hover:scale-110 hover:bg-accent/10! hover:text-accent"
 				>
-					<i class="bi bi-chevron-right text-sm font-bold"></i>
+					<ChevronRight width={13} height={13} />
 				</button>
 			</div>
 
@@ -373,10 +402,11 @@
 					{/each}
 				</div>
 				<!-- Calendar Grid -->
-				<div class="grid grid-cols-7 gap-2">
+				<div class="grid grid-cols-7 gap-2 pb-1">
 					{#each dates() as dateObj, ind (ind)}
 						<button
-							class={`relative flex h-8 w-8 items-center justify-center rounded-full text-sm font-medium transition-all duration-200 hover:scale-105 ${
+							type="button"
+							class={`relative flex aspect-square w-full items-center justify-center rounded-full text-sm font-medium transition-all duration-200 hover:scale-105 ${
 								dateObj.isDisabled
 									? 'text-tertiary/50 hover:bg-surface-secondary! hover:text-tertiary'
 									: dateObj.day === currentDay && dateObj.from === 'current'
@@ -399,11 +429,12 @@
 			</div>
 
 			<!-- Calendar Footer -->
-			<div class="flex items-center justify-end gap-4 border-t border-border-primary pt-2">
+			<div class="flex items-center justify-end gap-2 border-t border-border-primary pt-2">
 				{#each footerBtns as btn, bInd (bInd)}
 					<div class="group relative inline-block cursor-pointer">
 						<button
-							class="text-xs text-tertiary transition-colors duration-200 hover:text-accent"
+							type="button"
+							class="text-xs text-tertiary transition-colors duration-200 hover:text-accent btn btn-ghost"
 							onclick={btn.click}
 						>
 							{btn.label}

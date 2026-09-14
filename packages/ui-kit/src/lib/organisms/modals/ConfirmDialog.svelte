@@ -19,6 +19,7 @@
 		isAbsoluteIcon = false,
 		parentKlass,
 		msgKlass,
+		parentModalKlass,
 		onconfirm,
 		oncancel,
 		confirmFooterSlot,
@@ -36,6 +37,7 @@
 		parentKlass?: string;
 		msgKlass?: string;
 		isAbsoluteIcon?: boolean;
+		parentModalKlass?: boolean;
 
 		onconfirm?: () => void | Promise<void>;
 		oncancel?: () => void;
@@ -67,6 +69,7 @@
 	closeOnBackdrop={!loading}
 	closeOnEsc={!loading}
 	footerKlass="border-t-0 {showActions ? '' : 'hidden'}"
+	parentKlass={parentModalKlass}
 >
 	<div class="flex flex-col gap-2 {parentKlass}">
 		{#if iconSlot}

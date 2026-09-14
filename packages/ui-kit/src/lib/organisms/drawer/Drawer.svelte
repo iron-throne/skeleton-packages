@@ -4,8 +4,9 @@
 	import { cubicOut } from 'svelte/easing';
 	import { fade, fly } from 'svelte/transition';
 	import { XLg } from 'svelte-bootstrap-icons';
-	import type { DrawerPosition, DrawerProps, DrawerVariant } from './types';
+	import type {  DrawerProps, DrawerVariant } from './types';
 	import { uniqId } from '@aryagg/utils';
+	import { SIZE_CLASS } from '$lib/constants';
 
 	let {
 		open = $bindable(false),
@@ -33,16 +34,6 @@
 	const titleId = uniqId();
 	const descriptionId = uniqId();
 
-	const sizeClass: Partial<Record<ESize, string>> = {
-		[ESize.XS]: 'max-w-xs',
-		[ESize.SM]: 'max-w-sm',
-		[ESize.MD]: 'max-w-md',
-		[ESize.LG]: 'max-w-lg',
-		[ESize.XL]: 'max-w-xl',
-		[ESize.XL2]: 'max-w-2xl',
-		[ESize.XL3]: 'max-w-3xl',
-		[ESize.FULL]: 'max-w-full'
-	};
 	const variantClass: Record<DrawerVariant, string> = {
 		default: 'bg-accent/10 text-accent',
 		info: 'bg-info/10 text-info',
@@ -84,9 +75,9 @@
 			aria-modal="true"
 			aria-labelledby={title ? titleId : undefined}
 			aria-describedby={description ? descriptionId : undefined}
-			class="border-border-primary bg-surface-primary text-primary relative flex h-full w-full flex-col overflow-hidden {borderClass} shadow-2xl {sizeClass[
+			class="border-border-primary bg-surface-primary text-primary relative flex h-full w-full flex-col overflow-hidden {borderClass} shadow-2xl {SIZE_CLASS[
 				size
-			] ?? sizeClass[ESize.MD]} {panelClass}"
+			] ?? SIZE_CLASS[ESize.MD]} {panelClass}"
 			transition:fly={{ x: flyX, duration: 220, easing: cubicOut }}
 		>
 			{#if header}

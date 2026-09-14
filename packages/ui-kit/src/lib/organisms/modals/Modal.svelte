@@ -63,11 +63,15 @@
 {#if open}
 	<!-- Backdrop -->
 	<!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
+	<!-- z-[2010]: ConfirmDialog wraps this and is routinely opened on top of an already-open
+	     Dialog/Drawer (both z-2000) to confirm a destructive action — must clear that layer
+	     or it renders behind the dialog it's confirming for. Matches the same fix already
+	     applied to MultiSelectInput's dropdown and DatePicker's panel. -->
 	<div
 		role="dialog"
 		aria-modal="true"
 		aria-labelledby={title ? 'modal-title' : undefined}
-		class="fixed inset-0 z-200 flex items-center justify-center p-4 {parentKlass}"
+		class="fixed inset-0 z-[2010] flex items-center justify-center p-4 {parentKlass}"
 		transition:fade={{ duration: 180 }}
 	>
 		<!-- Dim layer -->
