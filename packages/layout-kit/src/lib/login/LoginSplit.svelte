@@ -48,6 +48,7 @@
 		// Slots
 		logoSlot,
 		imgSlot,
+		topSlot,
 		panelSlot,
 		headerSlot,
 		formSlot,
@@ -56,12 +57,13 @@
 
 		// CSS class overrides
 		class: klass = '',
-		classes = {},
+		classes = {}
 	}: LoginBaseProps & {
 		panelHeading?: string;
 		panelDescription?: string;
 		image?: LoginImageConfig;
 		imgSlot?: Snippet;
+		topSlot?: Snippet;
 		/** Replaces the default heading/description on the branding panel */
 		panelSlot?: Snippet;
 	} = $props();
@@ -70,7 +72,7 @@
 		url: 'https://images.unsplash.com/photo-1522199710521-72d69614c702?auto=format&fit=crop&w=1200&q=80',
 		alt: 'Sign in illustration',
 		position: EPosition.LEFT,
-		...imageProp,
+		...imageProp
 	});
 
 	let emailField = $state<IFormField>(
@@ -81,8 +83,8 @@
 			label: emailLabel,
 			placeholder: emailPlaceholder,
 			required: true,
-			attributes: { name: 'email', autocomplete: 'email' },
-		})),
+			attributes: { name: 'email', autocomplete: 'email' }
+		}))
 	);
 
 	let passwordField = $state<IFormField>(
@@ -94,8 +96,8 @@
 			placeholder: passwordPlaceholder,
 			required: true,
 			hideLabel: true,
-			attributes: { name: 'password', autocomplete: 'current-password' },
-		})),
+			attributes: { name: 'password', autocomplete: 'current-password' }
+		}))
 	);
 
 	let rememberMeField = $state<IFormField>(
@@ -106,8 +108,8 @@
 			label: rememberMeLabel,
 			placeholder: rememberMeLabel,
 			hideLabel: true,
-			attributes: { name: 'rememberMe' },
-		})),
+			attributes: { name: 'rememberMe' }
+		}))
 	);
 
 	$effect(() => {
@@ -129,7 +131,7 @@
 			const credentials: LoginCredentials = {
 				email: String(formData.get('email') ?? ''),
 				password: String(formData.get('password') ?? ''),
-				rememberMe: formData.get('rememberMe') === 'on',
+				rememberMe: formData.get('rememberMe') === 'on'
 			};
 			loading = true;
 			Promise.resolve(onSubmit(credentials)).finally(() => (loading = false));
@@ -154,9 +156,8 @@
 		class="bg-accent/90 relative hidden w-full items-center overflow-hidden sm:flex sm:w-5/12 {panelSection} {classes.panel ??
 			''}"
 	>
-	{#if imgSlot}
-	{@render imgSlot()}
-
+		{#if imgSlot}
+			{@render imgSlot()}
 		{:else if image.url}
 			<img
 				src={image.url}
@@ -167,6 +168,9 @@
 				class="from-accent/90 via-accent/60 absolute inset-0 bg-linear-to-t to-transparent {classes.overlay ??
 					''}"
 			></div>
+		{/if}
+		{#if topSlot}
+			{@render topSlot()}
 		{/if}
 
 		<div class="text-on-accent relative z-10 p-10 lg:p-14">
@@ -179,14 +183,18 @@
 					{:else}
 						<span class="text-xl leading-none text-on-accent">✦</span>
 					{/if}
-					<span class="text-lg font-semibold tracking-wide text-on-accent {classes.appName}">{appName}</span>
+					<span class="text-lg font-semibold tracking-wide text-on-accent {classes.appName}"
+						>{appName}</span
+					>
 				</a>
 			{/if}
 
 			{#if panelSlot}
 				{@render panelSlot()}
 			{:else}
-				<h2 class="text-3xl font-bold lg:text-4xl text-on-accent {classes.panelHeading}">{panelHeading}</h2>
+				<h2 class="text-3xl font-bold lg:text-4xl text-on-accent {classes.panelHeading}">
+					{panelHeading}
+				</h2>
 				<p class="mt-4 text-lg text-on-accent {classes.panelDescription}">{panelDescription}</p>
 			{/if}
 		</div>
@@ -197,7 +205,7 @@
 		class="flex w-full items-center justify-center px-4 py-12 sm:w-7/12 {formSection} {classes.formSection ??
 			''}"
 	>
-		<div class="w-full max-w-md">
+		<div class="w-full max-w-md {classes.formContainer}">
 			{#if !image.url}
 				{#if logoSlot}
 					{@render logoSlot()}
@@ -267,8 +275,7 @@
 						class="btn btn-primary mt-1 w-full py-3 text-base font-semibold disabled:opacity-60"
 					>
 						{#if loading}
-							<span
-								class="size-4 animate-spin rounded-full border-2 border-white/30 border-t-white"
+							<span class="size-4 animate-spin rounded-full border-2 border-white/30 border-t-white"
 							></span>
 						{/if}
 						{submitText}
