@@ -28,6 +28,7 @@ export interface LoginClassNames {
 	panel?: string;
 	/** Form-side wrapper (LoginSplit) */
 	formSection?: string;
+	formContainer?:string;
 	/** Scrim over the background/side image (LoginCover, LoginSplit) */
 	overlay?: string;
 	logo?:string;
