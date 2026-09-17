@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Icon from '../../atoms/icon/Icon.svelte';
-	import type { Snippet, SvelteComponent } from 'svelte';
+	import type { Snippet } from 'svelte';
 	import Modal from './Modal.svelte';
 	import { ExclamationTriangleFill } from 'svelte-bootstrap-icons';
 	import { ESize, type IconType } from '@aryagg/types';
@@ -37,7 +37,7 @@
 		parentKlass?: string;
 		msgKlass?: string;
 		isAbsoluteIcon?: boolean;
-		parentModalKlass?: boolean;
+		parentModalKlass?: string;
 
 		onconfirm?: () => void | Promise<void>;
 		oncancel?: () => void;
