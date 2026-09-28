@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { ViewerModal, type ViewerSource } from '$lib';
+	import { ViewerModal, type ViewerDownloadRequest, type ViewerSource } from '$lib';
 
 	type ViewerDemo = {
 		name: string;
@@ -58,6 +58,15 @@
 		open = true;
 	}
 
+	function downloadFile({ source, fileName }: ViewerDownloadRequest) {
+		const url = typeof source === 'string' ? source : URL.createObjectURL(source);
+		const link = document.createElement('a');
+		link.href = url;
+		link.download = fileName || '';
+		link.click();
+		if (typeof source !== 'string') setTimeout(() => URL.revokeObjectURL(url), 0);
+	}
+
 	function openBimFile(event: Event) {
 		const input = event.currentTarget as HTMLInputElement;
 		const file = input.files?.[0];
@@ -76,10 +85,9 @@
 	<input
 		bind:this={bimFileInput}
 		type="file"
-		accept=".dwg,.ifc,.glb,.gltf,.svg,.pdf,application/pdf"
 		class="sr-only"
 		onchange={openBimFile}
-		aria-label="Choose a DWG, IFC, GLB, glTF, SVG, or PDF file"
+		aria-label="Choose any file to preview"
 	/>
 	<div class="mx-auto max-w-6xl px-5 py-12 sm:px-8 sm:py-16">
 		<section class="max-w-2xl">
@@ -191,5 +199,6 @@
 		subtitleClass="text-slate-500"
 		accentClass="bg-blue-50 text-blue-600 ring-blue-100"
 		primaryActionClass="border-blue-600 bg-blue-600 text-white"
+		ondownload={downloadFile}
 	/>
 {/if}
