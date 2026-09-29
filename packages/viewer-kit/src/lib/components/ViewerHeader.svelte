@@ -13,7 +13,8 @@
 	let objectUrl = $state<string>();
 	let actionUrl = $derived(typeof source === 'string' ? source : objectUrl);
 	let label = $derived(appTitle || fileName || downloadName || 'Document preview');
-	let format = $derived(type?.toUpperCase() || 'FILE');
+	let extension = $derived((fileName || (typeof source === 'string' ? source : '')).split(/[?#]/, 1)[0].match(/\.([a-z0-9]{1,8})$/i)?.[1]);
+	let format = $derived((extension || type)?.toUpperCase() || 'FILE');
 	$effect(() => {
 		if (typeof source === 'string') { objectUrl = undefined; return; }
 		const url = URL.createObjectURL(source); objectUrl = url;

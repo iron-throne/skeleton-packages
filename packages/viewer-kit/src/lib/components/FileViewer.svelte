@@ -2,11 +2,15 @@
 	import PdfViewer from './PdfViewer.svelte';
 	import PowerPointViewer from './PowerPointViewer.svelte';
 	import ExcelViewer from './ExcelViewer.svelte';
+	import WordViewer from './WordViewer.svelte';
 	import BimViewer from './BimViewer.svelte';
 	import DwgViewer from './DwgViewer.svelte';
+	import MediaViewer from './MediaViewer.svelte';
+	import TextViewer from './TextViewer.svelte';
+	import FallbackViewer from './FallbackViewer.svelte';
 	import type { FileViewerProps, ViewerError } from '../types';
 	import type { BimFileType, SupportedFileType } from '../types';
-	import { detectFileType } from '../utils/file-type';
+	import { detectFileType, isMediaType, isOfficeType } from '../utils/file-type';
 
 	let {
 		source,
@@ -17,32 +21,33 @@
 		showPowerPointOpenInNewWindow = true,
 		powerPointEmbedUrl,
 		excelEmbedUrl,
+		wordEmbedUrl,
 		title,
 		heightClass = 'h-[70vh]',
 		class: className = '',
 		onload,
 		onerror,
-		onrequestopen
+		onrequestopen,
+		ondownload
 	}: FileViewerProps = $props();
 
 	let resolvedType = $derived(type || detectFileType(source, fileName, mimeType));
 	const bimTypes: SupportedFileType[] = ['ifc', 'gltf', 'glb', 'svg'];
+	// docx/xlsx render in the browser from bytes; the other Office formats need Microsoft's viewer.
+	function isLocalOfficeType(value: SupportedFileType): boolean {
+		return value === 'docx' || value === 'xlsx';
+	}
 	function isBimType(value: SupportedFileType | undefined): value is BimFileType {
 		return value !== undefined && bimTypes.includes(value);
 	}
 	let validationError = $derived.by((): ViewerError | undefined => {
 		if (!resolvedType) {
-			return { code: 'UNSUPPORTED_TYPE', message: 'This file type is not supported yet.' };
+			return { code: 'UNSUPPORTED_TYPE', message: 'Preview is not available for this file type.' };
 		}
-		if (
-			resolvedType !== 'pdf' &&
-			resolvedType !== 'dwg' &&
-			!isBimType(resolvedType) &&
-			typeof source !== 'string'
-		) {
+		if (isOfficeType(resolvedType) && typeof source !== 'string' && !isLocalOfficeType(resolvedType)) {
 			return {
 				code: 'INVALID_SOURCE',
-				message: 'Office files require a publicly reachable URL or a custom embed adapter.'
+				message: 'This Office format requires a publicly reachable URL or a custom embed adapter.'
 			};
 		}
 		return undefined;
@@ -60,13 +65,17 @@
 </script>
 
 {#if validationError}
-	<div
-		class={`grid min-h-48 place-content-center gap-1.5 rounded-lg border border-zinc-200 bg-zinc-50 p-8 text-center text-zinc-700 ${heightClass} ${className}`}
-		role="alert"
-	>
-		<strong>Preview unavailable</strong>
-		<span class="text-zinc-500">{validationError.message}</span>
-	</div>
+	<FallbackViewer
+		{source}
+		{fileName}
+		{mimeType}
+		{title}
+		message={validationError.message}
+		{heightClass}
+		class={className}
+		ondownload={ondownload &&
+			((request) => ondownload({ ...request, type: resolvedType }))}
+	/>
 {:else if resolvedType === 'pdf'}
 	<PdfViewer {source} {showToolbar} {title} {heightClass} class={className} {onload} {onerror} />
 {:else if resolvedType === 'dwg'}
@@ -81,10 +90,10 @@
 			{onrequestopen}
 		/>
 	{/key}
-{:else if (resolvedType === 'ppt' || resolvedType === 'pptx') && typeof source === 'string'}
-	<PowerPointViewer
+{:else if isMediaType(resolvedType)}
+	<MediaViewer
 		{source}
-		embedUrl={powerPointEmbedUrl}
+		type={resolvedType}
 		{title}
 		{heightClass}
 		showOpenInNewWindow={showPowerPointOpenInNewWindow}
@@ -92,6 +101,8 @@
 		{onload}
 		{onerror}
 	/>
+{:else if resolvedType === 'text'}
+	<TextViewer {source} {fileName} {title} {heightClass} class={className} {onload} {onerror} />
 {:else if isBimType(resolvedType)}
 	<BimViewer
 		{source}
@@ -102,10 +113,32 @@
 		{onload}
 		{onerror}
 	/>
-{:else if typeof source === 'string'}
+{:else if resolvedType === 'doc' || resolvedType === 'docx'}
+	<WordViewer
+		{source}
+		type={resolvedType}
+		embedUrl={wordEmbedUrl}
+		{title}
+		{heightClass}
+		class={className}
+		{onload}
+		{onerror}
+	/>
+{:else if resolvedType === 'xls' || resolvedType === 'xlsx'}
 	<ExcelViewer
 		{source}
+		type={resolvedType}
 		embedUrl={excelEmbedUrl}
+		{title}
+		{heightClass}
+		class={className}
+		{onload}
+		{onerror}
+	/>
+{:else if typeof source === 'string'}
+	<PowerPointViewer
+		{source}
+		embedUrl={powerPointEmbedUrl}
 		{title}
 		{heightClass}
 		class={className}

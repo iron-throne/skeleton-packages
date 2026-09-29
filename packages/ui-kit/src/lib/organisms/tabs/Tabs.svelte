@@ -1,7 +1,7 @@
 <script lang="ts">
-	import Icon from '../../atoms/icon/Icon.svelte';
 	import { ESize } from '@aryagg/types';
 	import type { TabItem, TabsProps } from './types';
+	import { Icon } from '$lib/atoms';
 	
 	let {
 		tabs,

@@ -82,7 +82,7 @@
 		class="bg-surface-primary text-content-secondary pointer-events-none fixed z-60
                rounded-md border
                px-2.5 py-1.5 text-xs whitespace-nowrap
-               shadow-md"
+               shadow-md max-w-sm"
 	>
 		{text}
 	</div>
