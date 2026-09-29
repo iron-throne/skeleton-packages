@@ -74,7 +74,7 @@
 			duration: 220,
 			easing: cubicOut
 		}}
-		class="fixed bottom-12 left-1/2 z-[1000] w-[calc(100%-2rem)] max-w-md -translate-x-1/2"
+		class="fixed bottom-12 left-1/2 z-[3000] w-[calc(100%-2rem)] max-w-md -translate-x-1/2"
 	>
 		<div
 			class="relative flex items-center gap-3 overflow-hidden rounded-xl border bg-on-accent px-3 py-3 shadow-lg {config.borderClass}"

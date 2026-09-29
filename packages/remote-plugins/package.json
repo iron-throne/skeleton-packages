@@ -1,7 +1,7 @@
 {
   "name": "@aryagg/remote-plugins",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.0.1",
   "type": "module",
   "types": "./src/lib/index.ts",
   "exports": {
@@ -28,6 +28,6 @@
   },
   "dependencies": {
     "@aryagg/theme": "^0.0.3",
-    "@aryagg/types": "file:../types"
+    "@aryagg/types": "^1.1.8"
   }
 }

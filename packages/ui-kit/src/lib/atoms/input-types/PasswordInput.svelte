@@ -54,9 +54,9 @@
 		autocomplete="current-password"
 		{...attrs}
 	/>
-	{#if !field.hideLabel}
+	<!-- {#if !field.hideLabel}
 		{@render labelBlock()}
-	{/if}
+	{/if} -->
 	<button
 		type="button"
 		onclick={() => (showPassword = !showPassword)}

@@ -18,11 +18,14 @@
 		emptyText = 'No data found.',
 		hidePagination = false,
 		paginationKlass = '',
+		actionColKlass = '',
 		embedded = false,
 		rowClass,
+		onRowClick,
 		actions,
 		CustomHeader,
-		CustomCell
+		CustomCell,
+		topMidSlot
 	}: {
 		columns: TableColumn[];
 		rows: any[];
@@ -33,23 +36,26 @@
 		pageSizeOptions?: number[];
 		emptyText?: string;
 		paginationKlass?: string;
+		actionColKlass?: string;
 		hidePagination?: boolean;
 		embedded?: boolean;
 		rowClass?: (row: any) => string;
+		onRowClick?: (row: any) => void;
 		actions?: Snippet<[any]>;
 		CustomHeader?: Snippet<[TableColumn, number]>;
 		CustomCell?: Snippet<[any, TableColumn]>;
+		topMidSlot?: Snippet;
 	} = $props();
 
 	// ── Sort state ────────────────────────────────────────────────
-	let sortKey = $state<string | null>(null);
+	let sortColKey = $state<string | null>(null);
 	let sortDir = $state<'asc' | 'desc'>('asc');
 
-	function toggleSort(key: string) {
-		if (sortKey === key) {
+	function toggleSort(col: TableColumn) {
+		if (sortColKey === col.key) {
 			sortDir = sortDir === 'asc' ? 'desc' : 'asc';
 		} else {
-			sortKey = key;
+			sortColKey = col.key;
 			sortDir = 'asc';
 		}
 		currentPage = 1;
@@ -57,6 +63,12 @@
 
 	// ── Search ────────────────────────────────────────────────────
 	let query = $state('');
+	let columnQueries = $state<Record<string, string>>({});
+
+	function setColumnQuery(key: string, value: string) {
+		columnQueries[key] = value;
+		currentPage = 1;
+	}
 
 	// ── Pagination ────────────────────────────────────────────────
 	let currentPage = $state(1);
@@ -70,38 +82,72 @@
 	// ── Derived: filter → sort → paginate ─────────────────────────
 
 	const filtered = $derived.by(() => {
-		if (!query.trim()) return rows;
-		const q = query.toLowerCase();
-		return rows.filter((row) =>
-			columns.some((col) =>
-				String(row[col.key] ?? '')
-					.toLowerCase()
-					.includes(q)
-			)
-		);
+		let result = rows;
+
+		if (query.trim()) {
+			const q = query.toLowerCase();
+			result = result.filter((row) =>
+				columns.some((col) =>
+					String(row[col.key] ?? '')
+						.toLowerCase()
+						.includes(q)
+				)
+			);
+		}
+
+		const columnFilters = columns.filter((col) => col.searchable && columnQueries[col.key]?.trim());
+		for (const col of columnFilters) {
+			const q = columnQueries[col.key].toLowerCase();
+			const fields = col.searchKey
+				? Array.isArray(col.searchKey)
+					? col.searchKey
+					: [col.searchKey]
+				: [col.key];
+			result = result.filter((row) =>
+				fields.some((field) =>
+					String(row[field] ?? '')
+						.toLowerCase()
+						.includes(q)
+				)
+			);
+		}
+
+		return result;
+	});
+
+	const sortFields = $derived.by(() => {
+		if (!sortColKey) return null;
+		const col = columns.find((c) => c.key === sortColKey);
+		if (!col) return null;
+		return col.sortKey ? (Array.isArray(col.sortKey) ? col.sortKey : [col.sortKey]) : [col.key];
 	});
 
 	const sorted = $derived.by(() => {
-		if (!sortKey) return filtered;
-		const key = sortKey;
+		if (!sortFields) return filtered;
+		const fields = sortFields;
 		return [...filtered].sort((a, b) => {
-			const av = String(a[key] ?? '');
-			const bv = String(b[key] ?? '');
-			const cmp = av.localeCompare(bv, undefined, { numeric: true, sensitivity: 'base' });
-			return sortDir === 'asc' ? cmp : -cmp;
+			for (const field of fields) {
+				const av = String(a[field] ?? '');
+				const bv = String(b[field] ?? '');
+				const cmp = av.localeCompare(bv, undefined, { numeric: true, sensitivity: 'base' });
+				if (cmp !== 0) return sortDir === 'asc' ? cmp : -cmp;
+			}
+			return 0;
 		});
 	});
 
 	const totalPages = $derived(Math.max(1, Math.ceil(sorted.length / pageSize)));
 	const paginated = $derived(sorted.slice((currentPage - 1) * pageSize, currentPage * pageSize));
+	const visibleColumns = $derived(columns?.filter((c) => !c.hide));
+	const hasColumnSearch = $derived(visibleColumns.some((c) => c.searchable));
 
 	function cellValue(col: TableColumn, row: any) {
 		return parseInputValue(row[col.key], col.type) ?? '';
 	}
 </script>
 
-<div class={embedded ? '' : 'flex flex-col gap-3'}>
-	<div class="flex justify-between gap-2 items-baseline">
+<div class={embedded ? '' : 'flex flex-col gap-3 size-full overflow-auto'}>
+	<div class="flex justify-between gap-2 items-baseline flex-none">
 		<!-- Search bar -->
 		{#if searchable}
 			<div class="relative w-full max-w-xs h-fit">
@@ -119,6 +165,9 @@
 			</div>
 		{/if}
 
+		{#if topMidSlot}
+			{@render topMidSlot()}
+		{/if}
 		<!-- Pagination -->
 		{#if !hidePagination}
 			<div class="px-2 {paginationKlass}">
@@ -134,45 +183,66 @@
 	</div>
 
 	<!-- Table -->
-	<div class={embedded ? 'w-full' : 'w-full overflow-auto rounded-xl border'}>
+	<div class="w-full overflow-auto {embedded ? '' : 'rounded-xl border flex-auto'}">
 		<table class="w-full text-sm">
 			<thead>
-				<tr class="bg-surface-secondary text-secondary">
-					{#each columns as col, ind (ind)}
+				<tr class="bg-surface-secondary text-secondary sticky top-0 z-10">
+					{#each visibleColumns as col, ind (ind)}
 						<th
 							scope="col"
 							class="px-4 py-3 text-left text-xs font-semibold whitespace-nowrap uppercase {col.class}
                                    {col.sortable
 								? 'hover:text-primary cursor-pointer transition-colors select-none'
 								: ''}"
-							onclick={() => col.sortable && toggleSort(col.key)}
+							onclick={() => col.sortable && toggleSort(col)}
 						>
-							<span class="inline-flex items-center gap-1.5">
-								{#if CustomHeader}
-									{@render CustomHeader(col, ind)}
-								{:else}
-									{col.label}
-									{#if col.sortable}
-										{#if sortKey === col.key}
-											{#if sortDir === 'asc'}
-												<SortAlphaDown width={13} height={13} class="text-accent" />
+							<div class="flex flex-col gap-1">
+								<span class="inline-flex items-center gap-1.5">
+									{#if CustomHeader}
+										{@render CustomHeader(col, ind)}
+									{:else}
+										{col.label}
+										{#if col.sortable}
+											{#if sortColKey === col.key}
+												{#if sortDir === 'asc'}
+													<SortAlphaDown width={13} height={13} class="text-accent" />
+												{:else}
+													<SortAlphaUp width={13} height={13} class="text-accent" />
+												{/if}
 											{:else}
-												<SortAlphaUp width={13} height={13} class="text-accent" />
+												<ArrowDownUp width={11} height={11} class="opacity-30" />
 											{/if}
-										{:else}
-											<ArrowDownUp width={11} height={11} class="opacity-30" />
 										{/if}
 									{/if}
+								</span>
+								{#if col.searchable}
+									<input
+										type="search"
+										placeholder="Search…"
+										value={columnQueries[col.key] ?? ''}
+										oninput={(e) =>
+											setColumnQuery(col.key, (e.currentTarget as HTMLInputElement).value)}
+										onclick={(e) => e.stopPropagation()}
+										class="bg-surface-primary text-primary placeholder:text-tertiary focus:border-accent focus:ring-accent w-full rounded-md
+										   border px-2 py-1 text-xs font-normal normal-case transition focus:ring-1 focus:outline-none"
+									/>
+								{:else if hasColumnSearch}
+									<div class="invisible border px-2 py-1 text-xs" aria-hidden="true">&nbsp;</div>
 								{/if}
-							</span>
+							</div>
 						</th>
 					{/each}
 					{#if actions}
 						<th
 							scope="col"
-							class="px-4 py-3 text-right text-xs font-semibold tracking-wide uppercase"
+							class="px-4 py-3 text-right text-xs font-semibold tracking-wide uppercase {actionColKlass}"
 						>
-							Actions
+							<div class="flex flex-col gap-1">
+								<span>Actions</span>
+								{#if hasColumnSearch}
+									<div class="invisible border px-2 py-1 text-xs" aria-hidden="true">&nbsp;</div>
+								{/if}
+							</div>
 						</th>
 					{/if}
 				</tr>
@@ -184,7 +254,7 @@
 					{#each Array(pageSize) as _, i (i)}
 						<tr>
 							<!-- eslint-disable-next-line @typescript-eslint/no-unused-vars -->
-							{#each columns as _c, cInd (cInd)}
+							{#each visibleColumns as _c, cInd (cInd)}
 								<td class="px-4 py-3">
 									<SkeletonLoader lines={1} height="0.85rem" />
 								</td>
@@ -194,14 +264,22 @@
 					{/each}
 				{:else if paginated.length === 0}
 					<tr>
-						<td colspan={columns.length + (actions ? 1 : 0)} class="px-4 py-10">
+						<td colspan={visibleColumns.length + (actions ? 1 : 0)} class="px-4 py-10">
 							<NoData text={emptyText} />
 						</td>
 					</tr>
 				{:else}
 					{#each paginated as row, rowInd (rowInd)}
-						<tr class="hover:bg-surface-secondary/50 transition-colors {rowClass?.(row) ?? ''}">
-							{#each columns as col, colInd (colInd)}
+						<tr
+							class="hover:bg-surface-secondary/50 transition-colors {onRowClick
+								? 'cursor-pointer'
+								: ''} {rowClass?.(row) ?? ''}"
+							onclick={(e) => {
+								e?.stopPropagation();
+								onRowClick?.(row);
+							}}
+						>
+							{#each visibleColumns as col, colInd (colInd)}
 								<td class="text-primary/80 text-sm px-4 py-3 whitespace-nowrap {col.class}">
 									{#if CustomCell}
 										{@render CustomCell(row, col)}
@@ -211,7 +289,7 @@
 								</td>
 							{/each}
 							{#if actions}
-								<td class="px-4 py-3 text-right">
+								<td class="px-4 py-3 text-right {actionColKlass}">
 									{@render actions(row)}
 								</td>
 							{/if}

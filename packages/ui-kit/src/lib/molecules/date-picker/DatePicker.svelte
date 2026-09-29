@@ -1,7 +1,14 @@
-
 <script lang="ts">
-	import { clickOutside as useClickOutside, isValidDateString } from '@aryagg/utils';
-	import { type IFormField, MONTHS, DAYS, type ICalendarOption, type ICalendarDate } from '@aryagg/types';
+	import { clickOutside as useClickOutside, isValidDateString, portal } from '@aryagg/utils';
+	import {
+		type IFormField,
+		MONTHS,
+		DAYS,
+		type ICalendarOption,
+		type ICalendarDate
+	} from '@aryagg/types';
+	import { SvelteDate } from 'svelte/reactivity';
+	import { ChevronLeft, ChevronRight } from 'svelte-bootstrap-icons';
 
 	let {
 		onUpdateValue,
@@ -38,6 +45,38 @@
 			}
 		]),
 		currentDay: number = $state(today.getDate());
+
+	let wrapperEl: HTMLDivElement | undefined = $state(),
+		panelStyle: string = $state('');
+
+	const panelGap = 8;
+	const panelWidthPreset = 288; // 18rem
+	const viewportMargin = 8;
+	const estimatedPanelHeight = 380;
+
+	// Panel is portaled to <body>, so it's positioned with `fixed` + coordinates computed from
+	// the trigger's own screen position instead of `absolute` inside the wrapper - `absolute`
+	// would get clipped by any `overflow: hidden/auto/scroll` ancestor the trigger sits in.
+	// Also clamps to the viewport and flips upward when there isn't room below, so it stays
+	// fully visible and usable on small/mobile screens.
+	function positionPanel() {
+		if (!wrapperEl) return;
+		const rect = wrapperEl.getBoundingClientRect();
+		const panelWidth = Math.min(panelWidthPreset, window.innerWidth - viewportMargin * 2);
+
+		let left = rect.right - panelWidth;
+		left = Math.min(
+			Math.max(left, viewportMargin),
+			window.innerWidth - panelWidth - viewportMargin
+		);
+
+		const spaceBelow = window.innerHeight - rect.bottom;
+		const openUpward = spaceBelow < estimatedPanelHeight && rect.top > spaceBelow;
+
+		panelStyle = openUpward
+			? `left:${left}px; width:${panelWidth}px; bottom:${window.innerHeight - rect.top + panelGap}px;`
+			: `left:${left}px; width:${panelWidth}px; top:${rect.bottom + panelGap}px;`;
+	}
 
 	// Initialize with field value if it exists
 	$effect(() => {
@@ -95,9 +134,10 @@
 			});
 		}
 
-		// Add days from next month to fill 42-day grid (6 weeks × 7 days)
+		// Add days from next month to complete the last row (round up to a full week)
+		const gridSize = Math.ceil(dates.length / 7) * 7;
 		let nextMonthDay = 1;
-		while (dates.length < 42) {
+		while (dates.length < gridSize) {
 			const calendarDate = getDate(nextMonthDay, 'next');
 			dates.push({
 				day: nextMonthDay,
@@ -179,11 +219,11 @@
 
 	$effect(() => {
 		if (!selectedMonthYear) return;
-		const month = optionsMY.find(o => o.key === 'month');
+		const month = optionsMY.find((o) => o.key === 'month');
 		if (month) {
 			month.value = MONTHS[selectedMonthYear.getMonth()];
 		}
-		const year = optionsMY.find(o => o.key === 'year');
+		const year = optionsMY.find((o) => o.key === 'year');
 		if (year) year.value = selectedMonthYear.getFullYear();
 	});
 
@@ -199,9 +239,39 @@
 
 	function toggleCalendar() {
 		if (!field.disabled) {
+			if (!isCalendarOpen) positionPanel();
 			isCalendarOpen = !isCalendarOpen;
 		}
 	}
+
+	// Keeps the portaled panel aligned with its trigger while open - a `fixed` position won't
+	// follow it on its own if a scrollable ancestor scrolls or the viewport resizes. Also closes
+	// on Escape, since the panel is portaled out of this wrapper and wouldn't otherwise bubble
+	// a keydown back up to a handler here.
+	$effect(() => {
+		if (!isCalendarOpen) return;
+
+		function reposition() {
+			const rect = wrapperEl?.getBoundingClientRect();
+			if (!rect || (rect.width === 0 && rect.height === 0)) {
+				close();
+				return;
+			}
+			positionPanel();
+		}
+		function handleKeydown(e: KeyboardEvent) {
+			if (e.key === 'Escape') close();
+		}
+
+		window.addEventListener('scroll', reposition, true);
+		window.addEventListener('resize', reposition);
+		document.addEventListener('keydown', handleKeydown);
+		return () => {
+			window.removeEventListener('scroll', reposition, true);
+			window.removeEventListener('resize', reposition);
+			document.removeEventListener('keydown', handleKeydown);
+		};
+	});
 
 	function selectDate(dateObj: ICalendarDate) {
 		if (dateObj.isDisabled) {
@@ -224,7 +294,7 @@
 	}
 
 	function handleYMChange(selector: ICalendarOption) {
-		const currSelectedDate = new Date(selectedMonthYear || today);
+		const currSelectedDate = new SvelteDate(selectedMonthYear || today);
 		if (selector.key === 'month') {
 			const monthInd = MONTHS.indexOf(selector.value as string);
 			if (monthInd > -1) {
@@ -238,6 +308,7 @@
 </script>
 
 <div
+	bind:this={wrapperEl}
 	class="relative w-full"
 	use:useClickOutside={() => {
 		if (isCalendarOpen) close();
@@ -245,39 +316,39 @@
 >
 	<!-- Date Input Field -->
 	<button
+		type="button"
 		aria-label="Toggle Calendar"
+		aria-haspopup="dialog"
 		aria-expanded={isCalendarOpen}
 		disabled={field.disabled}
 		onclick={toggleCalendar}
-		class="group flex w-full items-center gap-2 rounded-lg border bg-background p-3 text-left transition
-           hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500/40 disabled:cursor-not-allowed disabled:opacity-60"
-		class:border-red-300={field.errorMsg}
+		class="group flex w-full items-center gap-2 rounded-lg border border-border-primary bg-surface-secondary p-3 text-left transition
+           hover:bg-surface-primary focus:outline-none focus:ring-2 focus:ring-accent/50 disabled:cursor-not-allowed disabled:opacity-50"
+		class:border-error={field.errorMsg}
 	>
-		<i class="bi bi-calendar3 text-base text-slate-500 group-hover:text-slate-700"></i>
+		<i class="bi bi-calendar3 text-base text-tertiary group-hover:text-secondary"></i>
 
-		<input
-			type="text"
-			readonly
-			disabled={field.disabled}
-			placeholder={placeholder ?? 'Select date'}
-			bind:value={date}
-			class="w-full cursor-pointer border-0 bg-transparent p-0! placeholder:text-slate-400"
-			autocomplete="off"
-		/>
+		<span class="min-w-0 flex-1 truncate">
+			{date || placeholder || 'Select date'}
+		</span>
 	</button>
-	<!-- Calendar Dropdown -->
+	<!-- Calendar Dropdown: portaled to <body> so it escapes any ancestor's overflow clipping -->
 	{#if isCalendarOpen}
 		<div
-			class="absolute right-0 top-full z-50 mt-2 w-72 rounded-xl border border-primary bg-primary p-4 shadow-2xl"
+			use:portal
+			data-dropdown-menu
+			style={panelStyle}
+			class="fixed z-[2010] max-h-[min(28rem,calc(100vh-1rem))] overflow-y-auto rounded-xl border border-border-primary bg-surface-primary p-4 shadow-2xl"
 		>
 			<!-- Calendar Header -->
-			<div class="flex items-center justify-between gap-1 border-b border-primary py-1">
+			<div class="flex items-center justify-between gap-1 border-b border-border-primary py-1">
 				<button
+					type="button"
 					onclick={getPrevMonth}
 					aria-label="Previous month"
-					class="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 text-slate-600 transition-all duration-200 hover:scale-110 hover:bg-blue-100! hover:text-blue-600"
+					class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border-0! bg-surface-secondary p-0! text-secondary transition-all duration-200 hover:scale-110 hover:bg-accent/10! hover:text-accent"
 				>
-					<i class="bi bi-chevron-left text-sm font-bold"></i>
+					<ChevronLeft width={13} height={13} />
 				</button>
 
 				<div
@@ -289,7 +360,7 @@
 								name={selector.key}
 								id={selector.key}
 								bind:value={selector.value}
-								class="w-full rounded-lg border border-primary px-2 py-1"
+								class="w-full rounded-lg border border-border-primary px-2 py-1"
 								onchange={() => handleYMChange(selector)}
 							>
 								{#each selector.options as option, oInd (oInd)}
@@ -298,7 +369,11 @@
 							</select>
 						{/each}
 					{:else}
-						<button class="text-center text-base font-bold" onclick={() => (displayYMEdit = true)}>
+						<button
+							type="button"
+							class="text-center text-base font-bold"
+							onclick={() => (displayYMEdit = true)}
+						>
 							{(selectedMonthYear || today)?.toLocaleDateString('en-US', {
 								year: 'numeric',
 								month: 'long'
@@ -308,11 +383,12 @@
 				</div>
 
 				<button
+					type="button"
 					onclick={getNextMonth}
 					aria-label="Next Month"
-					class="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 text-slate-600 transition-all duration-200 hover:scale-110 hover:bg-blue-100! hover:text-blue-600"
+					class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border-0! bg-surface-secondary p-0! text-secondary transition-all duration-200 hover:scale-110 hover:bg-accent/10! hover:text-accent"
 				>
-					<i class="bi bi-chevron-right text-sm font-bold"></i>
+					<ChevronRight width={13} height={13} />
 				</button>
 			</div>
 
@@ -320,21 +396,22 @@
 				<!-- Day Labels -->
 				<div class="mb-2 grid grid-cols-7 gap-1">
 					{#each DAYS as day, dInd (dInd)}
-						<div class="icon-color flex h-8 items-center justify-center text-xs font-semibold">
+						<div class="flex h-8 items-center justify-center text-xs font-semibold text-tertiary">
 							{day.slice(0, 2)}
 						</div>
 					{/each}
 				</div>
 				<!-- Calendar Grid -->
-				<div class="grid grid-cols-7 gap-2">
+				<div class="grid grid-cols-7 gap-2 pb-1">
 					{#each dates() as dateObj, ind (ind)}
 						<button
-							class={`relative flex h-8 w-8 items-center justify-center rounded-full text-sm font-medium transition-all duration-200 hover:scale-105 ${
+							type="button"
+							class={`relative flex aspect-square w-full items-center justify-center rounded-full text-sm font-medium transition-all duration-200 hover:scale-105 ${
 								dateObj.isDisabled
-									? 'text-slate-300 hover:bg-slate-50! hover:text-slate-400'
+									? 'text-tertiary/50 hover:bg-surface-secondary! hover:text-tertiary'
 									: dateObj.day === currentDay && dateObj.from === 'current'
-										? 'bg-blue-500! text-white shadow-md hover:bg-blue-600!'
-										: 'text-slate-700 hover:bg-blue-50! hover:text-blue-600'
+										? 'bg-accent! text-on-accent shadow-md hover:bg-accent!'
+										: 'text-secondary hover:bg-accent/10! hover:text-accent'
 							}`}
 							onclick={() => selectDate(dateObj)}
 						>
@@ -343,7 +420,7 @@
 							<!-- Today indicator -->
 							{#if dateObj.day === currentDay && dateObj.from === 'current'}
 								<div
-									class="absolute -bottom-1 left-1/2 h-1 w-1 -translate-x-1/2 rounded-full bg-primary"
+									class="absolute -bottom-1 left-1/2 h-1 w-1 -translate-x-1/2 rounded-full bg-on-accent"
 								></div>
 							{/if}
 						</button>
@@ -352,17 +429,18 @@
 			</div>
 
 			<!-- Calendar Footer -->
-			<div class="flex items-center justify-end gap-4 border-t border-primary pt-2">
+			<div class="flex items-center justify-end gap-2 border-t border-border-primary pt-2">
 				{#each footerBtns as btn, bInd (bInd)}
 					<div class="group relative inline-block cursor-pointer">
 						<button
-							class="icon-color text-xs transition-colors duration-200 hover:text-blue-600"
+							type="button"
+							class="text-xs text-tertiary transition-colors duration-200 hover:text-accent btn btn-ghost"
 							onclick={btn.click}
 						>
 							{btn.label}
 						</button>
 						<span
-							class="absolute bottom-0 left-0 h-0.5 w-0 bg-blue-500 transition-all duration-300 group-hover:w-full"
+							class="absolute bottom-0 left-0 h-0.5 w-0 bg-accent transition-all duration-300 group-hover:w-full"
 						></span>
 					</div>
 				{/each}
