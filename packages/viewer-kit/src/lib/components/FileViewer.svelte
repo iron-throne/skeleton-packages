@@ -32,6 +32,10 @@
 
 	let resolvedType = $derived(type || detectFileType(source, fileName, mimeType));
 	const bimTypes: SupportedFileType[] = ['ifc', 'gltf', 'glb', 'svg'];
+	// docx/xlsx render in the browser from bytes; the other Office formats need Microsoft's viewer.
+	function isLocalOfficeType(value: SupportedFileType): boolean {
+		return value === 'docx' || value === 'xlsx';
+	}
 	function isBimType(value: SupportedFileType | undefined): value is BimFileType {
 		return value !== undefined && bimTypes.includes(value);
 	}
@@ -39,10 +43,10 @@
 		if (!resolvedType) {
 			return { code: 'UNSUPPORTED_TYPE', message: 'Preview is not available for this file type.' };
 		}
-		if (isOfficeType(resolvedType) && typeof source !== 'string') {
+		if (isOfficeType(resolvedType) && typeof source !== 'string' && !isLocalOfficeType(resolvedType)) {
 			return {
 				code: 'INVALID_SOURCE',
-				message: 'Office files require a publicly reachable URL or a custom embed adapter.'
+				message: 'This Office format requires a publicly reachable URL or a custom embed adapter.'
 			};
 		}
 		return undefined;
@@ -107,36 +111,36 @@
 		{onload}
 		{onerror}
 	/>
+{:else if resolvedType === 'doc' || resolvedType === 'docx'}
+	<WordViewer
+		{source}
+		type={resolvedType}
+		embedUrl={wordEmbedUrl}
+		{title}
+		{heightClass}
+		class={className}
+		{onload}
+		{onerror}
+	/>
+{:else if resolvedType === 'xls' || resolvedType === 'xlsx'}
+	<ExcelViewer
+		{source}
+		type={resolvedType}
+		embedUrl={excelEmbedUrl}
+		{title}
+		{heightClass}
+		class={className}
+		{onload}
+		{onerror}
+	/>
 {:else if typeof source === 'string'}
-	{#if resolvedType === 'ppt' || resolvedType === 'pptx'}
-		<PowerPointViewer
-			{source}
-			embedUrl={powerPointEmbedUrl}
-			{title}
-			{heightClass}
-			class={className}
-			{onload}
-			{onerror}
-		/>
-	{:else if resolvedType === 'doc' || resolvedType === 'docx'}
-		<WordViewer
-			{source}
-			embedUrl={wordEmbedUrl}
-			{title}
-			{heightClass}
-			class={className}
-			{onload}
-			{onerror}
-		/>
-	{:else}
-		<ExcelViewer
-			{source}
-			embedUrl={excelEmbedUrl}
-			{title}
-			{heightClass}
-			class={className}
-			{onload}
-			{onerror}
-		/>
-	{/if}
+	<PowerPointViewer
+		{source}
+		embedUrl={powerPointEmbedUrl}
+		{title}
+		{heightClass}
+		class={className}
+		{onload}
+		{onerror}
+	/>
 {/if}
