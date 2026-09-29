@@ -87,6 +87,6 @@
 			</div>
 		{/if}
 		<pre
-			class={`m-0 flex-1 overflow-auto p-4 font-mono text-[13px] leading-5 text-zinc-800 ${wrap ? 'break-words whitespace-pre-wrap' : 'whitespace-pre'}`}>{content}</pre>
+			class={`m-0 flex-1 overflow-auto p-4 font-mono text-[13px] leading-5 text-zinc-800 ${wrap ? 'wrap-break-word whitespace-pre-wrap' : 'whitespace-pre'}`}>{content}</pre>
 	{/if}
 </div>
