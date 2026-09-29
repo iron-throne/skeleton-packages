@@ -793,6 +793,7 @@
 			if (!preserveReview) initializeReview(candidate, drawingSource);
 			activeAllowLargeFile = allowLargeFile;
 			const fileSize = drawingSource.size;
+			
 			if (fileSize > LARGE_DWG_INPUT_BYTES) {
 				stage = 'conversion';
 				throw new Error(

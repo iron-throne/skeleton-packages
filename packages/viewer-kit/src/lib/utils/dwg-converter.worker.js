@@ -81,10 +81,7 @@ function extractEmbeddedPreview(buffer) {
 	}
 }
 
-/**
- * @param {unknown} value
- * @returns {value is number}
- */
+/** @param {unknown} value */
 function isFiniteNumber(value) {
 	return typeof value === 'number' && Number.isFinite(value);
 }
@@ -116,23 +113,23 @@ function parsedHandle(entity) {
  * @param {unknown} max
  */
 function finiteBounds(min, max) {
-	if (min === null || typeof min !== 'object' || max === null || typeof max !== 'object') {
-		return undefined;
-	}
-	if (!('x' in min) || !('y' in min) || !('x' in max) || !('y' in max)) return undefined;
-	const minX = min.x;
-	const minY = min.y;
-	const maxX = max.x;
-	const maxY = max.y;
 	if (
-		isFiniteNumber(minX) &&
-		isFiniteNumber(minY) &&
-		isFiniteNumber(maxX) &&
-		isFiniteNumber(maxY) &&
-		maxX - minX > EPSILON &&
-		maxY - minY > EPSILON
+		min !== null &&
+		typeof min === 'object' &&
+		max !== null &&
+		typeof max === 'object' &&
+		'x' in min &&
+		'y' in min &&
+		'x' in max &&
+		'y' in max &&
+		isFiniteNumber(min.x) &&
+		isFiniteNumber(min.y) &&
+		isFiniteNumber(max.x) &&
+		isFiniteNumber(max.y) &&
+		max.x - min.x > EPSILON &&
+		max.y - min.y > EPSILON
 	) {
-		return { minX, minY, maxX, maxY };
+		return { minX: min.x, minY: min.y, maxX: max.x, maxY: max.y };
 	}
 	return undefined;
 }
@@ -426,7 +423,8 @@ function buildLayoutPresentation(layout, modelDocument, bounds) {
 		};
 		const sheetWidth = bounds.maxX - bounds.minX;
 		const sheetHeight = bounds.maxY - bounds.minY;
-		const coversSheet = viewport.width >= sheetWidth * 0.9 && viewport.height >= sheetHeight * 0.9;
+		const coversSheet =
+			viewport.width >= sheetWidth * 0.9 && viewport.height >= sheetHeight * 0.9;
 		const usesPaperCamera =
 			Math.abs(viewport.center.x - viewport.viewCenter.x) <= sheetWidth * 0.02 &&
 			Math.abs(viewport.center.y - viewport.viewCenter.y) <= sheetHeight * 0.02;
@@ -495,7 +493,7 @@ function buildLayoutPresentation(layout, modelDocument, bounds) {
 	}
 	return { bounds, viewports, referenceCount, skippedViewportCount };
 }
-
+ 
 /**
  * @param {ArrayBuffer} buffer
  * @param {number} maxOutputCharacters
@@ -516,8 +514,7 @@ function convertWithTypescript(buffer, maxOutputCharacters, presentationRequest)
 	});
 	const modelSpace = document.modelSpace;
 	if (!modelSpace) throw new Error('The TypeScript DWG decoder found no model space.');
-	const modelEntities = modelSpace.entities;
-	if (modelEntities.count === 0) {
+	if (modelSpace.entities.count === 0) {
 		if (aecObjectNotices > 0 || unsupportedObjectNotices > 0) {
 			throw new Error(
 				`This drawing contains no browser-renderable model-space entities. It relies on AutoCAD Architecture or Civil 3D AEC/custom objects (${aecObjectNotices} AEC and ${unsupportedObjectNotices} unsupported-object notices). Use its PDF/DXF export or flatten those objects to standard AutoCAD entities first.`
@@ -525,9 +522,9 @@ function convertWithTypescript(buffer, maxOutputCharacters, presentationRequest)
 		}
 		throw new Error('The TypeScript DWG decoder found no renderable model-space entities.');
 	}
-	if (modelEntities.count > MAX_MODEL_ENTITIES) {
+	if (modelSpace.entities.count > MAX_MODEL_ENTITIES) {
 		throw new Error(
-			`This drawing contains ${modelEntities.count.toLocaleString('en-US')} model-space entities, exceeding the browser rendering safety limit of ${MAX_MODEL_ENTITIES.toLocaleString('en-US')}.`
+			`This drawing contains ${modelSpace.entities.count.toLocaleString('en-US')} model-space entities, exceeding the browser rendering safety limit of ${MAX_MODEL_ENTITIES.toLocaleString('en-US')}.`
 		);
 	}
 
@@ -551,8 +548,8 @@ function convertWithTypescript(buffer, maxOutputCharacters, presentationRequest)
 	 */
 	function modelResult(modelDocument, warnings, verifiedLayoutAvailable = layoutAvailable) {
 		const resultWarnings = [...warnings];
-		if (modelEntities.count > modelDocument.entities.length) {
-			const omitted = modelEntities.count - modelDocument.entities.length;
+		if (modelSpace.entities.count > modelDocument.entities.length) {
+			const omitted = modelSpace.entities.count - modelDocument.entities.length;
 			resultWarnings.push(
 				`${omitted} model-space ${omitted === 1 ? 'entity was' : 'entities were'} omitted during conversion.`
 			);
@@ -626,7 +623,7 @@ function convertWithTypescript(buffer, maxOutputCharacters, presentationRequest)
 
 	const partition = partitionCombinedDocument(
 		combinedDocument,
-		modelEntities,
+		modelSpace.entities,
 		layout.associatedBlock.entities
 	);
 	if (partition.ambiguous) {
@@ -672,8 +669,8 @@ function convertWithTypescript(buffer, maxOutputCharacters, presentationRequest)
 	}
 
 	const warnings = [...baseWarnings];
-	if (modelEntities.count > modelDocument.entities.length) {
-		const omitted = modelEntities.count - modelDocument.entities.length;
+	if (modelSpace.entities.count > modelDocument.entities.length) {
+		const omitted = modelSpace.entities.count - modelDocument.entities.length;
 		warnings.push(
 			`${omitted} model-space ${omitted === 1 ? 'entity was' : 'entities were'} omitted during conversion.`
 		);

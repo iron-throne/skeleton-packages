@@ -22,6 +22,14 @@ npm install @aryagg/viewer-kit
 <FileViewer source={localDwgFile} fileName={localDwgFile.name} />
 ```
 
+PowerPoint previews include an **Open in new window** action by default. It opens the rendered Office viewer in a separate tab:
+
+```svelte
+<FileViewer source="https://files.example.com/slides.pptx" showPowerPointOpenInNewWindow={true} />
+```
+
+Set `showPowerPointOpenInNewWindow={false}` when the surrounding application provides its own action.
+
 The type is detected from the URL, `fileName`, or `mimeType`. It can also be explicit:
 
 ```svelte

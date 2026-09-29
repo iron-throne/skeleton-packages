@@ -70,7 +70,7 @@
 	$effect(() => {
 		if (fieldsInitialized || !groupFields.length) return;
 		orderedFields = groupFields.map((field) => ({ ...field }));
-		
+
 		const enabledCount = orderedFields.filter((field) => field.enabled).length;
 		levels = Math.max(1, enabledCount || 1);
 		fieldsInitialized = true;
@@ -160,7 +160,6 @@
 		builderOpen = true;
 		onSecondaryAction?.();
 	}
-	
 
 	function toggleGroupField(id: string) {
 		orderedFields = orderedFields.map((field) =>
@@ -256,7 +255,7 @@
 				<strong class="text-[10px] font-bold tracking-[.06em] text-[var(--text-tertiary)] uppercase"
 					>Group by (drag to reorder)</strong
 				>
-				<p>
+				<p class="!mt-1 !mb-0 !text-[11px] !leading-[1.5] text-[var(--text-tertiary)]">
 					Choose which tags group your projects, and in what order. Untick a field to skip it
 					entirely.
 				</p>
@@ -309,12 +308,14 @@
 			<div
 				class="flex items-center gap-2.5 rounded-[7px] border border-[var(--border-primary)] bg-[var(--surface-secondary)] p-2.5 [&>button]:!grid [&>button]:!size-[23px] [&>button]:!min-h-0 [&>button]:!place-items-center [&>button]:!rounded-[5px] [&>button]:!border [&>button]:!border-[var(--border-primary)] [&>button]:!bg-[var(--surface-primary)] [&>button]:!p-0 [&>button]:!shadow-none [&>button:disabled]:!opacity-40"
 			>
-				<div>
-					<strong>Levels to show</strong>
-					<p>Hierarchy terminates at this level</p>
+				<div class="min-w-0 flex-1">
+					<strong class="text-xs font-semibold">Levels to show</strong>
+					<p class="!mt-0.5 !mb-0 !text-[11px] !leading-[1.5] text-[var(--text-tertiary)]">
+						Hierarchy terminates at this level
+					</p>
 				</div>
 				<button type="button" disabled={levels <= 1} onclick={() => (levels -= 1)}>−</button>
-				<strong>{levels}</strong>
+				<strong class="min-w-3 text-center text-xs tabular-nums">{levels}</strong>
 				<button
 					type="button"
 					disabled={levels >= Math.max(1, orderedFields.filter((field) => field.enabled).length)}
@@ -323,12 +324,16 @@
 			</div>
 
 			<div
-				class="mt-auto grid grid-cols-2 gap-2 [&>button]:!min-h-[35px] [&>button]:!rounded-md [&>button]:!border [&>button]:!border-[var(--border-primary)] [&>button]:!bg-[var(--surface-primary)] [&>button]:!text-xs [&>button]:!font-semibold [&>button]:!shadow-none"
+				class="mt-auto grid grid-cols-2 gap-2 [&>button]:!min-h-[35px] [&>button]:!rounded-md [&>button]:!border [&>button]:!text-xs [&>button]:!font-semibold [&>button]:!shadow-none [&>button]:transition-colors [&>button]:duration-150 [&>button]:focus-visible:outline-2 [&>button]:focus-visible:outline-offset-2 [&>button]:focus-visible:outline-[var(--semantic-accent)]"
 			>
-				<button type="button" onclick={() => (builderOpen = false)}>Cancel</button>
 				<button
 					type="button"
-					class="!border-[var(--semantic-accent)] !bg-[var(--semantic-accent)] !text-[var(--on-accent)] disabled:!cursor-not-allowed disabled:!opacity-50"
+					class="!border-[var(--border-primary)] !bg-[var(--surface-primary)] !text-[var(--text-secondary)] hover:!bg-[var(--surface-secondary)]"
+					onclick={() => (builderOpen = false)}>Cancel</button
+				>
+				<button
+					type="button"
+					class="!border-[var(--semantic-accent)] !bg-[var(--semantic-accent)] !text-[var(--on-accent)] enabled:hover:!bg-[color-mix(in_srgb,var(--semantic-accent)_88%,black)] disabled:!cursor-not-allowed disabled:!opacity-50"
 					disabled={!orderedFields.some((field) => field.enabled)}
 					onclick={createSpace}>Create space</button
 				>

@@ -34,6 +34,7 @@ export interface FileViewerProps extends BaseViewerProps {
 	fileName?: string;
 	mimeType?: string;
 	showToolbar?: boolean;
+	showPowerPointOpenInNewWindow?: boolean;
 	powerPointEmbedUrl?: (source: string) => string;
 	excelEmbedUrl?: (source: string) => string;
 	onrequestopen?: (request: ViewerOpenRequest) => void;

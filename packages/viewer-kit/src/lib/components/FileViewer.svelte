@@ -14,6 +14,7 @@
 		fileName,
 		mimeType,
 		showToolbar = true,
+		showPowerPointOpenInNewWindow = true,
 		powerPointEmbedUrl,
 		excelEmbedUrl,
 		title,
@@ -86,6 +87,7 @@
 		embedUrl={powerPointEmbedUrl}
 		{title}
 		{heightClass}
+		showOpenInNewWindow={showPowerPointOpenInNewWindow}
 		class={className}
 		{onload}
 		{onerror}
