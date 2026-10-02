@@ -1,4 +1,4 @@
-<script lang="ts">
+﻿<script lang="ts">
 	import {
 		CARD_ICON_CLASS,
 		CARD_PADDING_CLASS,
@@ -28,6 +28,7 @@
 		chartValues = [],
 		ariaLabel = '',
 		class: klass = '',
+		classes = {},
 		style = '',
 		backgroundColor = '',
 		textColor = '',
@@ -46,6 +47,8 @@
 		...restProps
 	}: CardProps = $props();
 
+	const cx = (...parts: (string | undefined | false)[]) => parts.filter(Boolean).join(' ');
+
 	const rootClass = $derived(
 		[
 			CARD_VARIANT_CLASS[variant],
@@ -53,7 +56,8 @@
 			href ? 'block no-underline text-primary hover:text-primary hover:font-normal' : '',
 			interactive || href ? 'ui-card-interactive' : '',
 			selected ? 'ui-card-selected' : '',
-			klass
+			klass,
+			classes.root
 		]
 			.filter(Boolean)
 			.join(' ')
@@ -134,34 +138,44 @@
 		></div>
 	{/if}
 
-	<div class="relative">
+	<div class={cx('relative', classes.inner)}>
 		{#if media}
-			<div class="-mx-4 -mt-4 mb-4 overflow-hidden">
+			<div class={cx('-mx-4 -mt-4 mb-4 overflow-hidden', classes.media)}>
 				{@render media()}
 			</div>
 		{/if}
 
 		{#if hasHeader}
-			<div class="ui-card-header flex items-start gap-3">
-				<div class="min-w-0 flex-1">
+			<div class={cx('ui-card-header flex items-start gap-3', classes.header)}>
+				<div class={cx('min-w-0 flex-1', classes.headerContent)}>
 					{#if eyebrow}
-						<div class="text-[11px] font-semibold uppercase tracking-[0.07em] text-tertiary">
+						<div
+							class={cx(
+								'text-[11px] font-semibold uppercase tracking-[0.07em] text-tertiary',
+								classes.eyebrow
+							)}
+						>
 							{eyebrow}
 						</div>
 					{/if}
 
 					{#if title}
-						<h3 class="ui-card-title mt-1 truncate font-semibold text-primary">{title}</h3>
+						<h3 class={cx('ui-card-title mt-1 truncate font-semibold text-primary', classes.title)}>
+							{title}
+						</h3>
 					{/if}
 
 					{#if subtitle}
-						<p class="mt-1 text-xs leading-5 text-secondary">{subtitle}</p>
+						<p class={cx('mt-1 text-xs leading-5 text-secondary', classes.subtitle)}>{subtitle}</p>
 					{/if}
 				</div>
 
 				{#if badge}
 					<span
-						class="inline-flex shrink-0 items-center rounded-full border border-border-primary bg-surface-tertiary px-2 py-0.5 text-[10px] font-medium text-secondary"
+						class={cx(
+							'inline-flex shrink-0 items-center rounded-full border border-border-primary bg-surface-tertiary px-2 py-0.5 text-[10px] font-medium text-secondary',
+							classes.badge
+						)}
 					>
 						{badge}
 					</span>
@@ -169,13 +183,19 @@
 
 				{#if icon}
 					{@const Icon = icon}
-					<span class="grid size-9 shrink-0 place-items-center rounded-lg {CARD_ICON_CLASS[tone]}">
+					<span
+						class={cx(
+							'grid size-9 shrink-0 place-items-center rounded-lg',
+							CARD_ICON_CLASS[tone],
+							classes.icon
+						)}
+					>
 						<Icon width={16} height={16} />
 					</span>
 				{/if}
 
 				{#if actions}
-					<div class="shrink-0">
+					<div class={cx('shrink-0', classes.actions)}>
 						{@render actions()}
 					</div>
 				{/if}
@@ -183,11 +203,15 @@
 		{/if}
 
 		{#if value !== ''}
-			<div class="mt-2 text-2xl font-semibold tracking-tight text-primary">{value}</div>
+			<div class={cx('mt-2 text-2xl font-semibold tracking-tight text-primary', classes.value)}>
+				{value}
+			</div>
 		{/if}
 
 		{#if trendLabel}
-			<div class="mt-1 flex items-center gap-1 text-[11px] {CARD_TREND_CLASS[trend]}">
+			<div
+				class={cx('mt-1 flex items-center gap-1 text-[11px]', CARD_TREND_CLASS[trend], classes.trend)}
+			>
 				<!-- <span aria-hidden="true">{CARD_TREND_SYMBOL[trend]}</span> -->
 				<span>{trendLabel}</span>
 			</div>
@@ -196,7 +220,7 @@
 		{#if chart}
 			<svg
 				viewBox="0 0 100 32"
-				class="mt-3 h-8 w-full"
+				class={cx('mt-3 h-8 w-full', classes.chart)}
 				preserveAspectRatio="none"
 				aria-hidden="true"
 			>
@@ -217,13 +241,15 @@
 		{/if}
 
 		{#if children}
-			<div class={value !== '' || trendLabel || chart ? 'mt-4' : ''}>
+			<div class={cx(value !== '' || trendLabel || chart ? 'mt-4' : '', classes.body)}>
 				{@render children()}
 			</div>
 		{/if}
 
 		{#if footer}
-			<div class="ui-card-footer mt-4 border-t border-border-primary pt-3">
+			<div
+				class={cx('ui-card-footer mt-4 border-t border-border-primary pt-3', classes.footer)}
+			>
 				{@render footer()}
 			</div>
 		{/if}

@@ -18,6 +18,25 @@ export type CardTone = 'neutral' | 'accent' | 'success' | 'warning' | 'error' | 
 
 export type CardTrend = 'up' | 'down' | 'flat';
 
+export type CardClasses = {
+	root?: string;
+	inner?: string;
+	media?: string;
+	header?: string;
+	headerContent?: string;
+	eyebrow?: string;
+	title?: string;
+	subtitle?: string;
+	badge?: string;
+	icon?: string;
+	actions?: string;
+	value?: string;
+	trend?: string;
+	chart?: string;
+	body?: string;
+	footer?: string;
+};
+
 export type CardProps = Omit<
 	HTMLAttributes<HTMLElement>,
 	'children' | 'class' | 'style' | 'title'
@@ -40,6 +59,7 @@ export type CardProps = Omit<
 	chartValues?: number[];
 	ariaLabel?: string;
 	class?: string;
+	classes?: CardClasses;
 	style?: string;
 	backgroundColor?: string;
 	textColor?: string;
