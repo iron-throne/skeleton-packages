@@ -20,6 +20,7 @@
 		paginationKlass = '',
 		actionColKlass = '',
 		embedded = false,
+		classes = {},
 		rowClass,
 		onRowClick,
 		actions,
@@ -39,6 +40,25 @@
 		actionColKlass?: string;
 		hidePagination?: boolean;
 		embedded?: boolean;
+		classes?: {
+			root?: string;
+			toolbar?: string;
+			searchWrapper?: string;
+			searchIcon?: string;
+			searchInput?: string;
+			pagination?: string;
+			tableWrapper?: string;
+			table?: string;
+			thead?: string;
+			headRow?: string;
+			headContent?: string;
+			sortIcon?: string;
+			columnSearchInput?: string;
+			tbody?: string;
+			row?: string;
+			loadingCell?: string;
+			emptyCell?: string;
+		};
 		rowClass?: (row: any) => string;
 		onRowClick?: (row: any) => void;
 		actions?: Snippet<[any]>;
@@ -141,26 +161,34 @@
 	const visibleColumns = $derived(columns?.filter((c) => !c.hide));
 	const hasColumnSearch = $derived(visibleColumns.some((c) => c.searchable));
 
+	const cx = (...parts: (string | undefined | false | null)[]) => parts.filter(Boolean).join(' ');
+
 	function cellValue(col: TableColumn, row: any) {
 		return parseInputValue(row[col.key], col.type) ?? '';
 	}
 </script>
 
-<div class={embedded ? '' : 'flex flex-col gap-3 size-full overflow-auto'}>
-	<div class="flex justify-between gap-2 items-baseline flex-none">
+<div class={cx(embedded ? '' : 'flex flex-col gap-3 size-full overflow-auto', classes.root)}>
+	<div class={cx('flex justify-between gap-2 items-baseline flex-none', classes.toolbar)}>
 		<!-- Search bar -->
 		{#if searchable}
-			<div class="relative w-full max-w-xs h-fit">
-				<span class="text-tertiary pointer-events-none absolute top-1/2 left-3 -translate-y-1/2">
+			<div class={cx('relative w-full max-w-xs h-fit', classes.searchWrapper)}>
+				<span
+					class={cx(
+						'text-tertiary pointer-events-none absolute top-1/2 left-3 -translate-y-1/2',
+						classes.searchIcon
+					)}
+				>
 					<Search width={14} height={14} />
 				</span>
 				<input
 					type="search"
 					placeholder={searchPlaceholder}
 					bind:value={query}
-					class="bg-surface-secondary text-primary placeholder:text-tertiary focus:border-accent focus:ring-accent w-full rounded-lg
-                       border py-2 pr-4
-                       pl-9 text-sm transition focus:ring-1 focus:outline-none"
+					class={cx(
+						'bg-surface-secondary text-primary placeholder:text-tertiary focus:border-accent focus:ring-accent w-full rounded-lg border py-2 pr-4 pl-9 text-sm transition focus:ring-1 focus:outline-none',
+						classes.searchInput
+					)}
 				/>
 			</div>
 		{/if}
@@ -170,7 +198,7 @@
 		{/if}
 		<!-- Pagination -->
 		{#if !hidePagination}
-			<div class="px-2 {paginationKlass}">
+			<div class={cx('px-2', paginationKlass, classes.pagination)}>
 				<Pagination
 					bind:currentPage
 					bind:pageSize
@@ -183,20 +211,27 @@
 	</div>
 
 	<!-- Table -->
-	<div class="w-full overflow-auto {embedded ? '' : 'rounded-xl border flex-auto'}">
-		<table class="w-full text-sm">
-			<thead>
-				<tr class="bg-surface-secondary text-secondary sticky top-0 z-10">
+	<div
+		class={cx(
+			'w-full overflow-auto',
+			embedded ? '' : 'rounded-xl border flex-auto',
+			classes.tableWrapper
+		)}
+	>
+		<table class={cx('w-full text-sm', classes.table)}>
+			<thead class={classes.thead || undefined}>
+				<tr class={cx('bg-surface-secondary text-secondary sticky top-0 z-10', classes.headRow)}>
 					{#each visibleColumns as col, ind (ind)}
 						<th
 							scope="col"
-							class="px-4 py-3 text-left text-xs font-semibold whitespace-nowrap uppercase {col.class}
-                                   {col.sortable
-								? 'hover:text-primary cursor-pointer transition-colors select-none'
-								: ''}"
+							class={cx(
+								'px-4 py-3 text-left text-xs font-semibold whitespace-nowrap uppercase',
+								col.class,
+								col.sortable && 'hover:text-primary cursor-pointer transition-colors select-none'
+							)}
 							onclick={() => col.sortable && toggleSort(col)}
 						>
-							<div class="flex flex-col gap-1">
+							<div class={cx('flex flex-col gap-1', classes.headContent)}>
 								<span class="inline-flex items-center gap-1.5">
 									{#if CustomHeader}
 										{@render CustomHeader(col, ind)}
@@ -205,12 +240,12 @@
 										{#if col.sortable}
 											{#if sortColKey === col.key}
 												{#if sortDir === 'asc'}
-													<SortAlphaDown width={13} height={13} class="text-accent" />
+													<SortAlphaDown width={13} height={13} class={cx('text-accent', classes.sortIcon)} />
 												{:else}
-													<SortAlphaUp width={13} height={13} class="text-accent" />
+													<SortAlphaUp width={13} height={13} class={cx('text-accent', classes.sortIcon)} />
 												{/if}
 											{:else}
-												<ArrowDownUp width={11} height={11} class="opacity-30" />
+												<ArrowDownUp width={11} height={11} class={cx('opacity-30', classes.sortIcon)} />
 											{/if}
 										{/if}
 									{/if}
@@ -223,8 +258,10 @@
 										oninput={(e) =>
 											setColumnQuery(col.key, (e.currentTarget as HTMLInputElement).value)}
 										onclick={(e) => e.stopPropagation()}
-										class="bg-surface-primary text-primary placeholder:text-tertiary focus:border-accent focus:ring-accent w-full rounded-md
-										   border px-2 py-1 text-xs font-normal normal-case transition focus:ring-1 focus:outline-none"
+										class={cx(
+											'bg-surface-primary text-primary placeholder:text-tertiary focus:border-accent focus:ring-accent w-full rounded-md border px-2 py-1 text-xs font-normal normal-case transition focus:ring-1 focus:outline-none',
+											classes.columnSearchInput
+										)}
 									/>
 								{:else if hasColumnSearch}
 									<div class="invisible border px-2 py-1 text-xs" aria-hidden="true">&nbsp;</div>
@@ -235,7 +272,10 @@
 					{#if actions}
 						<th
 							scope="col"
-							class="px-4 py-3 text-right text-xs font-semibold tracking-wide uppercase {actionColKlass}"
+							class={cx(
+								'px-4 py-3 text-right text-xs font-semibold tracking-wide uppercase',
+								actionColKlass
+							)}
 						>
 							<div class="flex flex-col gap-1">
 								<span>Actions</span>
@@ -248,14 +288,14 @@
 				</tr>
 			</thead>
 
-			<tbody class="divide-border-primary/50 divide-y">
+			<tbody class={cx('divide-border-primary/50 divide-y', classes.tbody)}>
 				{#if loading}
 					<!-- eslint-disable-next-line @typescript-eslint/no-unused-vars -->
 					{#each Array(pageSize) as _, i (i)}
 						<tr>
 							<!-- eslint-disable-next-line @typescript-eslint/no-unused-vars -->
 							{#each visibleColumns as _c, cInd (cInd)}
-								<td class="px-4 py-3">
+								<td class={cx('px-4 py-3', classes.loadingCell)}>
 									<SkeletonLoader lines={1} height="0.85rem" />
 								</td>
 							{/each}
@@ -264,23 +304,28 @@
 					{/each}
 				{:else if paginated.length === 0}
 					<tr>
-						<td colspan={visibleColumns.length + (actions ? 1 : 0)} class="px-4 py-10">
+						<td colspan={visibleColumns.length + (actions ? 1 : 0)} class={cx('px-4 py-10', classes.emptyCell)}>
 							<NoData text={emptyText} />
 						</td>
 					</tr>
 				{:else}
 					{#each paginated as row, rowInd (rowInd)}
 						<tr
-							class="hover:bg-surface-secondary/50 transition-colors {onRowClick
-								? 'cursor-pointer'
-								: ''} {rowClass?.(row) ?? ''}"
+							class={cx(
+								'hover:bg-surface-secondary/50 transition-colors',
+								onRowClick && 'cursor-pointer',
+								rowClass?.(row),
+								classes.row
+							)}
 							onclick={(e) => {
 								e?.stopPropagation();
 								onRowClick?.(row);
 							}}
 						>
 							{#each visibleColumns as col, colInd (colInd)}
-								<td class="text-primary/80 text-sm px-4 py-3 whitespace-nowrap {col.class}">
+								<td
+									class={cx('text-primary/80 text-sm px-4 py-3 whitespace-nowrap', col.class)}
+								>
 									{#if CustomCell}
 										{@render CustomCell(row, col)}
 									{:else}
@@ -289,7 +334,7 @@
 								</td>
 							{/each}
 							{#if actions}
-								<td class="px-4 py-3 text-right {actionColKlass}">
+								<td class={cx('px-4 py-3 text-right', actionColKlass)}>
 									{@render actions(row)}
 								</td>
 							{/if}
