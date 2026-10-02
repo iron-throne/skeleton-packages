@@ -1,6 +1,6 @@
 {
   "name": "@aryagg/remote-plugins",
-  "private": true,
+  "private": false,
   "version": "0.0.1",
   "type": "module",
   "types": "./src/lib/index.ts",
