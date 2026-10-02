@@ -9,14 +9,27 @@
 		pathname,
 		labels = {},
 		homeLabel = 'Home',
-		homeHref = '/'
+		homeHref = '/',
+		classes = {}
 	}: {
 		/** Current route path, e.g. `page.url.pathname` from `$app/state` in the host app. */
 		pathname: string;
 		labels?: Record<string, string>;
 		homeLabel?: string;
 		homeHref?: string;
+		classes?: {
+			nav?: string;
+			list?: string;
+			item?: string;
+			homeLink?: string;
+			homeIcon?: string;
+			separator?: string;
+			link?: string;
+			current?: string;
+		};
 	} = $props();
+
+	const cx = (...parts: (string | undefined | false | null)[]) => parts.filter(Boolean).join(' ');
 
 	interface Crumb {
 		label: string;
@@ -40,31 +53,43 @@
 </script>
 
 {#if crumbs.length > 0}
-	<nav aria-label="Breadcrumb">
-		<ol class="flex flex-wrap items-center gap-1 text-sm">
+	<nav aria-label="Breadcrumb" class={classes.nav || undefined}>
+		<ol class={cx('flex flex-wrap items-center gap-1 text-sm', classes.list)}>
 			<!-- Home -->
-			<li>
+			<li class={classes.item || undefined}>
 				<a
 					href={homeHref}
-					class="flex items-center gap-1 text-content-tertiary hover:text-content-primary transition-colors"
+					class={cx(
+						'flex items-center gap-1 text-content-tertiary hover:text-content-primary transition-colors',
+						classes.homeLink
+					)}
 					aria-label={homeLabel}
 				>
-					<HouseFill width={13} height={13} />
+					<HouseFill width={13} height={13} class={classes.homeIcon} />
 				</a>
 			</li>
 
 			{#each crumbs as crumb, cInd (cInd)}
-				<li class="flex items-center gap-1">
-					<ChevronRight width={10} height={10} class="text-content-tertiary shrink-0" />
+				<li class={cx('flex items-center gap-1', classes.item)}>
+					<ChevronRight
+						width={10}
+						height={10}
+						class={cx('text-content-tertiary shrink-0', classes.separator)}
+					/>
 					{#if crumb.current}
-						<span aria-current="page" class="font-medium text-content-primary truncate max-w-40">
+						<span
+							aria-current="page"
+							class={cx('font-medium text-content-primary truncate max-w-40', classes.current)}
+						>
 							{crumb.label}
 						</span>
-						
 					{:else}
 						<a
 							href={crumb.href}
-							class="text-content-tertiary hover:text-content-primary transition-colors truncate max-w-40"
+							class={cx(
+								'text-content-tertiary hover:text-content-primary transition-colors truncate max-w-40',
+								classes.link
+							)}
 						>
 							{crumb.label}
 						</a>
