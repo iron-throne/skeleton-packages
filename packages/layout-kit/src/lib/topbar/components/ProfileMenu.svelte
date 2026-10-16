@@ -31,10 +31,10 @@
 </script>
 
 {#snippet avatarContent()}
-	<div class="flex {isStacked ? 'flex-col' : ''}">
+	<div class="flex {isStacked ? 'flex-col' : 'items-center'}">
 		<Avatar {src} {name} size={ESize.XS} {avatarKlass} />
 		{#if label}
-			<span class="hidden sm:inline {isStacked ? 'pt-1' : ''}">{label}</span>
+			<span class="hidden sm:inline {isStacked ? 'pt-1' : 'pl-1'}">{label}</span>
 		{/if}
 	</div>
 {/snippet}
